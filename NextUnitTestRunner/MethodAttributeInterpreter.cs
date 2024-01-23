@@ -1,4 +1,4 @@
-﻿using NextUnitTestRunner.TestAttributes;
+﻿using NextUnit.Core.TestAttributes;
 using NextUnitTestRunner.Extensions;
 using System.Reflection;
 

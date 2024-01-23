@@ -7,10 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="4.18.1" />
+    <PackageReference Include="AutoFixture.AutoMoq" Version="4.18.1" />
+    <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AutoFixture.NextUnit\AutoFixture.NextUnit.csproj" />
     <ProjectReference Include="..\NextUnitTestRunner\NextUnitTestRunner.csproj" />
     <ProjectReference Include="..\NextUnitTestAdapter\NextUnitTestAdapter.csproj" />
   </ItemGroup>

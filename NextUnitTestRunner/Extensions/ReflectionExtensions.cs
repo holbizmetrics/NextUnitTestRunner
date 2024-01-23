@@ -21,6 +21,7 @@ namespace NextUnitTestRunner.Extensions
             if (methodInfo != null)
             {
                 returnValue = methodInfo.Invoke(instance, null);
+                return (T)returnValue;
             }
 
             PropertyInfo propertyInfo = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -28,15 +29,17 @@ namespace NextUnitTestRunner.Extensions
             if (propertyInfo != null)
             {
                 returnValue = propertyInfo.GetValue(instance, null);
+                return (T)returnValue;
             }
 
             FieldInfo field = type.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (field!=null)
             {
                 returnValue = field.GetValue(instance);
+                return (T)returnValue;
             }
 
-            return (T)returnValue;
+            return default(T);
         }
     }
 }

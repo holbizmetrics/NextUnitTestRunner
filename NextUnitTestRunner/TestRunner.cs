@@ -1,23 +1,40 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using NextUnit.Core.TestAttributes;
 using NextUnitTestRunner.Assertions;
 using NextUnitTestRunner.Extensions;
-using NextUnitTestRunner.TestAttributes;
 
 namespace NextUnitTestRunner
 {
-    public class TestRunner
+    public interface ITestRunner
     {
-        Dictionary<int, MethodInfo> classTypeMethodInfosAssociation = new Dictionary<int, MethodInfo>();
-        public void Run(Type type = null)
+        void Run(Type type);
+    }
+
+    /// <summary>
+    /// This is just a first TestRunner as a proof of concept.
+    /// </summary>
+    public class TestRunner : ITestRunner
+    {
+        protected Dictionary<int, MethodInfo> classTypeMethodInfosAssociation = new Dictionary<int, MethodInfo>();
+        protected TestDiscoverer discoverer = new TestDiscoverer();
+
+        public virtual void Run(Type type = null)
         {
             Type[] types = type == null ? Assembly.GetExecutingAssembly().GetTypes() : type.Assembly.GetTypes();
             Type[] classes = types.Where(t => t.IsClass).ToArray();
 
+            string machineName = Environment.MachineName;
+
+            // Show Hardware Snapshots
+            Trace.WriteLine("Hardware snapshot:");
+            Trace.WriteLine(NextUnitTestEnvironmentContext.ToString());
+            Trace.WriteLine("");
+
             foreach (Type testClass in classes)
             {
                 //Since we've already went through for a type we only have to create an object once.
-                List<MethodInfo> methodInfos = TestDiscoverer.Discover(testClass);
+                List<MethodInfo> methodInfos = discoverer.Discover(testClass);
                 if (methodInfos.Count == 0) continue;
                 object classObject = Activator.CreateInstance(testClass);
                 foreach (MethodInfo method in methodInfos)
@@ -35,26 +52,43 @@ namespace NextUnitTestRunner
                                 executionCount = attribute.GetType().GetValue<int>("ExecutionCount", attribute);
                             }
 
+                            Exception lastException = null;
+                            TestResult testResult = null;
                             try
                             {
                                 for (int i = 0; i < executionCount; i++)
                                 {
-                                    Trace.WriteLine($"Running: {method.ReflectedType} -> {method}");
                                     //classTypeMethodInfosAssociation.Add(method.GetHashCode(), method);
+
+                                    testResult = new TestResult();
+                                    testResult.Namespace = method.DeclaringType.ToString();
+                                    testResult.Workstation = machineName;
+                                    testResult.DisplayName = method.Name;
+
                                     Stopwatch stopwatch = Stopwatch.StartNew();
+                                    testResult.Start = DateTime.Now;
                                     method.Invoke(classObject, parameters);
-                                    Trace.WriteLine($"Time to execute: {stopwatch.ElapsedMilliseconds}");
                                     stopwatch.Stop();
-                                    Trace.WriteLine("");
+
+                                    testResult.State = ExecutedState.Passed;
+                                    testResult.ExecutionTime = stopwatch.Elapsed;
+                                    testResult.End = DateTime.Now;
+                                    Trace.WriteLine(testResult.ToString());
+                                    Trace.WriteLine("");                                    
                                 }
                             }
                             catch (AssertException ex)
                             {
-                                Console.WriteLine(ex.Message);
+                                lastException = ex;
+                                Trace.WriteLine(ex.Message);
                             }
                             catch (TargetInvocationException ex)
                             {
-                                if (ex.InnerException != null) Console.WriteLine(ex.InnerException);
+                                lastException = ex;
+                                if (ex.InnerException != null)
+                                {
+                                    Trace.WriteLine(ex.InnerException);
+                                }
                                 else
                                 {
                                     Trace.WriteLine(ex);
@@ -62,16 +96,31 @@ namespace NextUnitTestRunner
                             }
                             catch (TargetParameterCountException ex)
                             {
+                                lastException = ex;
                                 Trace.WriteLine(ex);
                             }
                             catch (Exception ex)
                             {
+                                lastException = ex;
                                 Trace.WriteLine(ex);
+                            }
+                            finally
+                            {
+                                if (testResult == null)
+                                {
+                                    testResult =  new TestResult();
+                                }
+                                testResult.End = DateTime.Now;
+                                testResult.StackTrace = lastException?.StackTrace;
                             }
                         }
                     }
                 }
 
+                //Show hardware snapshot.
+                Trace.WriteLine("Hardware snapshot:");
+                Trace.WriteLine(NextUnitTestEnvironmentContext.ToString());
+                Trace.WriteLine("");
             }
         }
 

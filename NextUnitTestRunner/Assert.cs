@@ -4,32 +4,40 @@ namespace NextUnitTestRunner
 {
     public static class Assert
     {
-        public static void IsTrue(bool condition)
+        public static void IsTrue(bool condition, string message = null)
         {
             if (!condition)
             {
-                throw new AssertException($"Should be true but was {condition}.");
+                throw new AssertException($"{message} Should be true but was {condition}.");
             }
         }
 
-        public static void IsFalse(bool condition)
+        public static void IsFalse(bool condition, string message = null)
         {
             if (!condition)
             {
-                throw new AssertException($"Should be false but was {condition}.");
+                throw new AssertException($"{message} Should be false but was {condition}.");
             }
         }
 
-        public static void AreEqual<T>(T expected, T actual)
+        public static void AreEqual<T>(T expected, T actual, string message = null)
+        {
+            if (!expected.Equals(actual))
+            {
+                throw new AssertException($"{message}");
+            }
+        }
+        public static void AreEqual(object expected, object actual, string message = null)
         {
             if (!expected.Equals(actual))
             {
                 throw new AssertException("");
             }
         }
-        public static void AreEqual(object expected, object actual)
-        {
-            if (!expected.Equals(actual))
+
+        public static void NotNull(object objectToCheck)
+        { 
+            if (objectToCheck == null)
             {
                 throw new AssertException("");
             }

@@ -1,14 +1,19 @@
-﻿using NextUnitTestRunner.TestAttributes;
+﻿using NextUnit.Core.TestAttributes;
 using System.Reflection;
 
 namespace NextUnitTestRunner
 {
+    public interface ITestDiscoverer
+    {
+        List<MethodInfo> Discover(Type testClass);
+    }
+
     /// <summary>
     /// Discoveres all the tests for a specific type.
     /// </summary>
-    public class TestDiscoverer
+    public class TestDiscoverer : ITestDiscoverer
     {
-        public static List<MethodInfo> Discover(Type testClass)
+        public List<MethodInfo> Discover(Type testClass)
         {
             List<MethodInfo> discoveredValidTestMethods = new List<MethodInfo>();
             MethodInfo[] methodInfos = testClass.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
