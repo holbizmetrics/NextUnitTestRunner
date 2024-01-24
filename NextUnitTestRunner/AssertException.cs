@@ -1,9 +1,10 @@
-﻿namespace NextUnitTestRunner.Assertions;
-
-public class AssertException : Exception
+﻿namespace NextUnit.TestRunner.Assertions
 {
-	public AssertException(string message)
-		: base(message)
+	public class AssertException : Exception
 	{
+		public AssertException(string message)
+			: base(message)
+		{
+		}
 	}
 }

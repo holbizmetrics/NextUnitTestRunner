@@ -2,7 +2,7 @@
 using NextUnit.Core.TestAttributes;
 using System.Diagnostics;
 
-namespace NextUnitTestRunner.TestClasses
+namespace NextUnit.TestRunner.TestClasses
 {
     /// <summary>
     /// The goal is to make all those tests in here working properly.
@@ -62,7 +62,7 @@ namespace NextUnitTestRunner.TestClasses
         {
         }
 
-        [Test, RunInThread]
+        [Test, RunInThreadAttribute]
         public void ThreadingTest()
         {
 

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NextUnitTestRunner.TestClasses
+namespace NextUnit.TestRunner.TestClasses
 {
     public class AnotherTestClass
     {

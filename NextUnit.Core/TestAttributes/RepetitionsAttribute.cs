@@ -14,15 +14,15 @@
     /// will execute the TestTheTest test 2 times.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class Repetitions : CommonTestAttribute
+    public class RepetitionsAttribute : CommonTestAttribute
     {
         public int Count { get; set; } = 1;
-        public Repetitions()
+        public RepetitionsAttribute()
         {
 
         }
 
-        public Repetitions(int count)
+        public RepetitionsAttribute(int count)
         {
             Count = count;
         }

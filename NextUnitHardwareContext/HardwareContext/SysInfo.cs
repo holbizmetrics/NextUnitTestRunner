@@ -14,13 +14,13 @@ using NextUnitHardwareContext;
 using NextUnitHardwareContext.SystemInformation;
 */
 using System.Reflection;
-using NextUnitHardwareContext.SystemInformation.SystemInformation.SystemInformation;
+using NextUnit.HardwareContext.SystemInformation.SystemInformation.SystemInformation;
 using System.Management;
 using Microsoft.Management.Infrastructure;
-using static NextUnitHardwareContext.Microsoft.Win32.Win32;
-using NextUnitHardwareContext.Extensions;
+using static NextUnit.HardwareContext.Microsoft.Win32.Win32;
+using NextUnit.HardwareContext.Extensions;
 
-namespace NextUnitHardwareContext.SystemInformation
+namespace NextUnit.HardwareContext.SystemInformation
 {
     public static class SysInfo
     {

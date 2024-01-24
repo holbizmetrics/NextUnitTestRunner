@@ -7,18 +7,27 @@ using NextUnit.TestRunner.AttributeLogic;
 
 namespace NextUnit.TestRunner
 {
- 
     /// <summary>
     /// A little bit further progressed TestRunner.
-    /// For sure nowhere near where it should be, but already way better like this than the first one.
     /// 
-    /// This TestRunner will support events (before, after, executing).
-    /// And an own TestDiscoverer can be injected.
+    /// Additionally added compared to TestRunner2:
     /// 
-    /// As well as this one supports execution in threads rudimentarily.
+    /// The TestResults might have been added twice for one test method run, when certain conditions applied.
+    /// 
+    /// The attributes logic was only implemented in the test runner for the execution count using reflection.
+    /// This has now been "outsorced" into an attribute handling mechanisms by the AttributeLogicHandler.
+    /// So far this is provided by a dictionary. The handler will be taken out of the dictionary if available for the current attribute.
+    /// Then the logic in the handler will be applied.
+    /// 
+    /// The user can be leveraging the eventhandler to implement own logic for documentation purposes, etc.
+    /// 
+    /// Before Test Suite Running the user may choose if all methods will be executed in different threads.
+    /// If not, this will happen sequentially.
+    /// 
     /// </summary>
-    public class TestRunner2 : TestRunner, ITestRunner
+    public class TestRunner3 : TestRunner, ITestRunner
     {
+        public ITestDiscoverer TestDiscoverer { get; set; } = new TestDiscoverer();
         public event ExecutionEventHandler BeforeTestRun;
         public event ExecutionEventHandler AfterTestRun;
         public event ExecutionEventHandler TestExecuting;
@@ -28,7 +37,6 @@ namespace NextUnit.TestRunner
         public event ExecutionEventHandler ErrorEventHandler;
 
         protected Dictionary<int, MethodInfo> classTypeMethodInfosAssociation { get; } = new Dictionary<int, MethodInfo>();
-        public ITestDiscoverer TestDiscoverer { get; set; } = new TestDiscoverer();
         public bool UseThreading { get; set; } = true;
         /// <summary>
         /// 
@@ -71,6 +79,11 @@ namespace NextUnit.TestRunner
             ErrorEventHandler?.Invoke(this, e);
         }
 
+        public void Run(object objectToGetTypeFrom)
+        {
+            Run(objectToGetTypeFrom.GetType());
+        }
+
         /// <summary>
         /// Runs the test.
         /// If there is an error occurring an error event will be triggered.
@@ -87,11 +100,22 @@ namespace NextUnit.TestRunner
             Run(types);
         }
 
+        /// <summary>
+        /// Handle resolving of unmanaged DLLs here.
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="arg2"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         private nint Default_ResolvingUnmanagedDll(Assembly arg1, string arg2)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Use this when default unloading of an AssemblyLoadContext occurs.
+        /// </summary>
+        /// <param name="obj"></param>
         private void Default_Unloading(AssemblyLoadContext obj)
         {
             Trace.WriteLine($"Default unloading: {obj.ToString()}");
@@ -138,7 +162,7 @@ namespace NextUnit.TestRunner
                     ExecuteTests(classTestMethodsAssociation);
                 });
                 thread.Start();
-                thread.Join();
+                //thread.Join();
             }
             else
             {
@@ -173,66 +197,49 @@ namespace NextUnit.TestRunner
                                 continue;
                             }
 
-                            //Since we exclude the test marker attribute, a test logic handler should be found for each of the implemented framework attribute.
-                            var handler = attributeLogicMapper.GetHandlerFor(attribute);
-                            handler?.ProcessAttribute(attribute, method, this);
-
-                            //This has now to be accomplished with the help of the handler?.ProcessAttribute
-                            //parameters = MethodAttributeInterpreter.Interpret(attribute as CommonTestAttribute);
-                            //if (parameters != null)
-                            //{
-                            //    executionCount = attribute.GetType().GetValue<int>("ExecutionCount", attribute);
-                            //}
-
                             Exception lastException = null;
                             TestResult testResult = null;
                             try
                             {
-                                for (int i = 0; i < executionCount; i++)
+                                OnBeforeTestRun(new ExecutionEventArgs(method));
+                                testResult = new TestResult();
+                                testResult.Namespace = method.DeclaringType.ToString();
+                                testResult.Class = method.DeclaringType.Name;
+                                testResult.Workstation = machineName;
+                                testResult.DisplayName = method.Name;
+
+                                Stopwatch stopwatch = Stopwatch.StartNew();
+                                OnTestExecuting(new ExecutionEventArgs(method));
+                                //Since we exclude the test marker attribute, a test logic handler should be found for each of the implemented framework attribute.
+                                var handler = attributeLogicMapper.GetHandlerFor(attribute);
+                                handler?.ProcessAttribute(attribute, method, classObject);
+
+                                testResult.Start = DateTime.Now;
+
+                                ParameterInfo[] parameterInfos = method.GetParameters();
+                                if (parameters == null && parameterInfos.Length > 0 || (parameters != null && parameters.Length != method.GetParameters().Length && method.GetParameters().Length > 0))
                                 {
-                                    OnBeforeTestRun(new ExecutionEventArgs(method));
-                                    testResult = new TestResult();
-                                    testResult.Namespace = method.DeclaringType.ToString();
-                                    testResult.Class = method.DeclaringType.Name;
-
-                                    //theoretically AND practically for sure as well tests could be executed on
-                                    //different machines in one test run.
-                                    //But for now, for simplicity and the early version we'll leave it at only one time getting the name.
-                                    testResult.Workstation = machineName;
-                                    testResult.DisplayName = method.Name;
-
-                                    Stopwatch stopwatch = Stopwatch.StartNew();
-                                    OnTestExecuting(new ExecutionEventArgs(method));
-                                    testResult.Start = DateTime.Now;
-
-                                    ParameterInfo[] parameterInfos = method.GetParameters();
-                                    if (parameters == null && parameterInfos.Length > 0 || (parameters != null && parameters.Length != method.GetParameters().Length && method.GetParameters().Length > 0))
-                                    {
 #if DEBUG
-                                        Debug.WriteLine($"Parameter mismatch for method {method}. No parameters specified or the value is null.");
-                                        if (parameters != null)
-                                        {
-                                            Debug.WriteLine($"Given: {parameters}, Expected: {parameterInfos}");
-                                        }
+                                    Debug.WriteLine($"Parameter mismatch for method {method}. No parameters specified or the value is null.");
+                                    if (parameters != null)
+                                    {
+                                        Debug.WriteLine($"Given: {parameters}, Expected: {parameterInfos}");
+                                    }
 #endif
-                                        testResult.State = ExecutedState.Skipped;
-                                        OnError(new ExecutionEventArgs(method, testResult));
-                                    }
-                                    else
-                                    {
-                                        method.Invoke(classObject, parameters);
-                                        testResult.State = ExecutedState.Passed;
-                                    }
-                                    stopwatch.Stop();
+                                    testResult.State = ExecutedState.Skipped;
+                                    OnError(new ExecutionEventArgs(method, testResult));
+                                }
+                                else
+                                {
+                                    method.Invoke(classObject, parameters);
+                                    testResult.State = ExecutedState.Passed;
+                                }
+                                stopwatch.Stop();
 
-                                    if (testResult.State != ExecutedState.Skipped)
-                                    {
-                                        testResult.ExecutionTime = stopwatch.Elapsed;
-                                        testResult.End = DateTime.Now;
-                                    }
-
-                                    NextUnitTestExecutionContext.TestResults.Add(testResult);
-                                    OnAfterTestRun(new ExecutionEventArgs(method, testResult));
+                                if (testResult.State != ExecutedState.Skipped)
+                                {
+                                    testResult.ExecutionTime = stopwatch.Elapsed;
+                                    testResult.End = DateTime.Now;
                                 }
                             }
                             catch (AssertException ex)
@@ -253,7 +260,7 @@ namespace NextUnit.TestRunner
                                 }
                             }
                             catch (TargetParameterCountException ex)
-                            {
+                            {                                
                                 lastException = ex;
                                 Trace.WriteLine(ex);
                             }
@@ -271,7 +278,6 @@ namespace NextUnit.TestRunner
                                 testResult.End = DateTime.Now;
                                 testResult.StackTrace = lastException?.StackTrace;
                                 NextUnitTestExecutionContext.TestResults.Add(testResult);
-
                                 OnAfterTestRun(new ExecutionEventArgs(method, testResult));
                                 if (lastException != null)
                                 {

@@ -2,12 +2,12 @@
 
 namespace NextUnit.Core.TestAttributes
 {
-    public class RunInThread : CommonTestAttribute
+    public class RunInThreadAttribute : CommonTestAttribute
     {
         protected Thread Thread { get; } = null;
         protected ApartmentState ApartmentState = ApartmentState.STA;
 
-        public RunInThread(ApartmentState apartmentState = ApartmentState.STA)
+        public RunInThreadAttribute(ApartmentState apartmentState = ApartmentState.STA)
         {
             ApartmentState = apartmentState;
             var thread = new Thread(() =>

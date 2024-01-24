@@ -1,6 +1,6 @@
-﻿using NextUnitTestRunner.Assertions;
+﻿using NextUnit.TestRunner.Assertions;
 
-namespace NextUnitTestRunner
+namespace NextUnit.TestRunner
 {
     public static class Assert
     {

@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
+using System.Reflection.Metadata;
 
-namespace NextUnitTestRunner.Extensions
+namespace NextUnit.Core.Extensions
 {
     public static class ReflectionExtensions
     {
@@ -40,6 +41,36 @@ namespace NextUnitTestRunner.Extensions
             }
 
             return default(T);
+        }
+
+        public static List<object> GetValues(Type t, object instance)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Entity here is either a public field, a property, or a method that returns a value.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="instance"></param>
+        /// <param name="entityNames"></param>
+        /// <returns></returns>
+        public static List<object> GetValues(Type t, object instance, string entityNames)
+        {
+            return null;
+        }
+
+        public static bool IsComparable(this Type type)
+        {
+            return typeof(IComparable).IsAssignableFrom(type);
+        }
+
+        public static bool IsEquatable(this Type type)
+        {
+            // Construct the specific type of IEquatable<T> where T is the parameter type
+            Type equatableType = typeof(IEquatable<>).MakeGenericType(type);
+            bool isEquatable = equatableType.IsAssignableFrom(type);
+            return isEquatable;
         }
     }
 }

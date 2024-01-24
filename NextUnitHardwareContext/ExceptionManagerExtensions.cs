@@ -1,11 +1,7 @@
-﻿using NextUnitHardwareContext.ExceptionHelpers;
-using System;
-using System.Collections.Generic;
-//using System.Data.Entity.Validation;
-using System.Linq;
+﻿//using System.Data.Entity.Validation;
 using System.Text;
 
-namespace NextUnitHardwareContext.Extensions
+namespace NextUnit.HardwareContext.Extensions
 {
     /// <summary>
     /// Example of usage:

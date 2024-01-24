@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using NextUnit.HardwareContext.SystemInformation;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using NextUnitHardwareContext.SystemInformation;
-
-namespace NextUnitTestRunner
+namespace NextUnit.TestRunner
 {
     /// <summary>
     /// Same as TestContext in other frameworks.

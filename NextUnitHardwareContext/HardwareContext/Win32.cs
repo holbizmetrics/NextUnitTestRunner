@@ -4,7 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Drawing;
 
-namespace NextUnitHardwareContext.Microsoft.Win32
+namespace NextUnit.HardwareContext.Microsoft.Win32
 {
     public enum WindowsMessages
     {

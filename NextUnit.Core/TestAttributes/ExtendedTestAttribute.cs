@@ -9,6 +9,7 @@ namespace NextUnit.Core.TestAttributes
     /// I don't really know how to do this, yet.
     /// But I want that. :-)
     /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
     public class ExtendedTest : TestAttribute
     {
         public object[] Values { get; set; } = null;

@@ -1,34 +1,75 @@
 ﻿using NextUnit.Core.TestAttributes;
-using NextUnitTestRunner;
+using NextUnit.TestRunner;
 using System.Diagnostics;
 
-namespace NextUnitTestRunnerTests
+namespace NextUnit.TestRunnerTests
 {
     public class TestRunnerTestsContainer
     {
         public TestRunnerTestsContainer()
         {
-            Debugger.Launch();
         }
 
+        #region Asserts Tests
         [Test]
         public void SeveralAssertsTest()
         {
             //Assert.IsTrue();
         }
+        #endregion Asserts Tests
 
+        #region ConditionalRetryAttribute Tests
+        [Test]
+        [ConditionalRetry("")]
+        public void Test()
+        {
+
+        }
+
+        [Test]
+        [ConditionalRetry("IsServiceInDesiredState", 10)]
+        public void TestExternalServiceInteraction()
+        {
+            // Test logic
+        }
+        public bool Condition { get; set; } = false;
+
+        #endregion ConditionalRetryAttribute Tests
+
+        #region ConditionAttribute Tests
+        [Test]
+        [Condition(true,nameof(Blub))]
+        public void Blubbl()
+        {
+        }
+        #endregion ConditionAttribute Tests
+
+        [Test]
+        public void Blub()
+        {
+
+        }
+
+        #region ConditionalRetryAttribute Tests
+        #endregion ConditionalRetryAttribute Tests
+
+        #region Group Attribute Tests
+        [Test]
         [Group("AttributeTest")]
         public void TestGroupAttribute()
         {
 
         }
+        #endregion Group Attribute Tests
 
+        #region InjectDataAttribute Tests
         public const bool TestInjectDataAttribute_isEnabled = true;
         public const int TestInjectDataAttribute_count = 5;
         public const string TestInjectDataAttribute_message = "Hallo";
         /// <summary>
         /// This will test that data can be injected and is correctly contained.
         /// </summary>
+        [Test]
         [InjectData(TestInjectDataAttribute_message, TestInjectDataAttribute_count, TestInjectDataAttribute_isEnabled)]
         public void TestInjectDataAttribute(string message, int count, bool isEnabled)
         {
@@ -36,11 +77,53 @@ namespace NextUnitTestRunnerTests
             Assert.IsTrue(count == TestInjectDataAttribute_count);
             Assert.IsTrue(isEnabled == TestInjectDataAttribute_isEnabled);
         }
+        #endregion InjectDataAttribute Tests
+
+        #region Random Attribute Tests
 
         /// <summary>
         /// 
         /// </summary>
+        [Test]
+        [Random(1, 2)]
         public void TestRandomAttributeOnce()
+        {
+
+        }
+
+        [Test]
+        [Random(1,2)]
+        [Random(5, 2, 1)]
+        [Random(1,1, 1)]
+        public void TestSeveralRandomAttributesEachOnlyExecutedOnce()
+        {
+
+        }
+
+        [Test]
+        public void TestSeveralRandomAttributesEachSeveralTimes()
+        {
+
+        }
+
+        /// <summary>
+        /// Mixed Random attributes, but all are specified correctly.
+        /// </summary>
+        [Test]
+        [Random(1,3,2)]
+        public void TestSeveralRandomLegalAttributesMixed()
+        {
+
+        }
+
+        /// <summary>
+        /// Testing with specifications that either shouldn't be allowed or make no sense.
+        /// </summary>
+        [Test]
+        [Random(0, 0, 0)]   //it wouldn't make sense to execute 0 times. As well as max = min.
+        [Random(0, 0, -1)]  //it wouldn't make sense to execute -1 times. As well as max = min.
+        [Random(1,5, -1)]   //it wouldn't make sense to execute -1 times. Though the intervals are ok.
+        public void TestSeveralRandomAttributesMixedInvalid()
         {
 
         }
@@ -49,11 +132,53 @@ namespace NextUnitTestRunnerTests
         /// This test will be executed multiple times.
         /// It's not allowed that ALL random values are the same. They have to be different.
         /// </summary>
-        public void TestRandomAttributeMultiple()
+        [Test]
+        [Random(-200, 200, 5)]
+        public void TestRandomAttributeMultiple(int min, int max)
         {
 
         }
+        #endregion random attributes tests
 
+        #region RunAfterAttribute Tests
+        [Test]
+        [RunAfter("")]
+        public void RunAfterAttributeTest()
+        {
+
+        }
+        #endregion RunAfterAttribute Tests
+
+        #region RunBeforeAttribute Tests
+        [Test]
+        [RunBefore("")]
+        public void RunBeforeAttributeTest()
+        {
+
+        }
+        #endregion RunBeforeAttribute Tests
+
+     
+
+        #region Timeout Attribute Tests
+        [Test]
+        [Timeout(3)] //will make a test fail if it takes longer to execute then specified t timeout in attribute.
+        public void TimeoutAttributeTestFailsBecauseTestNeedsTooLong()
+        {
+            //Do something
+            Thread.Sleep(500);
+        }
+
+        [Test]
+        [Timeout(30000)] //will make a test fail if it takes longer to execute then specified t timeout in attribute.
+        public void TimeoutAttributeSuccedsBecauseTestIsExecutedInTime()
+        {
+            //Do something
+            Thread.Sleep(500);
+        }
+        #endregion Timeout Attribute Tests
+
+        #region DependencyInjectionAttribute Tests
         public interface IMyService
         {
             string GetData();
@@ -79,5 +204,6 @@ namespace NextUnitTestRunnerTests
 
             // Additional test logic...
         }
+        #endregion DependencyInjectionAttribute Tests
     }
 }

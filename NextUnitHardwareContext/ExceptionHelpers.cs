@@ -1,11 +1,4 @@
-﻿using NextUnitHardwareContext.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NextUnitHardwareContext.ExceptionHelpers
+﻿namespace NextUnit.HardwareContext.ExceptionHelpers
 {
     public static class ExceptionHelpers
     {

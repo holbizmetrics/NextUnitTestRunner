@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
 
-namespace NextUnitTestRunnerTests
+namespace NextUnit.TestRunnerTests
 {
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class AutoMoqDataNextUnit : AutoFixture.NextUnit.AutoDataAttribute

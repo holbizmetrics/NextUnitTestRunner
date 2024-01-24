@@ -1,11 +1,8 @@
-﻿using NextUnitHardwareContext.Microsoft.Win32;
-using System;
-using System.Collections.Generic;
+﻿using NextUnit.HardwareContext.Microsoft.Win32;
 using System.Runtime.InteropServices;
-using System.Windows;
 //using System.Windows.Media;
 
-namespace NextUnitHardwareContext.SystemInformation
+namespace NextUnit.HardwareContext.SystemInformation
 {
     public class WpfScreen
     {

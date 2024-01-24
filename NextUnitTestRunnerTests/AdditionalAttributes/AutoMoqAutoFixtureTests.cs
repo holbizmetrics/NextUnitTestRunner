@@ -1,9 +1,9 @@
-﻿using NextUnitTestRunner;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using AutoFixture.NextUnit;
 using NextUnit.Core.TestAttributes;
+using NextUnit.TestRunner;
 
-namespace NextUnitTestRunnerTests.AdditionalAttributes
+namespace NextUnit.TestRunnerTests.AdditionalAttributes
 {
     public class AutoMoqAutoFixtureTests
     {

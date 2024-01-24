@@ -1,12 +1,14 @@
-﻿namespace NextUnit.Core.TestAttributes
+﻿using System;
+
+namespace NextUnit.Core.TestAttributes
 {
     /// <summary>
     /// Generate random values for a test by using this attribute.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
-    public class RandomAttribute : CommonTestAttribute, IParameter
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class RandomAttribute : CommonTestAttribute
     {
-        private int seedChange = 0;
+        protected int seedChange = 0;
         public int Min { get; }
         public int Max { get; }
 
@@ -17,14 +19,22 @@
             Min = min;
             Max = max;
             ExecutionCount = executionCount;
+
+            seedChange += DateTime.Now.Millisecond;
         }
 
-        public object[] GetParameters()
+        public RandomAttribute(int min, int max)
+            : this(min, max, 1)
         {
-            seedChange += DateTime.Now.Millisecond;
-            Random random = new Random(DateTime.Now.Millisecond + seedChange);
-            object[] args = new object[] { random.Next(Min, Max + 1), random.Next(Min, Max + 1) };
-            return args;
+        }
+
+        public int RandomValue
+        {  
+            get 
+            { 
+                Random random = new Random(DateTime.Now.Millisecond + seedChange);
+                return random.Next(Min, Max + 1);
+            }
         }
     }
 }

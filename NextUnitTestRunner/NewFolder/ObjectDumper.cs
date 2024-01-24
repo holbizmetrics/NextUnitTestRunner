@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NextUnitTestRunner.NewFolder
+namespace NextUnit.TestRunner.NewFolder
 {
     internal class ObjectDumper
     {

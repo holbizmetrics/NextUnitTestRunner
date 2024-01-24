@@ -8,15 +8,12 @@
     [AttributeUsage(AttributeTargets.Method)]
     public class ConditionalRetryAttribute : CommonTestAttribute
     {
-        public int MaxRetry { get; set; } = -1;
-        public bool Condition { get; set; } = false;
-        public ConditionalRetryAttribute() 
-        { 
-        }
+        public string ConditionMethodName { get; private set; }
+        public int MaxRetry { get; private set; }
 
-        public ConditionalRetryAttribute(bool condition, int maxRetry = -1)
+        public ConditionalRetryAttribute(string conditionMethodName, int maxRetry = -1)
         {
-            Condition = condition;
+            ConditionMethodName = conditionMethodName;
             MaxRetry = maxRetry;
         }
     }

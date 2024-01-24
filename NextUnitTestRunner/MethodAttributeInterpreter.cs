@@ -1,9 +1,13 @@
-﻿using NextUnit.Core.TestAttributes;
-using NextUnitTestRunner.Extensions;
+﻿using NextUnit.Core.Extensions;
+using NextUnit.Core.TestAttributes;
 using System.Reflection;
 
-namespace NextUnitTestRunner
+namespace NextUnit.TestRunner
 {
+    /// <summary>
+    /// This is only kept for now because of the TestRunner, TestRunner2.
+    /// </summary>
+    [Obsolete]
     public class MethodAttributeInterpreter
     {
         public static object[] Interpret(CommonTestAttribute attribute)

@@ -17,8 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AutoFixture.NextUnit\AutoFixture.NextUnit.csproj" />
-    <ProjectReference Include="..\NextUnitTestRunner\NextUnitTestRunner.csproj" />
-    <ProjectReference Include="..\NextUnitTestAdapter\NextUnitTestAdapter.csproj" />
+    <ProjectReference Include="..\NextUnitTestRunner\NextUnit.TestRunner.csproj" />
+    <ProjectReference Include="..\NextUnitTestAdapter\NextUnit.TestAdapter.csproj" />
   </ItemGroup>
 
 </Project>

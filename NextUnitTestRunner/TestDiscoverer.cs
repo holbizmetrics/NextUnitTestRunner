@@ -1,7 +1,11 @@
-﻿using NextUnit.Core.TestAttributes;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using NextUnit.Core.TestAttributes;
+using NextUnit.TestRunner.TestClasses;
 using System.Reflection;
 
-namespace NextUnitTestRunner
+namespace NextUnit.TestRunner
 {
     public interface ITestDiscoverer
     {
@@ -9,7 +13,7 @@ namespace NextUnitTestRunner
     }
 
     /// <summary>
-    /// Discoveres all the tests for a specific type.
+    /// Discovers all the tests for a specific type.
     /// </summary>
     public class TestDiscoverer : ITestDiscoverer
     {
@@ -27,6 +31,28 @@ namespace NextUnitTestRunner
                 }
             }
             return discoveredValidTestMethods;
+        }
+
+        public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
+        {
+            // Example: Reflectively inspect assemblies and find tests with GroupAttribute
+            foreach (var source in sources)
+            {
+                var assembly = Assembly.LoadFrom(source);
+                foreach (var type in assembly.GetTypes())
+                {
+                    foreach (var method in type.GetMethods())
+                    {
+                        var groupAttribute = method.GetCustomAttribute<GroupAttribute>();
+                        if (groupAttribute != null)
+                        {
+                            var testCase = new TestCase(/* ... */);
+                            testCase.Traits.Add("Group", groupAttribute.GroupName);
+                            discoverySink.SendTestCase(testCase);
+                        }
+                    }
+                }
+            }
         }
     }
 }

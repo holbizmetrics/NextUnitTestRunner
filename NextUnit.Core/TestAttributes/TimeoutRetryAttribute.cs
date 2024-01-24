@@ -1,5 +1,8 @@
 ﻿namespace NextUnit.Core.TestAttributes
 {
+    /// <summary>
+    /// Repeat until either the timeSpan is exceeded or the retryCount has been reached.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class TimeoutRetryAttribute : Attribute
     {

@@ -12,7 +12,12 @@ namespace NextUnit.Core.TestAttributes
     /// in the first level this will just detect the parameters of the test method and execute them with 
     /// Max/Min for the IConvertible/IEquatable automatically.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
     public class FuzzingAttribute : CommonTestAttribute
     {
+        public FuzzingAttribute()
+        {
+
+        }
     }
 }

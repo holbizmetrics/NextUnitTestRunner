@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using NextUnitHardwareContext.SystemInformation;
 */
 using System.Runtime.InteropServices;
-using NextUnitHardwareContext.SystemInformation.SystemInformation;
+using NextUnit.HardwareContext.SystemInformation;
 
 
 /* Unmerged change from project 'NextUnitHardwareContext (net7.0-windows)'
@@ -17,7 +17,7 @@ namespace NextUnitHardwareContext.SystemInformation
 After:
 namespace NextUnitHardwareContext.SystemInformation.SystemInformation
 */
-namespace NextUnitHardwareContext.SystemInformation.SystemInformation.SystemInformation
+namespace NextUnit.HardwareContext.SystemInformation.SystemInformation.SystemInformation
 {
     /// <summary>
     /// Class containing methods to retrieve specific file system paths.

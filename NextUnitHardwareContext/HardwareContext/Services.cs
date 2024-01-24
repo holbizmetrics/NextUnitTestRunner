@@ -5,7 +5,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NextUnitHardwareContext.SystemInformation
+namespace NextUnit.HardwareContext.SystemInformation
 {
     public class Services
     {
