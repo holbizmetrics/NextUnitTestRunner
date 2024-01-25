@@ -1,20 +1,19 @@
 ﻿using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
-using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
-namespace NextUnit.TestRunner.AttributeLogic
+namespace NextUnit.Core.AttributeLogic
 {
     public class AttributeLogicMapper
     {
-        private readonly Dictionary<Type, IAttributeLogicHandler> _mapping;
+        protected readonly Dictionary<Type, IAttributeLogicHandler> _mapping;
 
         public AttributeLogicMapper()
         {
             _mapping = new Dictionary<Type, IAttributeLogicHandler>
             {
+                {typeof(AllCombinationsAttribute), new AllCombinationsAttributeLogicHandler() },
                 //{ typeof(CommonTestAttribute), new CommonTestAttributeLogicHandler() }, //Is this even needed?
                 { typeof(ConditionalRetryAttribute), new ConditionalRetryAttributeLogicHandler() },
                 { typeof(ConditionAttribute), new ConditionLogicHandler()},
@@ -54,6 +53,51 @@ namespace NextUnit.TestRunner.AttributeLogic
     //    }
     //}
 
+    public class AllCombinationsAttributeLogicHandler : IAttributeLogicHandler
+    {
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        {
+            var parameterInfos = testMethod.GetParameters();
+            var allParameterValues = parameterInfos.Select(pi => GetValuesForParameter(pi)).ToList();
+
+            // Generate all combinations of these parameter values
+            var allCombinations = GenerateAllCombinations(allParameterValues, 0);
+
+            // Invoke the test method with each combination of parameter values
+            foreach (var combination in allCombinations)
+            {
+                testMethod.Invoke(testInstance, combination.ToArray());
+            }
+        }
+
+        private IEnumerable<IEnumerable<object>> GenerateAllCombinations(List<IEnumerable<object>> allParameterValues, int currentIndex)
+        {
+            if (currentIndex >= allParameterValues.Count)
+            {
+                yield return Enumerable.Empty<object>();
+                yield break;
+            }
+
+            var currentValues = allParameterValues[currentIndex];
+            var combinationsOfRest = GenerateAllCombinations(allParameterValues, currentIndex + 1);
+
+            foreach (var value in currentValues)
+            {
+                foreach (var combination in combinationsOfRest)
+                {
+                    yield return new[] { value }.Concat(combination);
+                }
+            }
+        }
+
+        private IEnumerable<object> GetValuesForParameter(ParameterInfo parameterInfo)
+        {
+            // Logic to get possible values for a parameter
+            // This can be based on custom attributes like [Values(...)] or any other logic
+            throw new NotImplementedException();
+        }
+    }
+
     public class ConditionalRetryAttributeLogicHandler : IAttributeLogicHandler
     {
         public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
@@ -88,20 +132,46 @@ namespace NextUnit.TestRunner.AttributeLogic
 
     public class DependencyInjectionAttributeLogicHandler : IAttributeLogicHandler
     {
+        private readonly IServiceProvider _serviceProvider;
+
         public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
         {
-            // Logic for handling CommonTestAttribute
+            var dependencyInjectionAttribute = attribute as DependencyInjectionAttribute;
+            if (dependencyInjectionAttribute != null)
+            {
+                var getNestedInterfaceImplementation = testInstance.GetType().GetNestedTypes().Where(x => x.GetInterface(dependencyInjectionAttribute.ServiceType.Name) != null).First();
+                object createObjectWhereInterfaceExistsIn = Activator.CreateInstance(getNestedInterfaceImplementation);
+
+                if (createObjectWhereInterfaceExistsIn != null)
+                {
+                    var parameters = new object[] { createObjectWhereInterfaceExistsIn };
+                    testMethod.Invoke(testInstance, parameters);
+                }
+            }
         }
     }
+
     public class ConditionLogicHandler : IAttributeLogicHandler
     {
         public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
         {
-            // Logic for handling CommonTestAttribute
-            ConditionAttribute conditionAttribute = attribute as ConditionAttribute;
-            if (conditionAttribute.Condition)
+            var conditionAttribute = attribute as ConditionAttribute;
+            if (conditionAttribute != null)
             {
-
+                var conditionMethod = testInstance.GetType().GetMethod(conditionAttribute.ConditionMethodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+                Type returnType = conditionMethod.ReturnType;
+                if (returnType != typeof(bool))
+                {
+                    throw new ExecutionEngineException($"{testMethod}: ConditionAttribute condition method has wrong return type. Should be bool but was {returnType}");
+                }
+                if (conditionMethod != null && (bool)conditionMethod.Invoke(testInstance, null))
+                {
+                    testMethod.Invoke(testInstance, null);
+                }
+                else
+                {
+                    // Handle the case when the condition method is not found, or the condition is false.
+                }
             }
         }
     }
@@ -198,7 +268,64 @@ namespace NextUnit.TestRunner.AttributeLogic
     {
         public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
         {
-            // Logic for handling CommonTestAttribute
+            var parameterInfos = testMethod.GetParameters();
+            if (parameterInfos.Length == 0)
+            {
+                // Invoke the method directly if it has no parameters
+                testMethod.Invoke(testInstance, null);
+                return;
+            }
+
+            // Here we need to generate all permutations of parameters.
+            // This is a complex task, depending on the types and number of parameters.
+            // The logic here should create an IEnumerable<IEnumerable<object>> where
+            // each inner IEnumerable<object> represents a set of parameters for a single test invocation.
+
+            var allParameterCombinations = GenerateParameterCombinations(parameterInfos);
+
+            foreach (var parameterSet in allParameterCombinations)
+            {
+                testMethod.Invoke(testInstance, parameterSet.ToArray());
+            }
+        }
+
+        private IEnumerable<IEnumerable<object>> GenerateParameterCombinations(ParameterInfo[] parameterInfos)
+        {
+            // This method should generate all permutations of parameter values.
+            // This is a non-trivial task and would need custom implementation based
+            // on how you want to define the values for each parameter type.
+
+            // Example: For simplicity, let's assume each parameter is an integer,
+            // and we want to test all combinations of values 0, 1, and 2 for each parameter.
+            // You would need to replace this with logic appropriate for your parameters.
+
+            var values = new List<int> { 0, 1, 2 };
+            return GetPermutations(values, parameterInfos.Length);
+        }
+
+        private IEnumerable<IEnumerable<object>> GetPermutations(List<int> values, int length)
+        {
+            var results = new List<List<object>>();
+
+            if (length == 1)
+            {
+                // If the length is 1, return each value as a single-item permutation
+                return values.Select(v => (IEnumerable<object>)new List<object> { v });
+            }
+
+            // Get permutations of length (n-1)
+            var subPermutations = GetPermutations(values, length - 1);
+
+            foreach (var subPermutation in subPermutations)
+            {
+                foreach (var value in values)
+                {
+                    var newPermutation = new List<object>(subPermutation) { value };
+                    results.Add(newPermutation);
+                }
+            }
+
+            return results;
         }
     }
 
@@ -278,7 +405,7 @@ namespace NextUnit.TestRunner.AttributeLogic
             }
             else
             {
-                throw new ExecutionEngineException();
+                throw new ExecutionEngineException("RunBeforeAttribute Exception");
             }
         }
     }
@@ -295,7 +422,7 @@ namespace NextUnit.TestRunner.AttributeLogic
             }
             else
             {
-                throw new ExecutionEngineException();
+                throw new ExecutionEngineException("RunAfterAttribute Exception");
             }
         }
     }
@@ -316,7 +443,7 @@ namespace NextUnit.TestRunner.AttributeLogic
             }
             else
             {
-                throw new ExecutionEngineException();
+                throw new ExecutionEngineException("RunDuringAttribute Exception");
             }
         }
     }
@@ -337,7 +464,7 @@ namespace NextUnit.TestRunner.AttributeLogic
             }
             else
             {
-                throw new ExecutionEngineException();
+                throw new ExecutionEngineException("DontRunDuringAttribute Exception");
             }
         }
     }

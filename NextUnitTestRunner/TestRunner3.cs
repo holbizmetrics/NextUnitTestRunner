@@ -3,7 +3,7 @@ using System.Reflection;
 using NextUnit.TestRunner.Assertions;
 using NextUnit.Core.TestAttributes;
 using System.Runtime.Loader;
-using NextUnit.TestRunner.AttributeLogic;
+using NextUnit.Core.AttributeLogic;
 
 namespace NextUnit.TestRunner
 {
@@ -25,7 +25,7 @@ namespace NextUnit.TestRunner
     /// If not, this will happen sequentially.
     /// 
     /// </summary>
-    public class TestRunner3 : TestRunner, ITestRunner
+    public class TestRunner3 : TestRunner, ITestRunner3
     {
         public ITestDiscoverer TestDiscoverer { get; set; } = new TestDiscoverer();
         public event ExecutionEventHandler BeforeTestRun;
@@ -35,9 +35,11 @@ namespace NextUnit.TestRunner
         public event ExecutionEventHandler TestRunStarted;
         public event ExecutionEventHandler TestRunFinished;
         public event ExecutionEventHandler ErrorEventHandler;
+        public AttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
 
         protected Dictionary<int, MethodInfo> classTypeMethodInfosAssociation { get; } = new Dictionary<int, MethodInfo>();
         public bool UseThreading { get; set; } = true;
+
         /// <summary>
         /// 
         /// </summary>
@@ -172,16 +174,20 @@ namespace NextUnit.TestRunner
             OnTestRunFinished(new ExecutionEventArgs());
         }
 
+        /// <summary>
+        /// Executes the tests found by the TestDiscoverer.
+        /// </summary>
+        /// <param name="classTestMethodsAssociation"></param>
         public void ExecuteTests(Dictionary<Type, List<MethodInfo>> classTestMethodsAssociation)
         {
-            AttributeLogicMapper attributeLogicMapper = new AttributeLogicMapper();
             string machineName = NextUnitTestEnvironmentContext.MachineName;
             foreach (Type testClass in classTestMethodsAssociation.Keys)
             {
                 List<MethodInfo> methodInfos = classTestMethodsAssociation[testClass];
-
                 if (methodInfos.Count == 0) continue;
+
                 object classObject = Activator.CreateInstance(testClass);
+
                 foreach (MethodInfo method in methodInfos)
                 {
                     object[] parameters = null;
@@ -211,29 +217,15 @@ namespace NextUnit.TestRunner
                                 Stopwatch stopwatch = Stopwatch.StartNew();
                                 OnTestExecuting(new ExecutionEventArgs(method));
                                 //Since we exclude the test marker attribute, a test logic handler should be found for each of the implemented framework attribute.
-                                var handler = attributeLogicMapper.GetHandlerFor(attribute);
+                                var handler = AttributeLogicMapper.GetHandlerFor(attribute);
                                 handler?.ProcessAttribute(attribute, method, classObject);
 
                                 testResult.Start = DateTime.Now;
 
                                 ParameterInfo[] parameterInfos = method.GetParameters();
-                                if (parameters == null && parameterInfos.Length > 0 || (parameters != null && parameters.Length != method.GetParameters().Length && method.GetParameters().Length > 0))
-                                {
-#if DEBUG
-                                    Debug.WriteLine($"Parameter mismatch for method {method}. No parameters specified or the value is null.");
-                                    if (parameters != null)
-                                    {
-                                        Debug.WriteLine($"Given: {parameters}, Expected: {parameterInfos}");
-                                    }
-#endif
-                                    testResult.State = ExecutedState.Skipped;
-                                    OnError(new ExecutionEventArgs(method, testResult));
-                                }
-                                else
-                                {
-                                    method.Invoke(classObject, parameters);
-                                    testResult.State = ExecutedState.Passed;
-                                }
+
+                                method.Invoke(classObject, parameters);
+                                testResult.State = ExecutedState.Passed;
                                 stopwatch.Stop();
 
                                 if (testResult.State != ExecutedState.Skipped)
@@ -260,7 +252,7 @@ namespace NextUnit.TestRunner
                                 }
                             }
                             catch (TargetParameterCountException ex)
-                            {                                
+                            {
                                 lastException = ex;
                                 Trace.WriteLine(ex);
                             }

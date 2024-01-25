@@ -1,11 +1,11 @@
-﻿using NextUnit.Core.TestAttributes;
+﻿using AutoFixture.AutoMoq;
+using AutoFixture;
+using AutoFixture.NextUnit;
+using Moq;
+using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner;
-using System;
-using System.Collections.Generic;
+using NextUnit.TestRunner.Attributes;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NextUnit.TestRunnerTests
 {
@@ -19,9 +19,30 @@ namespace NextUnit.TestRunnerTests
         [Test]
         public void SeveralAssertsTest()
         {
+            Trace.WriteLine(new StackFrame(1).GetMethod().Name);
             //Assert.IsTrue();
         }
         #endregion Asserts Tests
+
+        #region AllCombinationsAttribute Tests
+        private bool MyConditionMethod(object[] combination)
+        {
+            // Your condition logic here...
+            return combination[0] is int x && x > 0;
+        }
+
+        [Test, AllCombinations(
+            conditionMethodName: nameof(MyConditionMethod),
+            strategy: PermutationStrategy.Pairwise
+        )]
+        public void AllCombinationsAttributeTest(
+            [Values(1, 2, 3)] int x,
+            [Values("A", "B")] string s)
+        {
+            // Test code here...
+            Trace.WriteLine("x: {x}, s: {s}");
+        }
+        #endregion AllCombinationsAttribute Tests
 
         #region ConditionalRetryAttribute Tests
         private static int _externalServiceState = 0;
@@ -36,7 +57,7 @@ namespace NextUnit.TestRunnerTests
         public void TestExternalServiceInteraction()
         {
             _externalServiceState++;
-            Console.WriteLine($"Attempt {_externalServiceState}: Testing interaction with the external service");
+            Trace.WriteLine($"Attempt {_externalServiceState}: Testing interaction with the external service");
         }
 
         [Test]
@@ -51,8 +72,17 @@ namespace NextUnit.TestRunnerTests
         #endregion ConditionalRetryAttribute Tests
 
         #region ConditionAttribute Tests
+
+        /// <summary>
+        /// Needed for the ConditionAttributeTest below.
+        /// </summary>
+        public bool Blub()
+        {
+            return DateTime.Now > DateTime.Now; //this will never be true for sure.
+        }
+
         [Test]
-        [Condition(true, nameof(Blub))]
+        [Condition(nameof(Blub))]
         public void ConditionAttributeTest()
         {
         }
@@ -69,14 +99,9 @@ namespace NextUnit.TestRunnerTests
         public void CustomExtendableAttributeTest()
         {
             //Writes a text to the console for now.
+            //How? The text is specified in the console.
         }
         #endregion CustomExtendableAttribute Tests
-
-        [Test]
-        public void Blub()
-        {
-
-        }
 
         #region DependencyInjectionAttribute Tests
         public interface IMyService
@@ -93,7 +118,7 @@ namespace NextUnit.TestRunnerTests
         }
 
         [Test, DependencyInjection(typeof(IMyService))]
-        public void MyTestMethod(IMyService service)
+        public void DependencyInjectionAttributeTest(IMyService service)
         {
             // Assert that the service is successfully injected
             Assert.IsNotNull(service);
@@ -123,12 +148,12 @@ namespace NextUnit.TestRunnerTests
         }
         #endregion ExecuteUntilTimeoutAttribute Test
 
-        #region ExtendedTestAttribute Tests
-        [ExtendedTest]
-        public void ExtendedTestAttributeTest()
-        { 
-        }
-        #endregion ExtendedTestAttribute Tests
+        //#region ExtendedTestAttribute Tests
+        //[ExtendedTest]
+        //public void ExtendedTestAttributeTest()
+        //{ 
+        //}
+        //#endregion ExtendedTestAttribute Tests
 
         #region FuzzingAttribute Tests
         [Test]
@@ -136,6 +161,7 @@ namespace NextUnit.TestRunnerTests
         public void FuzzingAttributeTest(int n1, int n2)
         {
             int result = n1 + n2;
+            Console.WriteLine($"n1 + n2: {n1 + n2}");
         }
         #endregion
 
@@ -157,12 +183,21 @@ namespace NextUnit.TestRunnerTests
         /// </summary>
         [Test]
         [InjectData(TestInjectDataAttribute_message, TestInjectDataAttribute_count, TestInjectDataAttribute_isEnabled)]
+        [InjectData("Crazy. It works!", 7, false)]
+        [InjectData("This as well!", 3, false)]
         public void TestInjectDataAttribute(string message, int count, bool isEnabled)
         {
             Assert.IsTrue(message == TestInjectDataAttribute_message);
             Assert.IsTrue(count == TestInjectDataAttribute_count);
             Assert.IsTrue(isEnabled == TestInjectDataAttribute_isEnabled);
         }
+
+        [InjectData]
+        public void TestInjectDataAttribute(params object[] values)
+        {
+
+        }
+
         #endregion InjectDataAttribute Tests
 
         #region Random Attribute Tests
@@ -171,7 +206,7 @@ namespace NextUnit.TestRunnerTests
         /// 
         /// </summary>
         [Test]
-        [Random(-1000, 2000)]
+        [Random(-1000, 2000)] //if no count for the execution count is specified this will automatically be set to 1.
         public void TestRandomAttributeOnce(int param1)
         {
 
@@ -179,15 +214,23 @@ namespace NextUnit.TestRunnerTests
 
         [Test]
         [Random(1, 2)]
-        [Random(5, 2, 1)] //should fail, because 5 > 2, min and then max has to be specified. Not vice versa.
         [Random(1, 1, 1)]
-        public void TestSeveralRandomAttributesEachOnlyExecutedOnce(int param1)
+        public void TestSeveralRandomAttributeEachOnlyExecutedOnce(int param1)
         {
 
         }
 
         [Test]
-        public void TestSeveralRandomAttributesEachSeveralTimes(int param1)
+        [Random(1, 1, 0)]   //should do nothing, because count should be > 0 to make sense. Probably generate error?
+        [Random(-1, 1, -3)]  //should do either nothing right now, only count >0 makes sense. Probably generate an error?
+        public void TestSeveralRandomAttributesEachOnlyExecutedInvalidCount()
+        {
+
+        }
+
+        [Test]
+        [Random(5, 2)]      //should fail because 5 > 2 -> set min first, then max.
+        public void TestRandomAttributFailsBecauseMinGreaterMax(int param1)
         {
 
         }
@@ -253,6 +296,15 @@ namespace NextUnit.TestRunnerTests
         }
         #endregion RunDuringAttribute Tests
 
+        #region SkipAttribute Tests
+
+        [Test]
+        [Skip]
+        public void SkipAttributeTest()
+        {
+
+        }
+        #endregion SkipAttribute Tests
 
         #region TimeoutAttribute Tests
         [Test]
@@ -265,12 +317,77 @@ namespace NextUnit.TestRunnerTests
 
         [Test]
         [Timeout(30000)] //will make a test fail if it takes longer to execute then specified t timeout in attribute.
-        public void TimeoutAttributeSuccedsBecauseTestIsExecutedInTime()
+        public void TimeoutAttributeSucceedsBecauseTestIsExecutedInTime()
         {
             //Do something
             Thread.Sleep(500);
         }
         #endregion Timeout Attribute Tests
 
+        #region combined attributes tests
+        //in this region we'll test several different attributes at once.
+
+        //For the moment either all of them or a lot may still fail. BUT those tests are here because in the long run this has to work as well.
+
+        #endregion combined attributes tests
+
+        #region AutoFixture.AutoMoq Test
+        [InlineAutoData]
+        public void Test()
+        {
+
+        }
+
+        public class AutoMoqDataAttribute : AutoDataAttribute
+        {
+            public AutoMoqDataAttribute()
+                : this(null)
+            {
+            }
+
+            protected AutoMoqDataAttribute(Action<IFixture>? cfg)
+                : base(() =>
+                {
+                    var fixture = new Fixture();
+                    fixture.Customize(new AutoMoqCustomization
+                    {
+                        ConfigureMembers = true,
+                        GenerateDelegates = true,
+                    });
+                    cfg?.Invoke(fixture);
+                    return fixture;
+                })
+            {
+            }
+        }
+
+        public class InlineAutoMoqDataAttribute : InlineAutoDataAttribute
+        {
+            public InlineAutoMoqDataAttribute(params object[] objects) : base(new AutoMoqDataAttribute(), objects)
+            {
+            }
+        }
+
+        public interface ISomeInterface
+        {
+
+        }
+
+        public class MySut
+        {
+
+        }
+
+        [InlineAutoMoqData(3, 4)]
+        [InlineAutoMoqData(33, 44)]
+        [InlineAutoMoqData(13, 14)]
+        public void SomeUnitTest(int DataFrom, int OtherData, [Frozen] Mock<ISomeInterface> theInterface, MySut sut)
+        {
+        }
+        #endregion AutoFixture.AutoMoq Test
+        ~TestRunnerTestsContainer2()
+        {
+
+        }
     }
 }

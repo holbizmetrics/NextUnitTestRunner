@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 
 namespace NextUnit.Core.Extensions
 {
@@ -71,6 +72,12 @@ namespace NextUnit.Core.Extensions
             Type equatableType = typeof(IEquatable<>).MakeGenericType(type);
             bool isEquatable = equatableType.IsAssignableFrom(type);
             return isEquatable;
+        }
+
+        public static Type FindNestedTypeContainingInterface(this Type type)
+        {
+            //type.GetNestedType().GetInterface();
+            return typeof(void);
         }
     }
 }

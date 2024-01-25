@@ -14,6 +14,7 @@ namespace NextUnit.TestRunnerTests
         [Test]
         public void SeveralAssertsTest()
         {
+            Trace.WriteLine(new StackFrame(1).GetMethod().Name);
             //Assert.IsTrue();
         }
         #endregion Asserts Tests
@@ -37,17 +38,24 @@ namespace NextUnit.TestRunnerTests
         #endregion ConditionalRetryAttribute Tests
 
         #region ConditionAttribute Tests
-        [Test]
-        [Condition(true,nameof(Blub))]
-        public void Blubbl()
+        private bool IsConditionMet()
         {
+            // Define your condition logic here
+            return true; // Example condition
+        }
+
+        [Test]
+        [Condition(nameof(IsConditionMet))]
+        public void ConditionalTest()
+        {
+            // Test logic here...
         }
         #endregion ConditionAttribute Tests
 
         [Test]
-        public void Blub()
+        public bool Blub()
         {
-
+            return DateTime.Now > DateTime.Now; //this will never be true for sure.
         }
 
         #region ConditionalRetryAttribute Tests
@@ -156,9 +164,7 @@ namespace NextUnit.TestRunnerTests
         {
 
         }
-        #endregion RunBeforeAttribute Tests
-
-     
+        #endregion RunBeforeAttribute Tests     
 
         #region Timeout Attribute Tests
         [Test]

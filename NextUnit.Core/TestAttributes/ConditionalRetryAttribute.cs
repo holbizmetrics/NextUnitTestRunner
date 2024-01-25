@@ -5,7 +5,7 @@
     /// Use MaxRetry to set a count how many times this should be tried.
     /// -1 will try endlessly.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class ConditionalRetryAttribute : CommonTestAttribute
     {
         public string ConditionMethodName { get; private set; }

@@ -34,7 +34,7 @@ namespace NextUnit.TestRunner
                 //wrapper.ResolveReferencePaths(assemblyPaths);
                 if (assemblyPaths.Count > 0)
                 {
-                    return AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.Combine(_basePath, assemblyPaths[0]));
+                    return TestRunnerAssemblyLoadContext.Default.LoadFromAssemblyPath(Path.Combine(_basePath, assemblyPaths[0]));
                 }
             }
 

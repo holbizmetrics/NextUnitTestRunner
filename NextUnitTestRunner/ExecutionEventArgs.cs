@@ -32,6 +32,13 @@ namespace NextUnit.TestRunner
         {
             MethodInfo = methodInfo;
         }
+
+        public override string ToString()
+        {
+            return 
+$@"MethodInfo: {MethodInfo}
+TestResult: {TestResult}";
+        }
     }
 
     public delegate void ExecutionEventHandler(object sender, ExecutionEventArgs e);

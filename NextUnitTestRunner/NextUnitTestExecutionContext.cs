@@ -7,10 +7,11 @@
     /// Thus, also the TestRunTime corresponds to the whole test run.
     /// )
     /// </summary>
-    public class NextUnitTestExecutionContext
+    public static class NextUnitTestExecutionContext
     {
-        public static DateTime TestRunStart { get; internal set; }
-        public static DateTime TestRunEnd { get; internal set; }
+        private static DateTime CurrentDateTime = DateTime.Now;
+        public static DateTime TestRunStart { get; internal set; } = CurrentDateTime;
+        public static DateTime TestRunEnd { get; internal set; } = CurrentDateTime;
         public static TimeSpan TestRunTime { get { return TestRunEnd - TestRunStart; } }
         public static List<TestResult> TestResults { get; } = new List<TestResult>();
 

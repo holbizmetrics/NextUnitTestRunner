@@ -25,16 +25,23 @@ namespace AutoFixture.NextUnit
         /// </summary>
         public IEnumerable<object> Arguments => existingParameterValues;
 
+        public object[] ExplicitArguments { get; private set; }
 
-        /// <summary>
-        /// Construct a AutoFixture.NextUnit.InlineAutoDataAttribute with parameter values
-        //  for test method.
-        /// </summary>
-        /// <param name="arguments"></param>
-        public InlineAutoDataAttribute(params object[] arguments)
-            : this(() => new Fixture(), arguments)
+        public InlineAutoDataAttribute(params object[] explicitArguments)
         {
+            this.ExplicitArguments = explicitArguments ?? Array.Empty<object>();
+            this.fixtureLazy = new Lazy<IFixture>(() => new Fixture());
         }
+
+        ///// <summary>
+        ///// Construct a AutoFixture.NextUnit.InlineAutoDataAttribute with parameter values
+        ////  for test method.
+        ///// </summary>
+        ///// <param name="arguments"></param>
+        //public InlineAutoDataAttribute(params object[] arguments)
+        //    : this(() => new Fixture(), arguments)
+        //{
+        //}
 
         /// <summary>
         /// Construct a AutoFixture.NextUnit.InlineAutoDataAttribute with an AutoFixture.IFixture
@@ -72,6 +79,11 @@ namespace AutoFixture.NextUnit
 
             fixtureLazy = new Lazy<IFixture>(fixtureFactory, LazyThreadSafetyMode.PublicationOnly);
             existingParameterValues = arguments ?? new object[1];
+        }
+
+        private object ResolveParameter(IFixture fixture, ParameterInfo parameterInfo)
+        {
+            return new SpecimenContext(fixture).Resolve(parameterInfo);
         }
     }
 }

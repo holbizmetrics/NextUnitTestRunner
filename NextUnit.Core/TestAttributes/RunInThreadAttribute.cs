@@ -2,6 +2,7 @@
 
 namespace NextUnit.Core.TestAttributes
 {
+    [AttributeUsage(AttributeTargets.Method)]
     public class RunInThreadAttribute : CommonTestAttribute
     {
         protected Thread Thread { get; } = null;
@@ -15,7 +16,7 @@ namespace NextUnit.Core.TestAttributes
                 // Test logic here
 
                 // Use 'output' to write to test output, if needed.
-                Trace.WriteLine("Test running on separate thread.");
+                Trace.WriteLine("Test running in separate thread.");
             });
 
             thread.SetApartmentState(ApartmentState.STA);

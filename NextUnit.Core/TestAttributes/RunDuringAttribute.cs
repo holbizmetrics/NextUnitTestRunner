@@ -9,7 +9,7 @@ namespace NextUnit.Core.TestAttributes
     /// <summary>
     /// Determines an interval when test is being executed.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class RunDuringAttribute : CommonTestAttribute
     {
         public DateTime Begin{ get; set; } = DateTime.Now;

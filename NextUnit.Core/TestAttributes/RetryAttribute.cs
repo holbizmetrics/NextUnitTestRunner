@@ -3,7 +3,7 @@
     /// <summary>
     /// Use this to repeat a test it it fails.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class RetryAttribute : CommonTestAttribute
     {
         public int RetryCount { get; set; } = 1;

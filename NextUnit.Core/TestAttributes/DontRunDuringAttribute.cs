@@ -9,7 +9,7 @@ namespace NextUnit.Core.TestAttributes
     /// <summary>
     /// Determines an interval when a test will be not executed.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class DontRunDuringAttribute : RunDuringAttribute
     {
         public DontRunDuringAttribute(string begin, string end)

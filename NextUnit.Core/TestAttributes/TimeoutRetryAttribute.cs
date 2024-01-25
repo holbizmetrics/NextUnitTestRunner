@@ -3,7 +3,7 @@
     /// <summary>
     /// Repeat until either the timeSpan is exceeded or the retryCount has been reached.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class TimeoutRetryAttribute : Attribute
     {
         public int RetryCount { get; private set; }

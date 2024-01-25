@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NextUnit.TestRunner
+namespace NextUnit.TestRunner.Attributes
 {
     public class ConsoleCustomExtendableAttribute : CustomExtendableAttribute
     {

@@ -3,7 +3,7 @@
     /// <summary>
     /// If timeout execution exceeded test fails.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class TimeoutAttribute : CommonTestAttribute
     {
         public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(1);

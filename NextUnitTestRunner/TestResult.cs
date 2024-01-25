@@ -39,7 +39,6 @@
     public class TestResult
     {
         public string DisplayName { get; internal set; } = string.Empty;
-        public TimeSpan ExecutionTime { get; internal set; }
         public ExecutedState State { get; internal set; } = ExecutedState.NotStarted;
 
         public string StackTrace { get; internal set; } = string.Empty;
@@ -53,6 +52,7 @@
         /// When the test finished.
         /// </summary>
         public DateTime End { get; internal set; }
+        public TimeSpan ExecutionTime { get; internal set; } = TimeSpan.Zero;
 
         /// <summary>
         /// On which machine we are running.

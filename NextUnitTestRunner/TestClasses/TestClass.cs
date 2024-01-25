@@ -1,4 +1,7 @@
-﻿using AutoFixture.NextUnit;
+﻿using AutoFixture.AutoMoq;
+using AutoFixture;
+using AutoFixture.NextUnit;
+using Moq;
 using NextUnit.Core.TestAttributes;
 using System.Diagnostics;
 
@@ -57,15 +60,71 @@ namespace NextUnit.TestRunner.TestClasses
 
         }
 
-        [Test, InlineAutoData]
-        public void InlineDataTest()
+        public class MyClass
         {
+
+        }
+
+        [Test]
+        [InlineAutoData]                  // all args will be provided by autofixture
+        [InlineAutoData("FOO")]           // BAR & sut will be provided by autofixture
+        [InlineAutoData("FOO", "BAR")]    // sut will be provided bt autofixture
+        public void InlineAutoDataTest(string foo, string bar, MyClass sut)
+        {
+
         }
 
         [Test, RunInThreadAttribute]
         public void ThreadingTest()
         {
 
+        }
+
+        public class AutoMoqDataAttribute : AutoDataAttribute
+        {
+            public AutoMoqDataAttribute()
+                : this(null)
+            {
+            }
+
+            protected AutoMoqDataAttribute(Action<IFixture>? cfg)
+                : base(() =>
+                {
+                    var fixture = new Fixture();
+                    fixture.Customize(new AutoMoqCustomization
+                    {
+                        ConfigureMembers = true,
+                        GenerateDelegates = true,
+                    });
+                    cfg?.Invoke(fixture);
+                    return fixture;
+                })
+            {
+            }
+        }
+
+        public class InlineAutoMoqDataAttribute : InlineAutoDataAttribute
+        {
+            public InlineAutoMoqDataAttribute(params object[] objects) : base(new AutoMoqDataAttribute(), objects)
+            {
+            }
+        }
+
+        public interface ISomeInterface
+        {
+
+        }
+
+        public class MySut
+        {
+
+        }
+
+        [InlineAutoMoqData(3, 4)]
+        [InlineAutoMoqData(33, 44)]
+        [InlineAutoMoqData(13, 14)]
+        public void SomeUnitTest(int DataFrom, int OtherData, [Frozen] Mock<ISomeInterface> theInterface, MySut sut)
+        {
         }
     }
 }

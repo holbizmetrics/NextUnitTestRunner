@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class DependencyInjectionAttribute : Attribute
     {
         public Type ServiceType { get; private set; }

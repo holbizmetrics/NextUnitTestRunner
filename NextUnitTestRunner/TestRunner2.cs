@@ -3,11 +3,10 @@ using System.Reflection;
 using NextUnit.TestRunner.Assertions;
 using NextUnit.Core.TestAttributes;
 using System.Runtime.Loader;
-using NextUnit.TestRunner.AttributeLogic;
+using NextUnit.Core.AttributeLogic;
 
 namespace NextUnit.TestRunner
 {
- 
     /// <summary>
     /// A little bit further progressed TestRunner.
     /// For sure nowhere near where it should be, but already way better like this than the first one.
@@ -144,6 +143,7 @@ namespace NextUnit.TestRunner
             {
                 ExecuteTests(classTestMethodsAssociation);
             }
+            NextUnitTestExecutionContext.TestRunEnd = DateTime.Now;
 
             OnTestRunFinished(new ExecutionEventArgs());
         }

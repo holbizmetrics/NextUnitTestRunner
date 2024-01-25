@@ -1,7 +1,7 @@
 ﻿namespace NextUnit.Core.TestAttributes
 {
 
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class TestAttribute : CommonTestAttribute
     {
         public string AliasName { get; set; }

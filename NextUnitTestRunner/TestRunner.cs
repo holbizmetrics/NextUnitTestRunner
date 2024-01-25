@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner.Assertions;
@@ -18,6 +19,11 @@ namespace NextUnit.TestRunner
         event ExecutionEventHandler TestRunStarted;
         event ExecutionEventHandler TestRunFinished;
         event ExecutionEventHandler ErrorEventHandler;
+    }
+
+    public interface ITestRunner3 : ITestRunner
+    {
+        AttributeLogicMapper AttributeLogicMapper { get; set; }
     }
 
     /// <summary>
