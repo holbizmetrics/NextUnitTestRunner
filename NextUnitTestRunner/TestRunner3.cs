@@ -197,12 +197,6 @@ namespace NextUnit.TestRunner
                         int executionCount = 1;
                         foreach (Attribute attribute in attributes)
                         {
-                            //Since we've already checked for that... not again, please.
-                            if (attribute.GetType() == typeof(TestAttribute))
-                            {
-                                continue;
-                            }
-
                             Exception lastException = null;
                             TestResult testResult = null;
                             try
@@ -218,13 +212,11 @@ namespace NextUnit.TestRunner
                                 OnTestExecuting(new ExecutionEventArgs(method));
                                 //Since we exclude the test marker attribute, a test logic handler should be found for each of the implemented framework attribute.
                                 var handler = AttributeLogicMapper.GetHandlerFor(attribute);
+
                                 handler?.ProcessAttribute(attribute, method, classObject);
 
                                 testResult.Start = DateTime.Now;
 
-                                ParameterInfo[] parameterInfos = method.GetParameters();
-
-                                method.Invoke(classObject, parameters);
                                 testResult.State = ExecutedState.Passed;
                                 stopwatch.Stop();
 

@@ -4,6 +4,8 @@ using AutoFixture.NextUnit;
 using Moq;
 using NextUnit.Core.TestAttributes;
 using System.Diagnostics;
+using System.Net.Http.Headers;
+using AutoFixture.Kernel;
 
 namespace NextUnit.TestRunner.TestClasses
 {
@@ -125,6 +127,16 @@ namespace NextUnit.TestRunner.TestClasses
         [InlineAutoMoqData(13, 14)]
         public void SomeUnitTest(int DataFrom, int OtherData, [Frozen] Mock<ISomeInterface> theInterface, MySut sut)
         {
+        }
+
+        [Test]
+        [AutoData]
+        public void TestFixtureTest(int n1)
+        {
+            var fixture = new Fixture();
+            var instance = fixture.Create<int>();
+
+            Trace.WriteLine($"Generated value using AutoData, n1: {n1} + fixture created int: result = {n1 + instance}");
         }
     }
 }
