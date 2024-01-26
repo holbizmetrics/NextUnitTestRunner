@@ -11,6 +11,7 @@ namespace NextUnit.TestRunner
         public TestResult TestResult { get; private set; }
         public string Message { get; internal set; } = string.Empty;
 
+        public Exception LastException { get; internal set; } = null;
         /// <summary>
         /// 
         /// </summary>
@@ -18,10 +19,11 @@ namespace NextUnit.TestRunner
         {
         }
 
-        public ExecutionEventArgs(MethodInfo methodInfo, TestResult testResult)
+        public ExecutionEventArgs(MethodInfo methodInfo, TestResult testResult, Exception exception = null)
             : this(methodInfo)
         {
             TestResult = testResult;
+            LastException = exception;
         }
 
         /// <summary>
@@ -35,9 +37,14 @@ namespace NextUnit.TestRunner
 
         public override string ToString()
         {
-            return 
+            string exceptionText = 
 $@"MethodInfo: {MethodInfo}
 TestResult: {TestResult}";
+            if (LastException!=null)
+            {
+                exceptionText += LastException;
+            }
+            return exceptionText;
         }
     }
 

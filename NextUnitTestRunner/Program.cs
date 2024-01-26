@@ -1,8 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using NextUnit.Autofixture.AutoMoq.Core;
 using NextUnit.TestRunner;
+using NextUnit.TestRunner.Extensions;
 using NextUnit.TestRunnerTests;
 using System.Diagnostics;
+using System.Reflection;
 
 Trace.Listeners.Add(new ConsoleTraceListener());
 ITestRunner3 testRunner = new TestRunner3();
@@ -38,14 +41,28 @@ else
 
 void TestRunner_ErrorEventHandler(object sender, ExecutionEventArgs e)
 {
-    Trace.WriteLine($"Test execution error: {e.ToString()}");
+    string errorText =
+$@"MethodInfo: <Green>{e.MethodInfo}</Green>
+TestResult: <Green>{e.TestResult}</Green>";
+    if (e.LastException != null)
+    {
+        errorText = 
+$@"{errorText}
+
+Exception:
+
+<Red>{e.LastException}</Red>";
+    };
+    $"Test execution error: {errorText}".WriteColoredLine();
 }
 
 void TestRunner_TestRunFinished(object sender, ExecutionEventArgs e)
 {
     // Show Hardware Snapshots
     Trace.WriteLine("Hardware snapshot:");
-    Trace.WriteLine(NextUnitTestEnvironmentContext.ToString());
+
+    string output = GetEnvironmentContext();
+    output.WriteColoredLine();
     Trace.WriteLine("");
 
     Trace.WriteLine(NextUnitTestExecutionContext.ToString());
@@ -56,10 +73,12 @@ void TestRunner_TestRunStarted(object sender, ExecutionEventArgs e)
 {
     // Show Hardware Snapshots
     Trace.WriteLine("Hardware snapshot:");
-    Trace.WriteLine(NextUnitTestEnvironmentContext.ToString());
+    string output = GetEnvironmentContext();
+    output.WriteColoredLine();
     Trace.WriteLine("");
 
-    Trace.WriteLine(NextUnitTestExecutionContext.ToString());
+    output = GetTestExecutionContext();
+    output.WriteColoredLine();
     Trace.WriteLine("");
 }
 
@@ -71,9 +90,42 @@ void TestRunner_BeforeTestRun(object? sender, ExecutionEventArgs e)
 {
 }
 
+string GetEnvironmentContext()
+{
+    string output =
+$@"MachineName: <Green>{NextUnitTestEnvironmentContext.MachineName}</Green>
+CommandLine: <Green>{NextUnitTestEnvironmentContext.CommandLine}</Green>
+ProcessorCount: <Green>{NextUnitTestEnvironmentContext.ProcessorCount}</Green>
+BiosInfo: <Green>{NextUnitTestEnvironmentContext.BiosInfo}</Green>
+Capacity: <Green>{NextUnitTestEnvironmentContext.Capacity}</Green>
+OperatingSystem: <Green>{NextUnitTestEnvironmentContext.OperatingSystem}</Green>";
+    return output;
+}
+
+string GetTestExecutionContext()
+{
+    string output =
+$@"TestRunStart: <Green>{NextUnitTestExecutionContext.TestRunStart}</Green>;
+TestRunEnd: <Green>{NextUnitTestExecutionContext.TestRunEnd}</Green>
+TestRunTime: <Green>{NextUnitTestExecutionContext.TestRunTime}</Green>";
+    return output;
+}
+
 void TestRunner_AfterTestRun(object? sender, ExecutionEventArgs e)
 {
-    Trace.WriteLine(e.TestResult.ToString());
+
+    string output =
+$@"MethodInfo: <Blue>{e.MethodInfo}</Blue>
+TestResult:
+DisplayName: <Green>{e.TestResult.DisplayName}</Green>
+Class: <Green>{e.TestResult.Class}, Namespace: {e.TestResult.Namespace}</Green>
+Start: <Green>{e.TestResult.Start}</Green>
+End: <Green>{e.TestResult.End}</Green>
+Execution Time: <Green>{e.TestResult.ExecutionTime}</Green>
+Workstation: <Green>{e.TestResult.Workstation}</Green>
+";
+
+    output.WriteColoredLine();
     Trace.WriteLine(@"");
 }
 

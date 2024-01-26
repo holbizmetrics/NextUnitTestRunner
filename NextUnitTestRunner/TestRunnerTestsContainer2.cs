@@ -23,7 +23,6 @@ namespace NextUnit.TestRunnerTests
             //Assert.IsTrue();
         }
         #endregion Asserts Tests
-
         #region AllCombinationsAttribute Tests
         private bool MyConditionMethod(object[] combination)
         {

@@ -265,7 +265,7 @@ namespace NextUnit.TestRunner
                                 OnAfterTestRun(new ExecutionEventArgs(method, testResult));
                                 if (lastException != null)
                                 {
-                                    OnError(new ExecutionEventArgs(method, testResult));
+                                    OnError(new ExecutionEventArgs(method, testResult, lastException));
                                 }
                             }
                         }

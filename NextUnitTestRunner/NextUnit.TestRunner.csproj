@@ -24,8 +24,4 @@
     <ProjectReference Include="..\NextUnitHardwareContext\NextUnit.HardwareContext.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Extensions\" />
-  </ItemGroup>
-
 </Project>
