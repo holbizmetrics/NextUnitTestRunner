@@ -26,7 +26,6 @@ namespace NextUnit.TestRunner
         public event ExecutionEventHandler TestRunFinished;
         public event ExecutionEventHandler ErrorEventHandler;
 
-        protected Dictionary<int, MethodInfo> classTypeMethodInfosAssociation { get; } = new Dictionary<int, MethodInfo>();
         public ITestDiscoverer TestDiscoverer { get; set; } = new TestDiscoverer();
         public bool UseThreading { get; set; } = true;
         /// <summary>

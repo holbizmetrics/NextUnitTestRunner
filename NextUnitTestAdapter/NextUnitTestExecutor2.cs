@@ -1,23 +1,21 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
+using System.Diagnostics;
 
 namespace NextUnit.TestAdapter
 {
-    [ExtensionUri("executor://NextUnitTestDiscoverer")]
-    public class NextUnitTestExecutor : NextUnitBaseExecutor, ITestExecutor
+    public class NextUnitTestExecutor2 : NextUnitBaseExecutor, ITestExecutor2
     {
         public void Cancel()
         {
             Debugger.Launch();
+            throw new NotImplementedException();
         }
 
         public void RunTests(IEnumerable<TestCase>? tests, IRunContext? runContext, IFrameworkHandle? frameworkHandle)
         {
             Debugger.Launch();
-            var settings = runContext.RunSettings.SettingsXml;
-            frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Error, "RunTests");
-            foreach (TestCase test in tests)
+            foreach (var test in tests)
             {
                 // Example: Mark the start of the test
                 frameworkHandle.RecordStart(test);
@@ -25,14 +23,10 @@ namespace NextUnit.TestAdapter
                 try
                 {
                     // Execute the test and get the result
-                    TestResult result = ExecuteTest(test);
+                    var result = ExecuteTest(test);
 
                     // Example: Record the outcome of the test
                     frameworkHandle.RecordResult(result);
-                }
-                catch(FileLoadException ex)
-                {
-
                 }
                 catch (Exception ex)
                 {
@@ -46,9 +40,19 @@ namespace NextUnit.TestAdapter
         public void RunTests(IEnumerable<string>? sources, IRunContext? runContext, IFrameworkHandle? frameworkHandle)
         {
             Debugger.Launch();
+            throw new NotImplementedException();
+        }
 
-            var settings = runContext.RunSettings.SettingsXml;
-            frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Error, "RunTests");
+        public bool ShouldAttachToTestHost(IEnumerable<string>? sources, IRunContext runContext)
+        {
+            Debugger.Launch();
+            throw new NotImplementedException();
+        }
+
+        public bool ShouldAttachToTestHost(IEnumerable<TestCase>? tests, IRunContext runContext)
+        {
+            Debugger.Launch();
+            throw new NotImplementedException();
         }
     }
 }

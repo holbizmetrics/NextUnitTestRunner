@@ -10,20 +10,40 @@ namespace NextUnit.TestRunner
     public interface ITestRunner
     {
         void Run(Type type);
-        void Run(string name);
+        void Run(string name, params Type[] types);
         void Run(object objectToGetTypeFrom);
         event ExecutionEventHandler BeforeTestRun;
+
+        /// <summary>
+        /// This event will be fired after each test run.
+        /// </summary>
         event ExecutionEventHandler AfterTestRun;
+
+        /// <summary>
+        /// This will be fired for each test being executed.
+        /// </summary>
         event ExecutionEventHandler TestExecuting;
 
+        /// <summary>
+        /// This will be fired if the complete test run is started.
+        /// </summary>
         event ExecutionEventHandler TestRunStarted;
+
+        /// <summary>
+        /// This will be fired if the complete test run is ended.
+        /// </summary>
         event ExecutionEventHandler TestRunFinished;
+
+        /// <summary>
+        /// This will be fired if an error occurs during the test run.
+        /// </summary>
         event ExecutionEventHandler ErrorEventHandler;
     }
 
     public interface ITestRunner3 : ITestRunner
     {
         AttributeLogicMapper AttributeLogicMapper { get; set; }
+        bool UseCombinator { get; set; }
     }
 
     /// <summary>
@@ -31,7 +51,7 @@ namespace NextUnit.TestRunner
     /// </summary>
     public class TestRunner : ITestRunner
     {
-        protected Dictionary<int, MethodInfo> classTypeMethodInfosAssociation = new Dictionary<int, MethodInfo>();
+        public Dictionary<Type, List<MethodInfo>> ClassTestMethodsAssociation = new Dictionary<Type, List<MethodInfo>>();
         protected TestDiscoverer discoverer = new TestDiscoverer();
 
         public event ExecutionEventHandler BeforeTestRun;
@@ -46,7 +66,7 @@ namespace NextUnit.TestRunner
         /// </summary>
         /// <param name="name"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public virtual void Run(string name)
+        public virtual void Run(string name, params Type[] types)
         {
             throw new NotImplementedException();
         }
@@ -90,8 +110,6 @@ namespace NextUnit.TestRunner
                             {
                                 for (int i = 0; i < executionCount; i++)
                                 {
-                                    //classTypeMethodInfosAssociation.Add(method.GetHashCode(), method);
-
                                     testResult = new TestResult();
                                     testResult.Namespace = method.DeclaringType.ToString();
                                     testResult.Workstation = machineName;
@@ -161,9 +179,9 @@ namespace NextUnit.TestRunner
             Run(objectToGetTypeFrom.GetType());
         }
 
-        public Dictionary<int, MethodInfo> ExecutedMethodsPerClass
+        public Dictionary<Type, List<MethodInfo>> ExecutedMethodsPerClass
         {
-            get { return classTypeMethodInfosAssociation; }
+            get { return this.ClassTestMethodsAssociation; }
         }
     }
 }

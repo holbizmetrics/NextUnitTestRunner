@@ -3,12 +3,14 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using NextUnit.Autofixture.AutoMoq.Core;
 using NextUnit.TestRunner;
 using NextUnit.TestRunner.Extensions;
-using NextUnit.TestRunnerTests;
+using NextUnit.TestRunner.UnitTests;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices.Marshalling;
 
 Trace.Listeners.Add(new ConsoleTraceListener());
 ITestRunner3 testRunner = new TestRunner3();
+testRunner.UseCombinator = false;
 testRunner.AttributeLogicMapper = new AutofixtureAutomoqAttributeAttributeLogicMapper();
 testRunner.AfterTestRun += TestRunner_AfterTestRun;
 testRunner.BeforeTestRun += TestRunner_BeforeTestRun;
@@ -18,11 +20,13 @@ testRunner.TestRunFinished += TestRunner_TestRunFinished;
 testRunner.ErrorEventHandler += TestRunner_ErrorEventHandler;
 
 TestRunnerTestsContainer2 testRunnerTestsContainer2 = new TestRunnerTestsContainer2();
+testRunner.Run(testRunnerTestsContainer2);
+
 //Run for one type or so:
 //testRunner.Run(typeof(TestClass));
 
-
-testRunner.Run(testRunnerTestsContainer2);
+string fileNextUnitTestRunnerTests = @"C:\Users\MOH1002\source\repos\NextUnitTestRunner\NextUnitTestRunnerTests\bin\Debug\net8.0\NextUnit.TestRunnerTests.dll";
+//testRunner.Run(fileNextUnitTestRunnerTests);
 /*string fileName = @"C:\Users\MOH1002\source\repos\NextUnitTestRunner\NextUnitTestRunnerTests\bin\Debug\net8.0\NextUnitTestRunnerTests.dll";
 if (Directory.Exists(fileName))
 {
@@ -113,10 +117,17 @@ TestRunTime: <Green>{NextUnitTestExecutionContext.TestRunTime}</Green>";
 
 void TestRunner_AfterTestRun(object? sender, ExecutionEventArgs e)
 {
-
-    string output =
+    string testResultStateText = e.TestResult.State switch
+    { 
+        ExecutedState.Passed => "<Green>passed</Green>",
+        ExecutedState.Failed => "<Red>failed</Red>",
+        ExecutedState.Skipped => "<Blue>skipped</Blue>",
+        ExecutedState.UnknownError => "<Cyan>Unknown Error</Cyan>",
+        ExecutedState.NotStarted => "<White>Not started</White>", 
+    };
+string    output =
 $@"MethodInfo: <Blue>{e.MethodInfo}</Blue>
-TestResult:
+TestResult: {testResultStateText}
 DisplayName: <Green>{e.TestResult.DisplayName}</Green>
 Class: <Green>{e.TestResult.Class}, Namespace: {e.TestResult.Namespace}</Green>
 Start: <Green>{e.TestResult.Start}</Green>

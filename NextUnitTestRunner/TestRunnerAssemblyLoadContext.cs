@@ -7,9 +7,14 @@ namespace NextUnit.TestRunner
     /// </summary>
     internal sealed class TestRunnerAssemblyLoadContext : AssemblyLoadContext
     {
+        public bool UseBase { get; set; } = false;
         protected override nint LoadUnmanagedDll(string unmanagedDllName)
         {
-            return LoadUnmanagedDllFromPath(unmanagedDllName); return base.LoadUnmanagedDll(unmanagedDllName);
+            if (UseBase)
+            {
+                return base.LoadUnmanagedDll(unmanagedDllName);
+            }
+            return LoadUnmanagedDllFromPath(unmanagedDllName); ;
         }
     }
 }

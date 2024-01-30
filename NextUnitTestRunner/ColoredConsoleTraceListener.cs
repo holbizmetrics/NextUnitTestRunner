@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using NextUnit.TestRunner.Extensions;
 namespace NexUnit.TestDataGenerator
 {
@@ -12,13 +7,13 @@ namespace NexUnit.TestDataGenerator
         public override void Write(string message)
         {
             // Use your extension method to write the message to the console without a newline
-            ConsoleExtensions.WriteColoredLine(message);
+            message.WriteColoredLine();
         }
 
         public override void WriteLine(string message)
         {
             // Use your extension method to write the message to the console with a newline
-            ConsoleExtensions.WriteColoredLine(message);
+            message.WriteColoredLine();
         }
     }
 }

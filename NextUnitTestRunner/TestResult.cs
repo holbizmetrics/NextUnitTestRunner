@@ -71,6 +71,7 @@ Start: {Start}
 End: {End}
 Execution Time: {ExecutionTime}
 Workstation: {Workstation}
+State: {State}
 ";
             return result;
         }

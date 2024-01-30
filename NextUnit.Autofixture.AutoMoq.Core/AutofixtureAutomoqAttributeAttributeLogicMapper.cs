@@ -1,9 +1,11 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Reflection;
+
+using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Kernel;
 using AutoFixture.NextUnit;
 using NextUnit.Core.AttributeLogic;
-using System.Reflection;
 
 namespace NextUnit.Autofixture.AutoMoq.Core
 {

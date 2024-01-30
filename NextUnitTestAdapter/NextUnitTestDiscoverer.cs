@@ -19,15 +19,17 @@ namespace NextUnitTestAdapter
         {
             Debugger.Launch();
             logger.SendMessage(TestMessageLevel.Error, "DiscoverTests");
-            foreach (var source in sources)
+            foreach (string source in sources)
             {
                 // Example: Load the assembly and discover test methods
                 var assembly = Assembly.LoadFrom(source);
-                foreach (var test in DiscoverTestsInAssembly(assembly))
+                foreach (MethodInfo test in DiscoverTestsInAssembly(assembly))
                 {
                     // Create a TestCase from the discovered test method
-                    var testCase = new TestCase(test.Name, new Uri("executor://MyTestDiscoverer"), source);
+                    var testCase = new TestCase(test.Name, new Uri("executor://NextUnitTestDiscoverer"), source);
+                    //testCase.Traits.Add(new Trait("Blub", "1")); //It works if we put this in here but we need to scan for the GroupAttribute marked tests.
 
+                    //testCase.CodeFilePath = 
                     // Add the test case to the discovery sink
                     discoverySink.SendTestCase(testCase);
                 }
@@ -39,7 +41,7 @@ namespace NextUnitTestAdapter
         {
             var testMethods = new List<MethodInfo>();
 
-            foreach (var type in assembly.GetTypes())
+            foreach (Type type in assembly.GetTypes())
             {
                 // Only consider public instance methods
                 foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public))

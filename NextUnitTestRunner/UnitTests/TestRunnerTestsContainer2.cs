@@ -3,11 +3,11 @@ using AutoFixture;
 using AutoFixture.NextUnit;
 using Moq;
 using NextUnit.Core.TestAttributes;
-using NextUnit.TestRunner;
 using NextUnit.TestRunner.Attributes;
 using System.Diagnostics;
+using System.Reflection;
 
-namespace NextUnit.TestRunnerTests
+namespace NextUnit.TestRunner.UnitTests
 {
     public class TestRunnerTestsContainer2
     {
@@ -23,6 +23,7 @@ namespace NextUnit.TestRunnerTests
             //Assert.IsTrue();
         }
         #endregion Asserts Tests
+
         #region AllCombinationsAttribute Tests
         private bool MyConditionMethod(object[] combination)
         {
@@ -41,15 +42,43 @@ namespace NextUnit.TestRunnerTests
             // Test code here...
             Trace.WriteLine("x: {x}, s: {s}");
         }
-        #endregion AllCombinationsAttribute Tests
 
-        #region ConditionalRetryAttribute Tests
-        private static int _externalServiceState = 0;
+        [Test, AllCombinations(
+            conditionMethodName: nameof(MyConditionMethod),
+            strategy: PermutationStrategy.Pairwise
+        )]
+        public void AllCombinationsAttributePairwiseTest(
+            [Values(1, 2, 3)] int x,
+            [Values("A", "B")] string s)
+        {
+            // Test code here...
+            Trace.WriteLine("x: {x}, s: {s}");
+        }
+        #endregion AllCombinationsAttribute Tests
 
         private static bool IsServiceInDesiredState()
         {
             return _externalServiceState == 5;
         }
+
+        #region ConditionAttribute Tests
+        /// <summary>
+        /// Needed for the ConditionAttributeTest below.
+        /// </summary>
+        public bool Blub()
+        {
+            return DateTime.Now > DateTime.Now; //this will never be true for sure.
+        }
+
+        [Test]
+        [Condition(nameof(Blub))]
+        public void ConditionAttributeTest()
+        {
+        }
+        #endregion ConditionAttribute Tests
+
+        #region ConditionalRetryAttribute Tests
+        private static int _externalServiceState = 0;
 
         [Test]
         [ConditionalRetry(nameof(IsServiceInDesiredState), maxRetry: 10)]
@@ -65,25 +94,20 @@ namespace NextUnit.TestRunnerTests
         {
 
         }
-
-        public bool Condition { get; set; } = false;
-
         #endregion ConditionalRetryAttribute Tests
 
         #region ConditionAttribute Tests
-
-        /// <summary>
-        /// Needed for the ConditionAttributeTest below.
-        /// </summary>
-        public bool Blub()
+        private bool IsConditionMet()
         {
-            return DateTime.Now > DateTime.Now; //this will never be true for sure.
+            // Define your condition logic here
+            return true; // Example condition
         }
 
         [Test]
-        [Condition(nameof(Blub))]
-        public void ConditionAttributeTest()
+        [Condition(nameof(IsConditionMet))]
+        public void ConditionalTest()
         {
+            // Test logic here...
         }
         #endregion ConditionAttribute Tests
 
@@ -100,6 +124,35 @@ namespace NextUnit.TestRunnerTests
             //Writes a text to the console for now.
             //How? The text is specified in the console.
         }
+
+        public class RangeDataAttribute : CustomExtendableAttribute
+        {
+            private readonly int start;
+            private readonly int end;
+
+            public RangeDataAttribute(int start, int end)
+            {
+                this.start = start;
+                this.end = end;
+            }
+
+            public override IEnumerable<object> GetData(MethodInfo methodInfo)
+            {
+                return Enumerable.Range(start, end - start + 1).Cast<object>();
+            }
+        }
+
+        /// <summary>
+        /// Will execute the method from Range Start to Range End.
+        /// </summary>
+        /// <param name="value"></param>
+        [Test]
+        [RangeData(1, 5)]
+        public void CustomExtendableAttributeRangeDataTest(int value)
+        {
+
+        }
+
         #endregion CustomExtendableAttribute Tests
 
         #region DependencyInjectionAttribute Tests
@@ -172,32 +225,6 @@ namespace NextUnit.TestRunnerTests
 
         }
         #endregion Group Attribute Tests
-
-        #region InjectDataAttribute Tests
-        public const bool TestInjectDataAttribute_isEnabled = true;
-        public const int TestInjectDataAttribute_count = 5;
-        public const string TestInjectDataAttribute_message = "Hallo";
-        /// <summary>
-        /// This will test that data can be injected and is correctly contained.
-        /// </summary>
-        [Test]
-        [InjectData(TestInjectDataAttribute_message, TestInjectDataAttribute_count, TestInjectDataAttribute_isEnabled)]
-        [InjectData("Crazy. It works!", 7, false)]
-        [InjectData("This as well!", 3, false)]
-        public void TestInjectDataAttribute(string message, int count, bool isEnabled)
-        {
-            Assert.IsTrue(message == TestInjectDataAttribute_message);
-            Assert.IsTrue(count == TestInjectDataAttribute_count);
-            Assert.IsTrue(isEnabled == TestInjectDataAttribute_isEnabled);
-        }
-
-        [InjectData]
-        public void TestInjectDataAttribute(params object[] values)
-        {
-
-        }
-
-        #endregion InjectDataAttribute Tests
 
         #region Random Attribute Tests
 
@@ -277,6 +304,30 @@ namespace NextUnit.TestRunnerTests
         }
         #endregion RunAfterAttribute Tests
 
+        #region RunAllDelegatePermutations Tests
+        [Test]
+        [RunAllDelegatePermutations("PermutationTest1", "PermutationTest2", "PermutationTest3")]
+        public void RunAllDelegatePermutationsTest()
+        {
+
+        }
+
+        public static void PermutationTest1()
+        {
+            Trace.WriteLine("PermutationTest: 1");
+        }
+
+        public static void PermutationTest2()
+        {
+            Trace.WriteLine("PermutationTest: 2");
+        }
+
+        public static void PermutationTest3()
+        {
+            Trace.WriteLine("PermutationTest: 3");
+        }
+        #endregion RunAllDelegatePermutations Tests
+
         #region RunBeforeAttribute Tests
         [Test]
         [RunBefore("2024-05-01T00:00:00")]
@@ -332,7 +383,7 @@ namespace NextUnit.TestRunnerTests
 
         #region AutoFixture.AutoMoq Test
         [InlineAutoData]
-        public void Test()
+        public void InlineAutoDataTest()
         {
 
         }

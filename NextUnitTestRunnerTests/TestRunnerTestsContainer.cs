@@ -4,6 +4,11 @@ using System.Diagnostics;
 
 namespace NextUnit.TestRunnerTests
 {
+
+
+
+
+
     public class TestRunnerTestsContainer
     {
         public TestRunnerTestsContainer()
@@ -19,21 +24,76 @@ namespace NextUnit.TestRunnerTests
         }
         #endregion Asserts Tests
 
-        #region ConditionalRetryAttribute Tests
-        [Test]
-        [ConditionalRetry("")]
-        public void Test()
+        #region AllCombinationsAttribute Tests
+        private bool MyConditionMethod(object[] combination)
         {
+            // Your condition logic here...
+            return combination[0] is int x && x > 0;
+        }
 
+        [Test, AllCombinations(
+            conditionMethodName: nameof(MyConditionMethod),
+            strategy: PermutationStrategy.Pairwise
+        )]
+        public void AllCombinationsAttributeTest(
+            [Values(1, 2, 3)] int x,
+            [Values("A", "B")] string s)
+        {
+            // Test code here...
+            Trace.WriteLine("x: {x}, s: {s}");
+        }
+
+        [Test, AllCombinations(
+            conditionMethodName: nameof(MyConditionMethod),
+            strategy: PermutationStrategy.Pairwise
+        )]
+        public void AllCombinationsAttributePairwiseTest(
+            [Values(1, 2, 3)] int x,
+            [Values("A", "B")] string s)
+        {
+            // Test code here...
+            Trace.WriteLine("x: {x}, s: {s}");
+        }
+        #endregion AllCombinationsAttribute Tests
+
+        private static bool IsServiceInDesiredState()
+        {
+            return _externalServiceState == 5;
+        }
+
+        #region ConditionAttribute Tests
+        /// <summary>
+        /// Needed for the ConditionAttributeTest below.
+        /// </summary>
+        public bool Blub()
+        {
+            return DateTime.Now > DateTime.Now; //this will never be true for sure.
         }
 
         [Test]
-        [ConditionalRetry("IsServiceInDesiredState", 10)]
+        [Condition(nameof(Blub))]
+        public void ConditionAttributeTest()
+        {
+        }
+        #endregion ConditionAttribute Tests
+
+        #region ConditionalRetryAttribute Tests
+        private static int _externalServiceState = 0;
+
+        [Test]
+        [ConditionalRetry(nameof(IsServiceInDesiredState), maxRetry: 10)]
         public void TestExternalServiceInteraction()
         {
-            // Test logic
+            _externalServiceState++;
+            Trace.WriteLine($"Attempt {_externalServiceState}: Testing interaction with the external service");
         }
-        public bool Condition { get; set; } = false;
+
+        [Test]
+        [ConditionalRetry(nameof(IsServiceInDesiredState), 1)]
+        public void ConditionalRetryAttributeTest()
+        {
+
+        }
 
         #endregion ConditionalRetryAttribute Tests
 
@@ -52,14 +112,36 @@ namespace NextUnit.TestRunnerTests
         }
         #endregion ConditionAttribute Tests
 
-        [Test]
-        public bool Blub()
-        {
-            return DateTime.Now > DateTime.Now; //this will never be true for sure.
-        }
-
         #region ConditionalRetryAttribute Tests
         #endregion ConditionalRetryAttribute Tests
+
+        #region DependencyInjectionAttribute Tests
+        public interface IMyService
+        {
+            string GetData();
+        }
+
+        public class MyServiceImplementation : IMyService
+        {
+            public string GetData()
+            {
+                return "Sample Data";
+            }
+        }
+
+        [Test, DependencyInjection(typeof(IMyService))]
+        public void MyTestMethod(IMyService service)
+        {
+            // Assert that the service is successfully injected
+            Assert.IsNotNull(service);
+
+            // Use the service in your test
+            var data = service.GetData();
+            Assert.AreEqual("Sample Data", data);
+
+            // Additional test logic...
+        }
+        #endregion DependencyInjectionAttribute Tests
 
         #region Group Attribute Tests
         [Test]
@@ -79,6 +161,8 @@ namespace NextUnit.TestRunnerTests
         /// </summary>
         [Test]
         [InjectData(TestInjectDataAttribute_message, TestInjectDataAttribute_count, TestInjectDataAttribute_isEnabled)]
+        [InjectData("Crazy. It works!", 7, false)]
+        [InjectData("This as well!", 3, false)]
         public void TestInjectDataAttribute(string message, int count, bool isEnabled)
         {
             Assert.IsTrue(message == TestInjectDataAttribute_message);
@@ -166,6 +250,58 @@ namespace NextUnit.TestRunnerTests
         }
         #endregion RunBeforeAttribute Tests     
 
+        #region RunAllDelegatePermutations Tests
+        [RunAllDelegatePermutations("Test1", "Test2", "Test3")]
+        [Test]
+        public static void RunAllDelegatePermutations()
+        {
+            
+        }
+
+        public static void Test1()
+        {
+
+        }
+
+        public static void Test2()
+        {
+
+        }
+        
+        public static void Test3()
+        {
+
+        }
+        #endregion RunAllDelegatePermutations Tests
+
+        #region SeveralDataAttributesTests
+        /// <summary>
+        /// 
+        /// </summary>
+        [Test]
+        [RunAfter("")]
+        [InjectDataAttribute]
+        public void RunAfterInjectDataAttributesTest()
+        {
+        }
+
+        [Test]
+        [RunBefore("")]
+        [InjectDataAttribute]
+        public void RunBeforeInjectDataAttributesTest()
+        {
+        }
+
+        [Test]
+        [RunBefore("")]
+        [RunAfter("")]
+        [InjectData]
+        public void RunBeforeRunAfterInjectDataAttributesTest()
+        {
+
+        }
+        #endregion SeveralDataAttributesTests
+
         #region Timeout Attribute Tests
         [Test]
         [Timeout(3)] //will make a test fail if it takes longer to execute then specified t timeout in attribute.
@@ -184,32 +320,5 @@ namespace NextUnit.TestRunnerTests
         }
         #endregion Timeout Attribute Tests
 
-        #region DependencyInjectionAttribute Tests
-        public interface IMyService
-        {
-            string GetData();
-        }
-
-        public class MyServiceImplementation : IMyService
-        {
-            public string GetData()
-            {
-                return "Sample Data";
-            }
-        }
-
-        [Test, DependencyInjection(typeof(IMyService))]
-        public void MyTestMethod(IMyService service)
-        {
-            // Assert that the service is successfully injected
-            Assert.IsNotNull(service);
-
-            // Use the service in your test
-            var data = service.GetData();
-            Assert.AreEqual("Sample Data", data);
-
-            // Additional test logic...
-        }
-        #endregion DependencyInjectionAttribute Tests
     }
 }

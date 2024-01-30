@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="AttributeLogic\LogicHandlers\RunDuringAttributeLogicHandler.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="AttributeLogic\LogicHandlers\RunDuringAttributeLogicHandler.cs" />
+  </ItemGroup>
+
 </Project>

@@ -11,13 +11,13 @@ namespace NextUnit.Core.TestAttributes
     /// Use this attribute to extend and implement own tests.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class CustomExtendableAttribute : TestAttribute
+    public abstract class CustomExtendableAttribute : TestAttribute
     {
         public CustomExtendableAttribute()
         { 
         }
 
-        public IEnumerable<object> GetData(MethodInfo methodInfo)
+        public virtual IEnumerable<object> GetData(MethodInfo methodInfo)
         {
             return null;
         }

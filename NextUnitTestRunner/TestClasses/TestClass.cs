@@ -59,7 +59,6 @@ namespace NextUnit.TestRunner.TestClasses
         [Test, AutoData]
         public void AutoDataTest(int n1, int n2)
         {
-
         }
 
         public class MyClass

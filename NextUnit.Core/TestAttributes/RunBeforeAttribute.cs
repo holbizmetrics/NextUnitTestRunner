@@ -17,7 +17,13 @@ namespace NextUnit.Core.TestAttributes
 
         public RunBeforeAttribute(string dateTime)
         {
-            ExecuteBefore = DateTime.Parse(dateTime);
+            DateTime dateTimeExecuteBefore;
+            bool success = DateTime.TryParse(dateTime, out dateTimeExecuteBefore);
+            if (!success)
+            {
+                return;
+            }
+            ExecuteBefore = dateTimeExecuteBefore;
         }
     }
 }

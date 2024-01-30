@@ -14,11 +14,19 @@
 
         public ExecuteUntilTimeoutAttribute(string executeUntilTimeSpanExceeded, string interval = null)
         {
-            Timeout = TimeSpan.Parse(executeUntilTimeSpanExceeded);
-            if(interval != null)
+            if (!TimeSpan.TryParse(executeUntilTimeSpanExceeded, out TimeSpan parsedTimeout))
             {
-                Interval = TimeSpan.Parse(interval);
+                // Handle parse failure, e.g., set to default value, throw exception, etc.
+                // Example: Setting to default TimeSpan.Zero
+                parsedTimeout = TimeSpan.Zero;
             }
+            Timeout = parsedTimeout;
+
+            if (interval != null && TimeSpan.TryParse(interval, out TimeSpan parsedInterval))
+            {
+                Interval = parsedInterval;
+            }
+            // Optionally handle the case where interval parsing fails
         }
     }
 }

@@ -6,6 +6,20 @@ namespace NextUnit.Core.Extensions
 {
     public static class ReflectionExtensions
     {
+        public static MethodInfo[] GetMethods(this Type type, string[] methodNames, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
+        {
+            List<MethodInfo> list = new List<MethodInfo>();
+            foreach(string methodName in methodNames)
+            {
+                MethodInfo methodInfo = type.GetMethod(methodName, bindingFlags);
+                if (methodInfo != null)
+                {
+                    list.Add(methodInfo);
+                }
+            }
+            return list.ToArray();
+        }
+
         public static Type GetInterface<T>(this Type type)
         {
             return type.GetInterfaces().FirstOrDefault(x => x == typeof(T));

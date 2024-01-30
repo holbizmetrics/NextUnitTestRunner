@@ -15,9 +15,18 @@ namespace NextUnit.Core.TestAttributes
     {
         public DateTime ExecuteAfter { get; private set; }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="dateTime"></param>
         public RunAfterAttribute(string dateTime)
         {
-            ExecuteAfter = DateTime.Parse(dateTime);
+            DateTime dateTimeExecuteAfter;
+            bool success = DateTime.TryParse(dateTime, out dateTimeExecuteAfter);
+            if (!success)
+            {
+                return;
+            }
+            ExecuteAfter = dateTimeExecuteAfter;
         }
     }
 }
