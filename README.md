@@ -28,9 +28,13 @@ NextUnit is a state-of-the-art testing framework for .NET applications, offering
 
 - **Seamless Integration with Visual Studio**: Enjoy seamless integration with Visual Studio, including support for test grouping and discovery in the Test Explorer.
 
-Test Run Output Example:
+Test Run Output Example (in console using the TestRunnerProject):
 
 ![image](https://github.com/holbizmetrics/NextUnitTestRunner/assets/48716952/ce8fb2f7-aa22-4b26-ac04-8dc2d2531034)
+
+Test Run Output Example (in Test Explorer, Visual Studio):
+
+![image](https://github.com/holbizmetrics/NextUnitTestRunner/assets/48716952/9948619b-5520-4574-abcf-0f8adcba97fb)
 
 ## Installation
 
