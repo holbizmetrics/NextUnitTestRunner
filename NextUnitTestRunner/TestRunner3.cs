@@ -6,7 +6,7 @@ using NextUnit.TestRunner.Assertions;
 using NextUnit.Core.TestAttributes;
 using System.Runtime.Loader;
 using NextUnit.Core.AttributeLogic;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using NextUnit.Core.Extensions;
 
 namespace NextUnit.TestRunner
 {
@@ -42,6 +42,10 @@ namespace NextUnit.TestRunner
         public bool UseCombinator { get; set; } = false;
         public bool UseThreading { get; set; } = true;
 
+        public Dictionary<Type, object> InstanceObjects = new Dictionary<Type, object>();
+
+        public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<CommonTestAttribute> Attributes)> TestMethodsPerClass { get; private set; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -61,7 +65,7 @@ namespace NextUnit.TestRunner
         }
 
         /// <summary>
-        /// 
+        /// Will be triggered if a test is executing.
         /// </summary>
         /// <param name="e"></param>
         protected void OnTestExecuting(ExecutionEventArgs e)
@@ -69,15 +73,28 @@ namespace NextUnit.TestRunner
             TestExecuting?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Will be triggered if a test run is started.
+        /// </summary>
+        /// <param name="e"></param>
         protected void OnTestRunStarted(ExecutionEventArgs e)
         {
             TestRunStarted?.Invoke(this, e);
         }
+
+        /// <summary>
+        /// Will be triggered if a test run is ending.
+        /// </summary>
+        /// <param name="e"></param>
         protected void OnTestRunFinished(ExecutionEventArgs e)
         {
             TestRunFinished?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Will be triggered if an error occurs.
+        /// </summary>
+        /// <param name="e"></param>
         protected void OnError(ExecutionEventArgs e)
         {
             ErrorEventHandler?.Invoke(this, e);
@@ -132,6 +149,13 @@ namespace NextUnit.TestRunner
             Trace.WriteLine($"Default unloading: {obj.ToString()}");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="arg2"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         private Assembly? Default_Resolving(AssemblyLoadContext arg1, AssemblyName arg2)
         {
             throw new NotImplementedException();
@@ -147,7 +171,29 @@ namespace NextUnit.TestRunner
 
             NextUnitTestExecutionContext.TestRunStart = DateTime.Now;
 
-            types = DiscoverTests(types);
+            //This will already discover all the tests for all types.
+            //So this could also be used by the TestDiscoverer now.
+            TestMethodsPerClass = ReflectionExtensions.GetMethodsWithAttributesAsIEnumerableGeneric<CommonTestAttribute>(types);
+
+            //this will be needed to keep track of needed instance objects, i.e. if an instance is not available for a certain type, add it to the dictionary.
+
+            //so we should be able to execute here, already.
+            foreach (var testDefinition in TestMethodsPerClass)
+            {
+                (Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition = ((Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes))testDefinition;
+                Type definitionType = definition.type;
+                if (!InstanceObjects.ContainsKey(definition.type))
+                {
+                    InstanceObjects.Add(definitionType, Activator.CreateInstance(definitionType));
+                }
+            }
+
+            //before:   the attributes and class instances were done in a loop.
+            //          this definitely is costing some performance.
+            //
+            //now:      - lets detect the attributes first.
+            //          - let's create class instances for each object where tests were found.
+            //          - and only THEN: execute the tests.
 
             if (UseThreading)
             {
@@ -164,30 +210,6 @@ namespace NextUnit.TestRunner
             }
 
             OnTestRunFinished(new ExecutionEventArgs());
-        }
-
-        public Type[] DiscoverTests(Type[] types)
-        {
-            ClassTestMethodsAssociation.Clear();
-            if (types != null && types.Length == 1)
-            {
-                Type type = types[0];
-                types = type == null ? Assembly.GetExecutingAssembly().GetTypes() : type.Assembly.GetTypes();
-            }
-            Type[] classes = types.Where(t => t.IsClass).ToArray();
-
-            string machineName = Environment.MachineName;
-
-            foreach (Type testClass in classes)
-            {
-                List<MethodInfo> methodInfos = TestDiscoverer.Discover(testClass);
-                if (methodInfos.Count > 0)
-                {
-                    ClassTestMethodsAssociation.Add(testClass, methodInfos);
-                }
-            }
-
-            return types;
         }
 
         public TestResult ExecuteTest(MethodInfo method, object classObject = null)
@@ -241,6 +263,163 @@ namespace NextUnit.TestRunner
                             testResult.End = DateTime.Now;
                         }
                     }
+                    //catch (AssertException ex)
+                    //{
+                    //    lastException = ex;
+                    //    Trace.WriteLine(ex.Message);
+                    //}
+                    //catch (TargetInvocationException ex)
+                    //{
+                    //    lastException = ex;
+                    //    if (ex.InnerException != null)
+                    //    {
+                    //        Trace.WriteLine(ex.InnerException);
+                    //    }
+                    //    else
+                    //    {
+                    //        Trace.WriteLine(ex);
+                    //    }
+                    //}
+                    //catch (TargetParameterCountException ex)
+                    //{
+                    //    lastException = ex;
+                    //    Trace.WriteLine(ex);
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    lastException = ex;
+                    //    Trace.WriteLine(ex);
+                    //}
+                    finally
+                    {
+                        if (testResult == null)
+                        {
+                            testResult = new TestResult();
+                        }
+                        testResult.End = DateTime.Now;
+                        testResult.StackTrace = lastException?.StackTrace;
+                        NextUnitTestExecutionContext.TestResults.Add(testResult);
+                        OnAfterTestRun(new ExecutionEventArgs(method, testResult));
+                        if (lastException != null)
+                        {
+                            testResult.State = ExecutedState.Failed;
+                            OnError(new ExecutionEventArgs(method, testResult, lastException));
+                        }
+                    }
+                }
+            }
+            return testResult;
+        }
+
+        public TestRunner3()
+        {
+
+        }
+
+        public TestRunner3(bool useThreading = true, bool useCombinator = false)
+        {
+            this.UseThreading = useThreading;
+            this.UseCombinator = useCombinator;
+        }
+
+        public TestRunner3(ITestDiscoverer testDiscoverer = null, AttributeLogicMapper attributeLogicMapper = null, bool? useThreading = true, bool? useCombinator = false)
+        {
+            if (testDiscoverer != null) With(testDiscoverer);
+            if (attributeLogicMapper != null) With(attributeLogicMapper);
+            if (useThreading != null) WithUseThreading(useThreading.HasValue ? useThreading.Value : UseThreading);
+            if (useCombinator != null) WithUseCombinator(useCombinator.HasValue ? useCombinator.Value : UseCombinator);
+        }
+
+        #region Fluent Syntax
+        public TestRunner3 With(ITestDiscoverer testDiscoverer)
+        {
+            this.TestDiscoverer = testDiscoverer;
+            return this;
+        }
+
+        public TestRunner3 WithUseCombinator(bool useCombinator)
+        {
+            this.UseCombinator = useCombinator;
+            return this;
+        }
+
+        public TestRunner3 With(AttributeLogicMapper attributeLogicMapper)
+        {
+            this.AttributeLogicMapper = attributeLogicMapper;
+            return this;
+        }
+
+        public TestRunner3 WithUseThreading(bool useThreading)
+        {
+            this.UseThreading = useThreading;
+            return this;
+        }
+        #endregion Fluent Syntax
+
+        /// <summary>
+        /// Executes the tests found by the TestDiscoverer.
+        /// </summary>
+        /// <param name="classTestMethodsAssociation"></param>
+        protected void ExecuteTests()
+        {
+            string machineName = NextUnitTestEnvironmentContext.MachineName;
+            foreach (var testDefinition in TestMethodsPerClass)
+            {
+                (Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition = testDefinition;
+                Type definitionType = definition.type;
+
+                MethodInfo method = definition.methodInfo;
+                object classObject = InstanceObjects[definitionType];
+
+                foreach (Attribute attribute in definition.Attributes)
+                {
+                    Exception lastException = null;
+                    TestResult testResult = null;
+                    try
+                    {
+                        OnBeforeTestRun(new ExecutionEventArgs(method));
+                        testResult = new TestResult();
+                        testResult.Namespace = method.DeclaringType.ToString();
+                        testResult.Class = method.DeclaringType.Name;
+                        testResult.Workstation = machineName;
+                        testResult.DisplayName = method.Name;
+
+                        Stopwatch stopwatch = Stopwatch.StartNew();
+                        OnTestExecuting(new ExecutionEventArgs(method));
+                        //Since we exclude the test marker attribute, a test logic handler should be found for each of the implemented framework attribute.
+
+                        //if being used attributes will be handled in a new way.
+                        //which will be become the proper way.
+                        //but until then it won't be 
+                        if (UseCombinator)
+                        {
+                            var customAttributes = method.GetCustomAttributes<Attribute>().ToArray();
+                            var combinator = new AttributeCombinator(customAttributes);
+                            combinator.ProcessCombinedAttributes(method, classObject);
+                        }
+                        else
+                        {
+                            if (attribute.GetType() != typeof(TestAttribute))
+                            {
+                                var handler = AttributeLogicMapper.GetHandlerFor(attribute);
+                                handler?.ProcessAttribute(attribute, method, classObject);
+                                if (handler != null)
+                                {
+                                    testResult.State = ExecutedState.Passed;
+                                }
+                            }
+                        }
+
+                        testResult.Start = DateTime.Now;
+
+                        stopwatch.Stop();
+
+                        if (testResult.State != ExecutedState.Skipped)
+                        {
+                            testResult.ExecutionTime = stopwatch.Elapsed;
+                            testResult.End = DateTime.Now;
+                        }
+                    }
                     catch (AssertException ex)
                     {
                         lastException = ex;
@@ -282,121 +461,6 @@ namespace NextUnit.TestRunner
                         {
                             testResult.State = ExecutedState.Failed;
                             OnError(new ExecutionEventArgs(method, testResult, lastException));
-                        }
-                    }
-                }
-            }
-            return testResult;
-        }
-
-        /// <summary>
-        /// Executes the tests found by the TestDiscoverer.
-        /// </summary>
-        /// <param name="classTestMethodsAssociation"></param>
-        protected void ExecuteTests()
-        {
-            Dictionary<Type, List<MethodInfo>> classTestMethodsAssociation = this.ClassTestMethodsAssociation;
-            string machineName = NextUnitTestEnvironmentContext.MachineName;
-            foreach (Type testClass in classTestMethodsAssociation.Keys)
-            {
-                List<MethodInfo> methodInfos = classTestMethodsAssociation[testClass];
-                if (methodInfos.Count == 0) continue;
-
-                object classObject = Activator.CreateInstance(testClass);
-
-                foreach (MethodInfo method in methodInfos)
-                {
-                    object[] parameters = null;
-                    IEnumerable<Attribute> attributes = method.GetCustomAttributes();
-                    if (attributes.Any(x => x.GetType() == typeof(TestAttribute) || x.GetType().BaseType == typeof(TestAttribute)))
-                    {
-                        int executionCount = 1;
-                        foreach (Attribute attribute in attributes)
-                        {
-                            Exception lastException = null;
-                            TestResult testResult = null;
-                            try
-                            {
-                                OnBeforeTestRun(new ExecutionEventArgs(method));
-                                testResult = new TestResult();
-                                testResult.Namespace = method.DeclaringType.ToString();
-                                testResult.Class = method.DeclaringType.Name;
-                                testResult.Workstation = machineName;
-                                testResult.DisplayName = method.Name;
-
-                                Stopwatch stopwatch = Stopwatch.StartNew();
-                                OnTestExecuting(new ExecutionEventArgs(method));
-                                //Since we exclude the test marker attribute, a test logic handler should be found for each of the implemented framework attribute.
-
-                                //if being used attributes will be handled in a new way.
-                                //which will be become the proper way.
-                                //but until then it won't be 
-                                if (UseCombinator)
-                                {
-                                    var customAttributes = method.GetCustomAttributes<Attribute>().ToArray();
-                                    var combinator = new AttributeCombinator(customAttributes);
-                                    combinator.ProcessCombinedAttributes(method, classObject);
-                                }
-                                else
-                                {
-                                    var handler = AttributeLogicMapper.GetHandlerFor(attribute);
-                                    handler?.ProcessAttribute(attribute, method, classObject);
-                                }
-
-                                testResult.Start = DateTime.Now;
-
-                                testResult.State = ExecutedState.Passed;
-                                stopwatch.Stop();
-
-                                if (testResult.State != ExecutedState.Skipped)
-                                {
-                                    testResult.ExecutionTime = stopwatch.Elapsed;
-                                    testResult.End = DateTime.Now;
-                                }
-                            }
-                            catch (AssertException ex)
-                            {
-                                lastException = ex;
-                                Trace.WriteLine(ex.Message);
-                            }
-                            catch (TargetInvocationException ex)
-                            {
-                                lastException = ex;
-                                if (ex.InnerException != null)
-                                {
-                                    Trace.WriteLine(ex.InnerException);
-                                }
-                                else
-                                {
-                                    Trace.WriteLine(ex);
-                                }
-                            }
-                            catch (TargetParameterCountException ex)
-                            {
-                                lastException = ex;
-                                Trace.WriteLine(ex);
-                            }
-                            catch (Exception ex)
-                            {
-                                lastException = ex;
-                                Trace.WriteLine(ex);
-                            }
-                            finally
-                            {
-                                if (testResult == null)
-                                {
-                                    testResult = new TestResult();
-                                }
-                                testResult.End = DateTime.Now;
-                                testResult.StackTrace = lastException?.StackTrace;
-                                NextUnitTestExecutionContext.TestResults.Add(testResult);
-                                OnAfterTestRun(new ExecutionEventArgs(method, testResult));
-                                if (lastException != null)
-                                {
-                                    testResult.State = ExecutedState.Failed;
-                                    OnError(new ExecutionEventArgs(method, testResult, lastException));
-                                }
-                            }
                         }
                     }
                 }

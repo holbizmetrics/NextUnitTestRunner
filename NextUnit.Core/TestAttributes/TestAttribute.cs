@@ -1,6 +1,8 @@
 ﻿namespace NextUnit.Core.TestAttributes
 {
-
+    /// <summary>
+    /// Used to mark a test.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class TestAttribute : CommonTestAttribute
     {

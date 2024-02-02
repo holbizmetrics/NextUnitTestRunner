@@ -6,6 +6,8 @@ using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner.Attributes;
 using System.Diagnostics;
 using System.Reflection;
+using static NextUnit.Core.AttributeLogic.LogicHandlers.CompileAttributeLogicHandler;
+using NextUnit.Core.AttributeLogic.LogicHandlers;
 
 namespace NextUnit.TestRunner.UnitTests
 {
@@ -40,7 +42,7 @@ namespace NextUnit.TestRunner.UnitTests
             [Values("A", "B")] string s)
         {
             // Test code here...
-            Trace.WriteLine("x: {x}, s: {s}");
+            Trace.WriteLine($"x: {x}, s: {s}");
         }
 
         [Test, AllCombinations(
@@ -52,14 +54,36 @@ namespace NextUnit.TestRunner.UnitTests
             [Values("A", "B")] string s)
         {
             // Test code here...
-            Trace.WriteLine("x: {x}, s: {s}");
+            Trace.WriteLine($"x: {x}, s: {s}");
         }
         #endregion AllCombinationsAttribute Tests
 
-        private static bool IsServiceInDesiredState()
+        #region CompileAttribute Tests
+
+        public const string source =
+@"
+using System;
+namespace DynamicNamespace
+{
+    public class Calculator
+    {
+        public int Add(int a, int b)
         {
-            return _externalServiceState == 5;
+            return a + b;
         }
+    }
+}";
+        [Test]
+        [Compile(source: source, useFile: false, methodName: "DynamicMethod")]
+        public void TestCompiledCode()
+        {
+            var compiledObject = CompiledObjectRegistry.Retrieve(MethodBase.GetCurrentMethod().Name);
+            var methodInfo = compiledObject.GetType().GetMethod("Add");
+            var result = methodInfo.Invoke(compiledObject, new object[] { 1, 2 });
+
+            // Assert on the `result` as needed
+        }
+        #endregion
 
         #region ConditionAttribute Tests
         /// <summary>
@@ -71,6 +95,7 @@ namespace NextUnit.TestRunner.UnitTests
         }
 
         [Test]
+        [Group(nameof(ConditionAttribute))]
         [Condition(nameof(Blub))]
         public void ConditionAttributeTest()
         {
@@ -79,8 +104,13 @@ namespace NextUnit.TestRunner.UnitTests
 
         #region ConditionalRetryAttribute Tests
         private static int _externalServiceState = 0;
+        private static bool IsServiceInDesiredState()
+        {
+            return _externalServiceState == 5;
+        }
 
         [Test]
+        [Group(nameof(ConditionalRetryAttribute))]
         [ConditionalRetry(nameof(IsServiceInDesiredState), maxRetry: 10)]
         public void TestExternalServiceInteraction()
         {
@@ -89,6 +119,7 @@ namespace NextUnit.TestRunner.UnitTests
         }
 
         [Test]
+        [Group(nameof(ConditionalRetryAttribute))]
         [ConditionalRetry(nameof(IsServiceInDesiredState), 1)]
         public void ConditionalRetryAttributeTest()
         {
@@ -104,6 +135,7 @@ namespace NextUnit.TestRunner.UnitTests
         }
 
         [Test]
+        [Group(nameof(ConditionAttribute))]
         [Condition(nameof(IsConditionMet))]
         public void ConditionalTest()
         {
@@ -118,6 +150,7 @@ namespace NextUnit.TestRunner.UnitTests
         /// messages to console, debug, etc. 
         /// </summary>
         [Test]
+        [Group(nameof(CustomExtendableAttribute))]
         [ConsoleCustomExtendable]
         public void CustomExtendableAttributeTest()
         {
@@ -147,10 +180,11 @@ namespace NextUnit.TestRunner.UnitTests
         /// </summary>
         /// <param name="value"></param>
         [Test]
+        [Group(nameof(CustomExtendableAttribute))]
         [RangeData(1, 5)]
-        public void CustomExtendableAttributeRangeDataTest(int value)
+        public void CustomExtendableAttributeRangeDataTest(int rangeValue)
         {
-
+            Trace.WriteLine($"RangeData, actual range value: {rangeValue}");
         }
 
         #endregion CustomExtendableAttribute Tests
@@ -170,6 +204,7 @@ namespace NextUnit.TestRunner.UnitTests
         }
 
         [Test, DependencyInjection(typeof(IMyService))]
+        [Group("DependencyInjectionAttribute")]
         public void DependencyInjectionAttributeTest(IMyService service)
         {
             // Assert that the service is successfully injected
@@ -185,6 +220,7 @@ namespace NextUnit.TestRunner.UnitTests
 
         #region DontRunDuringAttribute Tests
         [Test]
+        [Group(nameof(DontRunDuringAttribute))]
         [DontRunDuring("2024-05-01T00:00:00", "2024-05-01T00:00:00")]
         public void DontRunDuringAttributeTest()
         {
@@ -194,6 +230,7 @@ namespace NextUnit.TestRunner.UnitTests
 
         #region ExecuteUntilTimeoutAttribute Test
         [Test]
+        [Group("ExecuteUntilTimeoutAttribute")]
         //[ExecuteUntilTimeout("1", "1")] //use string instead
         public void ExecuteUntilTimeoutAttributeTest()
         {
@@ -201,6 +238,7 @@ namespace NextUnit.TestRunner.UnitTests
         #endregion ExecuteUntilTimeoutAttribute Test
 
         //#region ExtendedTestAttribute Tests
+        //[Group("ExtendedTestAttribute")]
         //[ExtendedTest]
         //public void ExtendedTestAttributeTest()
         //{ 
@@ -209,6 +247,7 @@ namespace NextUnit.TestRunner.UnitTests
 
         #region FuzzingAttribute Tests
         [Test]
+        [Group(nameof(FuzzingAttribute))]
         [Fuzzing]
         public void FuzzingAttributeTest(int n1, int n2)
         {
@@ -219,12 +258,49 @@ namespace NextUnit.TestRunner.UnitTests
 
         #region Group Attribute Tests
         [Test]
-        [Group("AttributeTest")]
+        [Group(nameof(GroupAttribute))]
         public void GroupAttributeTest()
         {
 
         }
         #endregion Group Attribute Tests
+
+        #region InjectDataAttribute Test 
+        public const bool TestInjectDataAttribute_isEnabled = true;
+        public const int TestInjectDataAttribute_count = 5;
+        public const string TestInjectDataAttribute_message = "Hallo";
+        /// <summary>
+        /// This will test that data can be injected and is correctly contained.
+        /// </summary>
+        [Test]
+        [Group(nameof(InjectDataAttribute))]
+        [InjectData(TestInjectDataAttribute_message, TestInjectDataAttribute_count, TestInjectDataAttribute_isEnabled)]
+        [InjectData("Crazy. It works!", 7, false)]
+        [InjectData("This as well!", 3, false)]
+        public void TestInjectDataAttribute(string message, int count, bool isEnabled)
+        {
+            Assert.IsTrue(message == TestInjectDataAttribute_message);
+            Assert.IsTrue(count == TestInjectDataAttribute_count);
+            Assert.IsTrue(isEnabled == TestInjectDataAttribute_isEnabled);
+        }
+
+        [Test]
+        [Group(nameof(InjectDataAttribute))]
+        [InjectData(1, 2, 3, "Name", false)]
+        public void InjectDataAttributeTest(int intParam1, int intParam2, int intParam3, string name, bool @switch)
+        {
+        }
+        #endregion InjectDataAttribute Test 
+
+        #region PermutationAttribute Test
+        [Test]
+        [Permutation]
+        [Group(nameof(PermutationAttribute))]
+        public void PermutationAttributeTest()
+        {
+
+        }
+        #endregion PermutationAttribute Test
 
         #region Random Attribute Tests
 
@@ -232,6 +308,7 @@ namespace NextUnit.TestRunner.UnitTests
         /// 
         /// </summary>
         [Test]
+        [Group(nameof(RandomAttribute))]
         [Random(-1000, 2000)] //if no count for the execution count is specified this will automatically be set to 1.
         public void TestRandomAttributeOnce(int param1)
         {
@@ -239,6 +316,7 @@ namespace NextUnit.TestRunner.UnitTests
         }
 
         [Test]
+        [Group(nameof(RandomAttribute))]
         [Random(1, 2)]
         [Random(1, 1, 1)]
         public void TestSeveralRandomAttributeEachOnlyExecutedOnce(int param1)
@@ -247,6 +325,7 @@ namespace NextUnit.TestRunner.UnitTests
         }
 
         [Test]
+        [Group(nameof(RandomAttribute))]
         [Random(1, 1, 0)]   //should do nothing, because count should be > 0 to make sense. Probably generate error?
         [Random(-1, 1, -3)]  //should do either nothing right now, only count >0 makes sense. Probably generate an error?
         public void TestSeveralRandomAttributesEachOnlyExecutedInvalidCount()
@@ -255,6 +334,7 @@ namespace NextUnit.TestRunner.UnitTests
         }
 
         [Test]
+        [Group(nameof(RandomAttribute))]
         [Random(5, 2)]      //should fail because 5 > 2 -> set min first, then max.
         public void TestRandomAttributFailsBecauseMinGreaterMax(int param1)
         {
@@ -265,6 +345,7 @@ namespace NextUnit.TestRunner.UnitTests
         /// Mixed Random attributes, but all are specified correctly.
         /// </summary>
         [Test]
+        [Group(nameof(RandomAttribute))]
         [Random(1, 3, 2)]
         public void TestSeveralRandomLegalAttributesMixed(int param1)
         {
@@ -275,6 +356,7 @@ namespace NextUnit.TestRunner.UnitTests
         /// Testing with specifications that either shouldn't be allowed or make no sense.
         /// </summary>
         [Test]
+        [Group(nameof(RandomAttribute))]
         [Random(0, 0, 0)]   //it wouldn't make sense to execute 0 times. As well as max = min.
         [Random(0, 0, -1)]  //it wouldn't make sense to execute -1 times. As well as max = min.
         [Random(1, 5, -1)]   //it wouldn't make sense to execute -1 times. Though the intervals are ok.
@@ -288,6 +370,7 @@ namespace NextUnit.TestRunner.UnitTests
         /// It's not allowed that ALL random values are the same. They have to be different.
         /// </summary>
         [Test]
+        [Group(nameof(RandomAttribute))]
         [Random(-200, 200, 5)]
         public void TestRandomAttributeMultiple(int param1)
         {
@@ -297,6 +380,7 @@ namespace NextUnit.TestRunner.UnitTests
 
         #region RunAfterAttribute Tests
         [Test]
+        [Group(nameof(RunAfterAttribute))]
         [RunAfter("2024-05-01T00:00:00")]
         public void RunAfterAttributeTest()
         {
@@ -306,6 +390,7 @@ namespace NextUnit.TestRunner.UnitTests
 
         #region RunAllDelegatePermutations Tests
         [Test]
+        [Group(nameof(RunAllDelegatePermutationsAttribute))]
         [RunAllDelegatePermutations("PermutationTest1", "PermutationTest2", "PermutationTest3")]
         public void RunAllDelegatePermutationsTest()
         {
@@ -330,6 +415,8 @@ namespace NextUnit.TestRunner.UnitTests
 
         #region RunBeforeAttribute Tests
         [Test]
+        [Group(nameof(RunBeforeAttribute))]
+        [Group("RunBeforeAttribute")]
         [RunBefore("2024-05-01T00:00:00")]
         public void RunBeforeAttributeTest()
         {
@@ -339,6 +426,7 @@ namespace NextUnit.TestRunner.UnitTests
 
         #region RunDuringAttribute Tests
         [Test]
+        [Group(nameof(DontRunDuringAttribute))]
         [DontRunDuring("2024-05-01T00:00:00", "2024-05-01T00:00:00")]
         public void RunDuringAttributeTest()
         {
@@ -349,6 +437,7 @@ namespace NextUnit.TestRunner.UnitTests
         #region SkipAttribute Tests
 
         [Test]
+        [Group(nameof(SkipAttribute))]
         [Skip]
         public void SkipAttributeTest()
         {
@@ -358,6 +447,7 @@ namespace NextUnit.TestRunner.UnitTests
 
         #region TimeoutAttribute Tests
         [Test]
+        [Group(nameof(TimeoutAttribute))]
         [Timeout(3)] //will make a test fail if it takes longer to execute then specified t timeout in attribute.
         public void TimeoutAttributeTestFailsBecauseTestNeedsTooLong()
         {
@@ -366,6 +456,7 @@ namespace NextUnit.TestRunner.UnitTests
         }
 
         [Test]
+        [Group(nameof(Timeout))]
         [Timeout(30000)] //will make a test fail if it takes longer to execute then specified t timeout in attribute.
         public void TimeoutAttributeSucceedsBecauseTestIsExecutedInTime()
         {
@@ -382,6 +473,8 @@ namespace NextUnit.TestRunner.UnitTests
         #endregion combined attributes tests
 
         #region AutoFixture.AutoMoq Test
+        [Test]
+        [Group(nameof(InlineAutoDataAttribute))]
         [InlineAutoData]
         public void InlineAutoDataTest()
         {
@@ -428,6 +521,8 @@ namespace NextUnit.TestRunner.UnitTests
 
         }
 
+        [Test]
+        [Group(nameof(InlineAutoMoqDataAttribute))]
         [InlineAutoMoqData(3, 4)]
         [InlineAutoMoqData(33, 44)]
         [InlineAutoMoqData(13, 14)]

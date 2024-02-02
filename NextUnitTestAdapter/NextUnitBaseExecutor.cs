@@ -1,64 +1,89 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
+using NextUnit.Core.Extensions;
 using NextUnit.TestRunner;
+using NextUnit.TestRunner.TestClasses;
+using System.Diagnostics;
 using System.Reflection;
 
-using NextUnit.TestRunner;
 using NextUnitTestResult = NextUnit.TestRunner.TestResult;
 using TestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
-using NextUnit.TestRunner.TestClasses;
-using System.Reflection.Metadata;
 namespace NextUnit.TestAdapter
 {
-    [ExtensionUri("executor://NextUnitTestDiscoverer")]
-    public abstract class NextUnitBaseExecutor
+    [ExtensionUri(Definitions.DiscovererURI)]
+    public abstract class NextUnitBaseExecutor : IRunContext
     {
-        protected TestRunner3 testRunner = new TestRunner3();
+        protected TestRunner3 TestRunner = new TestRunner3();
         public Type[] Types { get; set; } = null;
 
         public Dictionary<Type, object> Properties { get; set; } = new Dictionary<Type, object>();
+
+        #region IRunContext Interface
+        public virtual bool KeepAlive => false;
+
+        public virtual bool InIsolation => true;
+
+        public virtual bool IsDataCollectionEnabled => throw new NotImplementedException();
+
+        public virtual bool IsBeingDebugged => Debugger.IsAttached;
+
+        public virtual string? TestRunDirectory => throw new NotImplementedException();
+
+        public virtual string? SolutionDirectory => throw new NotImplementedException();
+
+        public virtual IRunSettings? RunSettings => throw new NotImplementedException();
+
+        #endregion IRunContext Interface
         public NextUnitBaseExecutor()
         {
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="testCase"></param>
+        /// <returns></returns>
         protected virtual TestResult ExecuteTest(TestCase testCase)
         {
+            List<string> files = new StackTrace().GetFrames()?.Select((StackFrame x) => x.GetMethod()?.DeclaringType?.Assembly.CodeBase).Distinct().ToList();
+
+            IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> classTestMethodsAssociation = null;
             if (Types == null)
             {
                 Assembly assembly = Assembly.LoadFrom(testCase.Source);
-                Types = testRunner.DiscoverTests(assembly.GetTypes());
+                classTestMethodsAssociation = TestRunner.TestDiscoverer.Discover(assembly.GetTypes());
 
-                foreach (Type testClass in testRunner.ClassTestMethodsAssociation.Keys)
+                foreach (var classTestMethodAssociation in classTestMethodsAssociation)
                 {
-                    List<MethodInfo> methodInfos = testRunner.ClassTestMethodsAssociation[testClass];
-                    if (methodInfos.Count == 0) continue;
+                    (Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition = classTestMethodAssociation;
 
-                    object classObject = Activator.CreateInstance(testClass);
-                    Properties.Add(testClass, classObject);
+                    Type definitionType = definition.type;
+                    if (!Properties.ContainsKey(definitionType))
+                    {
+                        Properties.Add(definitionType, Activator.CreateInstance(definitionType));
+                    }
                 }
             }
-            (Type type, MethodInfo method) blub = FindMethodByName(testCase.DisplayName);
-            NextUnitTestResult nextUnitTestResult = testRunner.ExecuteTest(blub.method, Properties[blub.type]);
-            TestResult testResult = new TestResult(testCase);
 
-            TestOutcome testOutcome = nextUnitTestResult.State switch
-            {
-                ExecutedState.Passed => testResult.Outcome = TestOutcome.Passed,
-                ExecutedState.Failed => testResult.Outcome = TestOutcome.Failed,
-                ExecutedState.Skipped => testResult.Outcome = TestOutcome.Skipped,
-                ExecutedState.NotFound => testResult.Outcome = TestOutcome.NotFound,
-            };
-            testResult.Outcome = testOutcome;
-            return testResult;
+            IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> methodFoundByName = ReflectionExtensions.FindMethodByName(classTestMethodsAssociation, testCase.DisplayName);
+           
+            (Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes) methodDefinition = methodFoundByName.First();
+
+            NextUnitTestResult nextUnitTestResult = TestRunner.ExecuteTest(methodDefinition.Method, Properties[methodDefinition.Type]);
+            return testCase.ConvertTestCase(nextUnitTestResult);
         }
 
-        public (Type, MethodInfo) FindMethodByName(string methodName)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="supportedProperties"></param>
+        /// <param name="propertyProvider"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public ITestCaseFilterExpression? GetTestCaseFilter(IEnumerable<string>? supportedProperties, Func<string, TestProperty?> propertyProvider)
         {
-            var result = testRunner.ClassTestMethodsAssociation
-                .SelectMany(entry => entry.Value.Select(method => (Type: entry.Key, Method: method)))
-                .FirstOrDefault(tuple => tuple.Method.Name == methodName);
-
-            return (result.Type, result.Method);
-        }
+            throw new NotImplementedException();
+        }       
     }
 }
 

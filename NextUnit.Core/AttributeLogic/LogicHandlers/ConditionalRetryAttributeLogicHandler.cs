@@ -3,6 +3,9 @@ using System.Reflection;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ConditionalRetryAttributeLogicHandler : IAttributeLogicHandler
     {
         public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)

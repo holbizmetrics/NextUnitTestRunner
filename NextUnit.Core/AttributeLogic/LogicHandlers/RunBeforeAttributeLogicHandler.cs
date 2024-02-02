@@ -15,7 +15,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
             }
             else
             {
-                throw new ExecutionEngineException("RunBeforeAttribute Exception");
+                throw new ExecutionEngineException("RunBeforeAttribute Exception: The specified date should be <= now.");
             }
         }
     }

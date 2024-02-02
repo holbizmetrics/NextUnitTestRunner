@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace NextUnit.Autofixture.AutoMoq.Core
+﻿namespace NextUnit.Autofixture.AutoMoq.Core
 {
     public class Generator<T>
     {

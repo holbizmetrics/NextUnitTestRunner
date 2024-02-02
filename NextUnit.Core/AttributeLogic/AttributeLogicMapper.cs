@@ -16,6 +16,7 @@ namespace NextUnit.Core.AttributeLogic
             {
                 {typeof(AllCombinationsAttribute), new AllCombinationsAttributeLogicHandler() },
                 //{ typeof(CommonTestAttribute), new CommonTestAttributeLogicHandler() }, //Is this even needed?
+                {typeof(CompileAttribute), new CompileAttributeLogicHandler() },
                 {typeof(CustomExtendableAttribute), new CustomExtendableAttributeLogicHandler() },
                 { typeof(ConditionalRetryAttribute), new ConditionalRetryAttributeLogicHandler() },
                 { typeof(ConditionAttribute), new ConditionAttributeLogicHandler()},
@@ -26,7 +27,7 @@ namespace NextUnit.Core.AttributeLogic
                 { typeof(GroupAttribute), new GroupAttributeLogicHandler() },
                 { typeof(InjectDataAttribute), new InjectDataAttributeLogicHandler() },
                 { typeof(PermutationAttribute), new PermutationAttributeLogicHandler() },
-                {typeof(RunAllDelegatePermutations), new RunAllDelegatePermutationsLogicHandler() },
+                {typeof(RunAllDelegatePermutationsAttribute), new RunAllDelegatePermutationsLogicHandler() },
                 { typeof(RandomAttribute), new RandomAttributeLogicHandler() },
                 { typeof(RepetitionsAttribute), new RepetitionsAttributeLogicHandler() },
                 { typeof(RetryAttribute), new RetryAttributeLogicHandler() },

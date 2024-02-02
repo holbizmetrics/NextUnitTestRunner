@@ -9,10 +9,12 @@ namespace NextUnit.TestRunner
 {
     public interface ITestRunner
     {
+
         void Run(Type type);
         void Run(string name, params Type[] types);
         void Run(object objectToGetTypeFrom);
         event ExecutionEventHandler BeforeTestRun;
+        public ITestDiscoverer TestDiscoverer { get; set; }
 
         /// <summary>
         /// This event will be fired after each test run.
@@ -40,7 +42,7 @@ namespace NextUnit.TestRunner
         event ExecutionEventHandler ErrorEventHandler;
     }
 
-    public interface ITestRunner3 : ITestRunner
+     public interface ITestRunner3 : ITestRunner
     {
         AttributeLogicMapper AttributeLogicMapper { get; set; }
         bool UseCombinator { get; set; }
@@ -51,8 +53,8 @@ namespace NextUnit.TestRunner
     /// </summary>
     public class TestRunner : ITestRunner
     {
-        public Dictionary<Type, List<MethodInfo>> ClassTestMethodsAssociation = new Dictionary<Type, List<MethodInfo>>();
-        protected TestDiscoverer discoverer = new TestDiscoverer();
+        public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<TestAttribute> Attributes)> ClassTestMethodsAssociation = null;
+        public ITestDiscoverer TestDiscoverer { get; set; } = new TestDiscoverer();
 
         public event ExecutionEventHandler BeforeTestRun;
         public event ExecutionEventHandler AfterTestRun;
@@ -86,7 +88,7 @@ namespace NextUnit.TestRunner
             foreach (Type testClass in classes)
             {
                 //Since we've already went through for a type we only have to create an object once.
-                List<MethodInfo> methodInfos = discoverer.Discover(testClass);
+                List<MethodInfo> methodInfos = TestDiscoverer.Discover(testClass);
                 if (methodInfos.Count == 0) continue;
                 object classObject = Activator.CreateInstance(testClass);
                 foreach (MethodInfo method in methodInfos)
@@ -179,7 +181,7 @@ namespace NextUnit.TestRunner
             Run(objectToGetTypeFrom.GetType());
         }
 
-        public Dictionary<Type, List<MethodInfo>> ExecutedMethodsPerClass
+        public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<TestAttribute> Attributes)> ExecutedMethodsPerClass
         {
             get { return this.ClassTestMethodsAssociation; }
         }

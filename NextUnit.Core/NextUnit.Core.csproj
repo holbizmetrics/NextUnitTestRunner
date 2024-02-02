@@ -4,6 +4,14 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageProjectUrl>https://github.com/holbizmetrics/NextUnitTestRunner</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/holbizmetrics/NextUnitTestRunner</RepositoryUrl>
+    <PackageReleaseNotes>The core for the NextUnit Framework.</PackageReleaseNotes>
+    <Title>NextUnit.Core</Title>
+    <Description>This is the Core for the NextUnit Test Framework.
+The core contains the attributes that can be used (without AutoMoq/AutoFixture support, since this is contained in another package.)
+As well as the LogicHandler for each contained attribute.</Description>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,5 +21,18 @@
   <ItemGroup>
     <None Include="AttributeLogic\LogicHandlers\RunDuringAttributeLogicHandler.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /y &quot;$(TargetDir)..\*.nupkg&quot; &quot;$(SolutionDir)LocalNuGetPackages\&quot;" />
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="echo&#xD;&#xA;echo Prebuild Event:&#xD;&#xA;echo --------------------------------------&#xD;&#xA;echo ConfigurationName: $(ConfigurationName)&#xD;&#xA;echo OutDir: $(OutDir)&#xD;&#xA;echo DevEnvDir: $(DevEnvDir)&#xD;&#xA;echo PlatformName: $(PlatformName)&#xD;&#xA;echo ProjectDir: $(ProjectDir)&#xD;&#xA;echo ProjectPath: $(ProjectPath)&#xD;&#xA;echo ProjectName: $(ProjectName)&#xD;&#xA;echo ProjectFileName: $(ProjectFileName)&#xD;&#xA;echo ProjectExt: $(ProjectExt)&#xD;&#xA;echo SolutionDir: $(SolutionDir)&#xD;&#xA;echo SolutionPath: $(SolutionPath)&#xD;&#xA;echo SolutionName: $(SolutionName)&#xD;&#xA;echo SolutionFileName: $(SolutionFileName)&#xD;&#xA;echo SolutionExt: $(SolutionExt)&#xD;&#xA;echo TargetDir: $(TargetDir)&#xD;&#xA;echo TargetPath: $(TargetPath)&#xD;&#xA;echo TargetName: $(TargetName)&#xD;&#xA;echo TargetFileName: $(TargetFileName)&#xD;&#xA;echo TargetExt: $(TargetExt)&#xD;&#xA;echo&#xD;&#xA;&#xD;&#xA;echo &quot;Should be here: $(TargetDir)..\*.nupkg&quot;" />
+  </Target>
 
 </Project>

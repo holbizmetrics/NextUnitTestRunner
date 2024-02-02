@@ -4,7 +4,8 @@ using System.Reflection;
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     /// <summary>
-    /// 
+    /// This is used to handle the ConditionAttribute which takes a bool delegate (specified by a name as a string)
+    /// and executes it in the method.
     /// </summary>
     public class ConditionAttributeLogicHandler : IAttributeLogicHandler
     {

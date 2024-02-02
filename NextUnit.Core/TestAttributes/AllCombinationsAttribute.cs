@@ -7,7 +7,9 @@
         OrthogonalArray
     }
 
-    // Combined attribute with conditions and permutation strategies
+    /// <summary>
+    /// Combined attribute with conditions and permutation strategies
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class AllCombinationsAttribute : CommonTestAttribute
     {

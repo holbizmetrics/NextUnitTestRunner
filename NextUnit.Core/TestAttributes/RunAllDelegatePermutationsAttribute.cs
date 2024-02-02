@@ -22,10 +22,10 @@ namespace NextUnit.Core.TestAttributes
     /// 
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class RunAllDelegatePermutations : Attribute
+    public class RunAllDelegatePermutationsAttribute : Attribute
     {
         public string[] Actions { get; set; }
-        public RunAllDelegatePermutations(params string[] actionDelegateName)
+        public RunAllDelegatePermutationsAttribute(params string[] actionDelegateName)
         {
             Actions = actionDelegateName;
         }

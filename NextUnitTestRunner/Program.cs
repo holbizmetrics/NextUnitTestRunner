@@ -1,15 +1,18 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using NextUnit.Autofixture.AutoMoq.Core;
+using NextUnit.Core.Extensions;
+using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner;
 using NextUnit.TestRunner.Extensions;
 using NextUnit.TestRunner.UnitTests;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices.Marshalling;
 
 Trace.Listeners.Add(new ConsoleTraceListener());
-ITestRunner3 testRunner = new TestRunner3();
+ITestRunner3 testRunner = new TestRunner3().With(new TestDiscoverer()).With(new AutofixtureAutomoqAttributeAttributeLogicMapper());
 testRunner.UseCombinator = false;
 testRunner.AttributeLogicMapper = new AutofixtureAutomoqAttributeAttributeLogicMapper();
 testRunner.AfterTestRun += TestRunner_AfterTestRun;
@@ -24,6 +27,8 @@ testRunner.Run(testRunnerTestsContainer2);
 
 //Run for one type or so:
 //testRunner.Run(typeof(TestClass));
+
+Dictionary<string, object> values2 = new TestMarkedPropertiesAttribute().GetMarkedAttributeValues();
 
 string fileNextUnitTestRunnerTests = @"C:\Users\MOH1002\source\repos\NextUnitTestRunner\NextUnitTestRunnerTests\bin\Debug\net8.0\NextUnit.TestRunnerTests.dll";
 //testRunner.Run(fileNextUnitTestRunnerTests);
@@ -140,3 +145,8 @@ Workstation: <Green>{e.TestResult.Workstation}</Green>
     Trace.WriteLine(@"");
 }
 
+public class TestMarkedPropertiesAttribute : Attribute
+{
+    [NextUnitValue]
+    public int PropertyToTestIfItIsMarked { get; set; }
+}

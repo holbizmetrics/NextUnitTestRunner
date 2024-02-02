@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
+    /// <summary>
+    /// Use this to not run a test during a certain time interval.
+    /// Thus, it has the same effect as the SkippedAttribute, basically.
+    /// </summary>
     public class DontRunDuring
     {
         public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)

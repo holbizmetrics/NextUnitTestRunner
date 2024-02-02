@@ -2,8 +2,17 @@
 
 namespace NextUnit.TestRunner
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class Assert
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void IsTrue(bool condition, string message = null)
         {
             if (!condition)
@@ -12,6 +21,12 @@ namespace NextUnit.TestRunner
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void IsFalse(bool condition, string message = null)
         {
             if (!condition)
@@ -20,6 +35,14 @@ namespace NextUnit.TestRunner
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void AreEqual<T>(T expected, T actual, string message = null)
         {
             if (!expected.Equals(actual))
@@ -27,6 +50,14 @@ namespace NextUnit.TestRunner
                 throw new AssertException($"{message}");
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void AreEqual(object expected, object actual, string message = null)
         {
             if (!expected.Equals(actual))
@@ -35,6 +66,11 @@ namespace NextUnit.TestRunner
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="objectToCheck"></param>
+        /// <exception cref="AssertException"></exception>
         public static void NotNull(object objectToCheck)
         { 
             if (objectToCheck == null)
@@ -43,11 +79,20 @@ namespace NextUnit.TestRunner
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ExceptionType"></param>
         public static void ExpectedException(Type ExceptionType)
         {
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="objectToTestAgainstNull"></param>
+        /// <exception cref="AssertException"></exception>
         public static void IsNotNull(object objectToTestAgainstNull)
         {
             if (objectToTestAgainstNull == null)

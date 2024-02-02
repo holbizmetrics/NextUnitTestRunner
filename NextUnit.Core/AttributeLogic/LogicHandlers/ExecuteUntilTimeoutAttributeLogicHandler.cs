@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
+    /// <summary>
+    /// This will repeat a test until the timeout is rfeached.
+    /// </summary>
     public class ExecuteUntilTimeoutAttributeLogicHandler : IAttributeLogicHandler
     {
         public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
@@ -26,6 +29,4 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
             }
         }
     }
-
-
 }

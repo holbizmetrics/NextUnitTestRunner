@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner.TestClasses;
 using System.Reflection;
@@ -10,6 +11,7 @@ namespace NextUnit.TestRunner
     public interface ITestDiscoverer
     {
         List<MethodInfo> Discover(Type testClass);
+        IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> Discover(params Type[] types);
     }
 
     /// <summary>
@@ -17,6 +19,12 @@ namespace NextUnit.TestRunner
     /// </summary>
     public class TestDiscoverer : ITestDiscoverer
     {
+        public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> Discover(params Type[] types)
+        {
+            IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> testMethodsPerClass = ReflectionExtensions.GetMethodsWithAttributesAsIEnumerable(types);
+            return testMethodsPerClass;
+        }
+
         public List<MethodInfo> Discover(Type testClass)
         {
             List<MethodInfo> discoveredValidTestMethods = new List<MethodInfo>();
@@ -32,6 +40,37 @@ namespace NextUnit.TestRunner
             }
             return discoveredValidTestMethods;
         }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public Type[] DiscoverTests(Type[] types, Dictionary<Type, List<MethodInfo>> classTestMethodsAssociation)
+        {
+            classTestMethodsAssociation.Clear();
+            if (types != null && types.Length == 1)
+            {
+                Type type = types[0];
+                types = type == null ? Assembly.GetExecutingAssembly().GetTypes() : type.Assembly.GetTypes();
+            }
+            Type[] classes = types.Where(t => t.IsClass).ToArray();
+
+            string machineName = Environment.MachineName;
+
+            foreach (Type testClass in classes)
+            {
+                List<MethodInfo> methodInfos = Discover(testClass);
+                if (methodInfos.Count > 0)
+                {
+                    classTestMethodsAssociation.Add(testClass, methodInfos);
+                }
+            }
+
+            return types;
+        }
+
 
         public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
         {

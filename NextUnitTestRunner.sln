@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexUnit.TestDataGenerator",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NextUnit.Autofixture.AutoMoq.Core", "NextUnit.Autofixture.AutoMoq.Core\NextUnit.Autofixture.AutoMoq.Core.csproj", "{D83CC2FB-4C30-41ED-B386-032C2A35DE5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextUnit.CodeCoverage.Tests", "CodeCoverageTests\NextUnit.CodeCoverage.Tests.csproj", "{1CEBAC9B-E1D8-46A5-BAA0-A5427EAA062C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NextUnit.CodeCoverage.Tests", "CodeCoverageTests\NextUnit.CodeCoverage.Tests.csproj", "{1CEBAC9B-E1D8-46A5-BAA0-A5427EAA062C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextUnit.Compiler", "NextUnit.Compiler\NextUnit.Compiler.csproj", "{706B49E3-4629-40A6-B5A9-9384B87DD9C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +73,10 @@ Global
 		{1CEBAC9B-E1D8-46A5-BAA0-A5427EAA062C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CEBAC9B-E1D8-46A5-BAA0-A5427EAA062C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CEBAC9B-E1D8-46A5-BAA0-A5427EAA062C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{706B49E3-4629-40A6-B5A9-9384B87DD9C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{706B49E3-4629-40A6-B5A9-9384B87DD9C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{706B49E3-4629-40A6-B5A9-9384B87DD9C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{706B49E3-4629-40A6-B5A9-9384B87DD9C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
