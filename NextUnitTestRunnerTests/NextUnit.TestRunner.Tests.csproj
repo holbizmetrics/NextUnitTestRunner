@@ -14,13 +14,15 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AutoFixture.NextUnit\AutoFixture.NextUnit.csproj" />
+    <ProjectReference Include="..\NextUnit.Autofixture.AutoMoq.Core\NextUnit.Autofixture.AutoMoq.Core.csproj" />
+    <ProjectReference Include="..\NextUnit.Core\NextUnit.Core.csproj" />
     <ProjectReference Include="..\NextUnitTestRunner\NextUnit.TestRunner.csproj" />
     <ProjectReference Include="..\NextUnitTestAdapter\NextUnit.TestAdapter.csproj" />
   </ItemGroup>

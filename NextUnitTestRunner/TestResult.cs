@@ -1,5 +1,8 @@
 ﻿namespace NextUnit.TestRunner
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public enum ExecutedState
     {
         /// <summary>

@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using NextUnit.Core.Extensions;
 using NextUnit.TestRunner;
-using NextUnit.TestRunner.TestClasses;
 using System.Diagnostics;
 using System.Reflection;
 

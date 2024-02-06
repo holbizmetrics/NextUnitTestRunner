@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NextUnit.ConsoleTools": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\MOH1002\\source\\repos\\NextUnitTestRunner\\AutoFixture.NextUnit.Tests\\bin\\Debug\\net8.0\\AutoFixture.NextUnit.Tests.dll"
+    }
+  }
+}

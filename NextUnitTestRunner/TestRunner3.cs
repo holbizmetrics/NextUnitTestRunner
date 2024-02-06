@@ -2,11 +2,11 @@
 
 using System.Diagnostics;
 using System.Reflection;
-using NextUnit.TestRunner.Assertions;
 using NextUnit.Core.TestAttributes;
 using System.Runtime.Loader;
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
+using NextUnit.Core.Asserts;
 
 namespace NextUnit.TestRunner
 {
@@ -30,7 +30,6 @@ namespace NextUnit.TestRunner
     /// </summary>
     public class TestRunner3 : TestRunner, ITestRunner3
     {
-        public ITestDiscoverer TestDiscoverer { get; set; } = new TestDiscoverer();
         public event ExecutionEventHandler BeforeTestRun;
         public event ExecutionEventHandler AfterTestRun;
         public event ExecutionEventHandler TestExecuting;
@@ -38,7 +37,23 @@ namespace NextUnit.TestRunner
         public event ExecutionEventHandler TestRunStarted;
         public event ExecutionEventHandler TestRunFinished;
         public event ExecutionEventHandler ErrorEventHandler;
+
         public AttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
+
+        /// <summary>
+        /// If set for each test run the class object will be reinstantiated. Not implemented, yet.
+        /// </summary>
+        public bool RecreateClassObject { get; } = false;
+
+        /// <summary>
+        /// Without combinator:
+        /// 
+        /// The attributes will be just used AS IS.
+        /// 
+        /// This means in several cases it may not make sense to run the test several times.
+        /// e.g.  
+        ///
+        /// </summary>
         public bool UseCombinator { get; set; } = false;
         public bool UseThreading { get; set; } = true;
 
@@ -100,7 +115,7 @@ namespace NextUnit.TestRunner
             ErrorEventHandler?.Invoke(this, e);
         }
 
-        public void Run(object objectToGetTypeFrom)
+        public override void Run(object objectToGetTypeFrom)
         {
             Run(objectToGetTypeFrom.GetType());
         }
@@ -110,7 +125,7 @@ namespace NextUnit.TestRunner
         /// If there is an error occurring an error event will be triggered.
         /// </summary>
         /// <param name="name"></param>
-        public void Run(string name, params Type[] types)
+        public override void Run(string name, params Type[] types)
         {
             AssemblyLoadContext.Default.Resolving += Default_Resolving;
             AssemblyLoadContext.Default.Unloading += Default_Unloading;
@@ -175,9 +190,7 @@ namespace NextUnit.TestRunner
             //So this could also be used by the TestDiscoverer now.
             TestMethodsPerClass = ReflectionExtensions.GetMethodsWithAttributesAsIEnumerableGeneric<CommonTestAttribute>(types);
 
-            //this will be needed to keep track of needed instance objects, i.e. if an instance is not available for a certain type, add it to the dictionary.
-
-            //so we should be able to execute here, already.
+            //thus, we only need to create the instance objects per type here.
             foreach (var testDefinition in TestMethodsPerClass)
             {
                 (Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition = ((Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes))testDefinition;
@@ -369,7 +382,7 @@ namespace NextUnit.TestRunner
                 Type definitionType = definition.type;
 
                 MethodInfo method = definition.methodInfo;
-                object classObject = InstanceObjects[definitionType];
+                object classObject = RecreateClassObject ? (InstanceObjects[definitionType] = Activator.CreateInstance(definitionType)) : InstanceObjects[definitionType];
 
                 foreach (Attribute attribute in definition.Attributes)
                 {

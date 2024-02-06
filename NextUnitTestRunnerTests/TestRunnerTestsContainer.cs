@@ -1,5 +1,5 @@
-﻿using NextUnit.Core.TestAttributes;
-using NextUnit.TestRunner;
+﻿using NextUnit.Core.Asserts;
+using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner.Attributes;
 using System.Diagnostics;
 using System.Reflection;
@@ -401,5 +401,13 @@ namespace DynamicNamespace
             Thread.Sleep(500);
         }
         #endregion Timeout Attribute Tests
+
+        [Test]
+        [Group("Blub")]
+        [Group("Test")]
+        public void BlubTest()
+        {
+
+        }
     }
 }

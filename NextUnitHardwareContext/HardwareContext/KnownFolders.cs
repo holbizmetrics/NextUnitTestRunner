@@ -1,6 +1,4 @@
-﻿using System;
-
-/* Unmerged change from project 'NextUnitHardwareContext (net7.0-windows)'
+﻿/* Unmerged change from project 'NextUnitHardwareContext (net7.0-windows)'
 Before:
 using System.Runtime.InteropServices;
 After:
@@ -8,7 +6,6 @@ using System.Runtime.InteropServices;
 using NextUnitHardwareContext.SystemInformation;
 */
 using System.Runtime.InteropServices;
-using NextUnit.HardwareContext.SystemInformation;
 
 
 /* Unmerged change from project 'NextUnitHardwareContext (net7.0-windows)'

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using AutoFixture.NextUnit;
+using NextUnit.Core.Asserts;
 using NextUnit.Core.TestAttributes;
-using NextUnit.TestRunner;
 
 namespace NextUnit.TestRunnerTests.AdditionalAttributes
 {

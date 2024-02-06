@@ -6,7 +6,7 @@ namespace NextUnit.TestAdapter
 {
     public static class TestAdapterHelper
     { /// <summary>
-      /// 
+      /// Converts a NextUnit TestResult to a Microsoft TestResult. As needed by the TestAdapter to be correctly shown, e.g. in the Test Explorer.
       /// </summary>
       /// <param name="testCase"></param>
       /// <param name="nextUnitTestResult"></param>

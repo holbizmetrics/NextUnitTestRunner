@@ -5,7 +5,7 @@ using AutoFixture;
 namespace NextUnit.Autofixture.AutoMoq.Core.DerivedAttributes
 {
     /// <summary>
-    /// Provides a highly flexible NUnit test method attribute for automatic data generation.
+    /// Provides a highly flexible test method attribute for automatic data generation.
     /// This attribute combines AutoFixture's data generation with Moq's mocking capabilities,
     /// and allows for extensive customization through provided configuration actions.
     ///

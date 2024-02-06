@@ -1,15 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using NextUnit.Core.Asserts;
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
-using NextUnit.TestRunner.Assertions;
 
 namespace NextUnit.TestRunner
 {
     public interface ITestRunner
     {
-
         void Run(Type type);
         void Run(string name, params Type[] types);
         void Run(object objectToGetTypeFrom);
@@ -46,6 +45,7 @@ namespace NextUnit.TestRunner
     {
         AttributeLogicMapper AttributeLogicMapper { get; set; }
         bool UseCombinator { get; set; }
+        bool RecreateClassObject { get; }
     }
 
     /// <summary>
@@ -56,11 +56,12 @@ namespace NextUnit.TestRunner
         public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<TestAttribute> Attributes)> ClassTestMethodsAssociation = null;
         public ITestDiscoverer TestDiscoverer { get; set; } = new TestDiscoverer();
 
-        public event ExecutionEventHandler BeforeTestRun;
-        public event ExecutionEventHandler AfterTestRun;
-        public event ExecutionEventHandler TestExecuting;
-        public event ExecutionEventHandler TestRunStarted;
-        public event ExecutionEventHandler TestRunFinished;
+        public virtual event ExecutionEventHandler BeforeTestRun;
+        public virtual event ExecutionEventHandler AfterTestRun;
+        public virtual event ExecutionEventHandler TestExecuting;
+        public virtual event ExecutionEventHandler TestRunStarted;
+        public virtual event ExecutionEventHandler TestRunFinished;
+
         public event ExecutionEventHandler ErrorEventHandler;
 
         /// <summary>
@@ -176,12 +177,12 @@ namespace NextUnit.TestRunner
             }
         }
 
-        public void Run(object objectToGetTypeFrom)
+        public virtual void Run(object objectToGetTypeFrom)
         {
             Run(objectToGetTypeFrom.GetType());
         }
 
-        public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<TestAttribute> Attributes)> ExecutedMethodsPerClass
+        public virtual IEnumerable<(Type Type, MethodInfo Method, IEnumerable<TestAttribute> Attributes)> ExecutedMethodsPerClass
         {
             get { return this.ClassTestMethodsAssociation; }
         }

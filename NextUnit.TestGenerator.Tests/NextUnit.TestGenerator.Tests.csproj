@@ -14,6 +14,7 @@
     <ProjectReference Include="..\AutoFixture.NextUnit\AutoFixture.NextUnit.csproj" />
     <ProjectReference Include="..\NextUnit.Autofixture.AutoMoq.Core\NextUnit.Autofixture.AutoMoq.Core.csproj" />
     <ProjectReference Include="..\NextUnit.Core\NextUnit.Core.csproj" />
+    <ProjectReference Include="..\NextUnit.TestGenerator\NextUnit.TestGenerator.csproj" />
     <ProjectReference Include="..\NextUnitTestAdapter\NextUnit.TestAdapter.csproj" />
   </ItemGroup>
 

@@ -6,6 +6,7 @@ using NextUnit.Core.TestAttributes;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using AutoFixture.Kernel;
+using NextUnit.Autofixture.AutoMoq.Core.DerivedAttributes;
 
 namespace NextUnit.TestRunner.TestClasses
 {
@@ -81,35 +82,35 @@ namespace NextUnit.TestRunner.TestClasses
 
         }
 
-        public class AutoMoqDataAttribute : AutoDataAttribute
-        {
-            public AutoMoqDataAttribute()
-                : this(null)
-            {
-            }
+        //public class AutoMoqDataAttribute : AutoDataAttribute
+        //{
+        //    public AutoMoqDataAttribute()
+        //        : this(null)
+        //    {
+        //    }
 
-            protected AutoMoqDataAttribute(Action<IFixture>? cfg)
-                : base(() =>
-                {
-                    var fixture = new Fixture();
-                    fixture.Customize(new AutoMoqCustomization
-                    {
-                        ConfigureMembers = true,
-                        GenerateDelegates = true,
-                    });
-                    cfg?.Invoke(fixture);
-                    return fixture;
-                })
-            {
-            }
-        }
+        //    protected AutoMoqDataAttribute(Action<IFixture>? cfg)
+        //        : base(() =>
+        //        {
+        //            var fixture = new Fixture();
+        //            fixture.Customize(new AutoMoqCustomization
+        //            {
+        //                ConfigureMembers = true,
+        //                GenerateDelegates = true,
+        //            });
+        //            cfg?.Invoke(fixture);
+        //            return fixture;
+        //        })
+        //    {
+        //    }
+        //}
 
-        public class InlineAutoMoqDataAttribute : InlineAutoDataAttribute
-        {
-            public InlineAutoMoqDataAttribute(params object[] objects) : base(new AutoMoqDataAttribute(), objects)
-            {
-            }
-        }
+        //public class InlineAutoMoqDataAttribute : InlineAutoDataAttribute
+        //{
+        //    public InlineAutoMoqDataAttribute(params object[] objects) : base(new AutoMoqDataAttribute(), objects)
+        //    {
+        //    }
+        //}
 
         public interface ISomeInterface
         {

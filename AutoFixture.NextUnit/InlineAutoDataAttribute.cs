@@ -63,7 +63,7 @@ namespace AutoFixture.NextUnit
         }
 
         /// <summary>
-        /// Initializes a new instance of the AutoFixture.NUnit3.AutoDataAttribute class
+        /// Initializes a new instance of the AutoFixture.NextUnit.AutoDataAttribute class
         /// with the supplied fixtureFactory.Fixture will be created on demand using the
         /// provided factory.
         /// </summary>

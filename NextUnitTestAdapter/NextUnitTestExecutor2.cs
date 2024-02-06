@@ -43,28 +43,45 @@ namespace NextUnit.TestAdapter
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sources"></param>
+        /// <param name="runContext"></param>
+        /// <param name="frameworkHandle"></param>
         public void RunTests(IEnumerable<string>? sources, IRunContext? runContext, IFrameworkHandle? frameworkHandle)
         {
 #if ADAPTER_TEST
             Debugger.Launch();
 #endif
-            throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sources"></param>
+        /// <param name="runContext"></param>
+        /// <returns></returns>
         public bool ShouldAttachToTestHost(IEnumerable<string>? sources, IRunContext runContext)
         {
 #if ADAPTER_TEST
             Debugger.Launch();
 #endif
-            throw new NotImplementedException();
+            return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tests"></param>
+        /// <param name="runContext"></param>
+        /// <returns></returns>
         public bool ShouldAttachToTestHost(IEnumerable<TestCase>? tests, IRunContext runContext)
         {
 #if ADAPTER_TEST
             Debugger.Launch();
 #endif
-            throw new NotImplementedException();
+            return false;
         }
     }
 }

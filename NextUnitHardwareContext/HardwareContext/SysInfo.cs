@@ -19,6 +19,7 @@ using System.Management;
 using Microsoft.Management.Infrastructure;
 using static NextUnit.HardwareContext.Microsoft.Win32.Win32;
 using NextUnit.HardwareContext.Extensions;
+using System.Security;
 
 namespace NextUnit.HardwareContext.SystemInformation
 {
@@ -59,6 +60,7 @@ namespace NextUnit.HardwareContext.SystemInformation
             return QueryCIMInstances("Win32_VideoController");
         }
 
+        [SecurityCritical]
         public static string GetWindowsProductKey()
         {
             return QueryCIMInstances("SoftwareLicensingService")[0].CimInstanceProperties["OA3xOriginalProductKey"].ToString();

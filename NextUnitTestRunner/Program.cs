@@ -1,15 +1,12 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
+
 using NextUnit.Autofixture.AutoMoq.Core;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner;
 using NextUnit.TestRunner.Extensions;
 using NextUnit.TestRunner.UnitTests;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.InteropServices.Marshalling;
 
 Trace.Listeners.Add(new ConsoleTraceListener());
 ITestRunner3 testRunner = new TestRunner3().With(new TestDiscoverer()).With(new AutofixtureAutomoqAttributeAttributeLogicMapper());
@@ -21,6 +18,8 @@ testRunner.TestExecuting += TestRunner_TestExecuting;
 testRunner.TestRunStarted += TestRunner_TestRunStarted;
 testRunner.TestRunFinished += TestRunner_TestRunFinished;
 testRunner.ErrorEventHandler += TestRunner_ErrorEventHandler;
+
+
 
 TestRunnerTestsContainer2 testRunnerTestsContainer2 = new TestRunnerTestsContainer2();
 testRunner.Run(testRunnerTestsContainer2);
@@ -46,7 +45,6 @@ else
     testRunner.Run(fileName);
     Trace.WriteLine("Test run finished.");
 }*/
-
 
 void TestRunner_ErrorEventHandler(object sender, ExecutionEventArgs e)
 {

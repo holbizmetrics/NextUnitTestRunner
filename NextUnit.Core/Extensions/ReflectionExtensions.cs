@@ -336,5 +336,50 @@ namespace NextUnit.Core.Extensions
         {
             return type.IsAbstract && type.IsSealed;
         }
+
+        public static string FormatParameter(this ParameterInfo parameter)
+        {
+            Type type = parameter.ParameterType;
+            string typeName;
+
+            if (type.IsGenericType)
+            {
+                // Handle generic types
+                typeName = type.GetGenericTypeDefinition().Name;
+                // Remove the generic arity (`\`1`, `\`2`, etc.)
+                typeName = typeName.Substring(0, typeName.IndexOf('`'));
+                // Format the generic type arguments
+                string genericArgs = string.Join(", ", type.GetGenericArguments().Select(FormatType));
+                typeName = $"{typeName}<{genericArgs}>";
+            }
+            else
+            {
+                // Non-generic types
+                typeName = FormatType(type);
+            }
+
+            return $"{typeName} {parameter.Name}";
+        }
+
+        public static string FormatType(this Type type)
+        {
+            // Handle array types
+            if (type.IsArray)
+            {
+                return $"{FormatType(type.GetElementType())}[]";
+            }
+
+            // Add more type handling if necessary (e.g., nullable types)
+
+            // Use the type's name or a predefined alias (for common types)
+            switch (type.Name)
+            {
+                case "String": return "string";
+                case "Int32": return "int";
+                case "Boolean": return "bool";
+                // Add other type aliases as needed
+                default: return type.Name;
+            }
+        }
     }
 }

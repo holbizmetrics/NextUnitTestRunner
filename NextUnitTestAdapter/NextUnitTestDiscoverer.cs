@@ -5,22 +5,25 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
+using NextUnit.TestAdapter;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
+using System.Reflection.Metadata;
 
 namespace NextUnitTestAdapter
 {
-    [ExtensionUri(DiscovererURI)] //[ExtensionUri("executor://NextUnitTestDiscoverer")]
-    [DefaultExecutorUri(DiscovererURI)]//[DefaultExecutorUri("executor://NextUnitTestDiscoverer")]
-    [FileExtension(".dll")]
-    [FileExtension(".exe")]
-    [Category("managed")]
+    [ExtensionUri(Definitions.DiscovererURI)] //[ExtensionUri("executor://NextUnitTestDiscoverer")]
+    [DefaultExecutorUri(Definitions.DiscovererURI)]//[DefaultExecutorUri("executor://NextUnitTestDiscoverer")]
+    [FileExtension(Definitions.dll)] //[FileExtension(".dll")]
+    [FileExtension(Definitions.exe)] //[FileExtension(".exe")]
+    [Category(Definitions.managed)]//[Category("managed")]
     public class NextUnitTestDiscoverer : ITestDiscoverer
-    {
-        public const string DiscovererURI = "executor://NextUnitTestDiscoverer";
+    {        
         public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
         {
+            List<string> files = new StackTrace().GetFrames()?.Select((StackFrame x) => x.GetMethod()?.DeclaringType?.Assembly.CodeBase).Distinct().ToList();
+
 #if ADAPTER_TEST
             Debugger.Launch();
 #endif
@@ -35,11 +38,12 @@ namespace NextUnitTestAdapter
                 foreach (var testDefinition in TestMethodsPerClass)
                 {
                     (Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition = ((Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes))testDefinition;
+
                     Type definitionType = definition.type;
                     MethodInfo method = definition.methodInfo;
                     // Create a TestCase from the discovered test method
-                    var testCase = new TestCase(method.Name, new Uri("executor://NextUnitTestDiscoverer"), source);
-
+                    var testCase = new TestCase(method.Name, new Uri(Definitions.DiscovererURI), source); //new TestCase(method.Name, new Uri("executor://NextUnitTestDiscoverer"), source);
+                    testCase.CodeFilePath = Definitions.DiscovererURI;
                     GroupAttribute groupAttribute = method.GetCustomAttribute<GroupAttribute>();
                     if (groupAttribute != null)
                     {
@@ -59,6 +63,32 @@ namespace NextUnitTestAdapter
                     discoverySink.SendTestCase(testCase);
                 }
             }
+        }
+
+        public void GetSourceCodeLine()
+        {
+            //var assemblyDefinition = AssemblyDefinition.ReadAssembly(assemblyPath, readerParameters);
+
+            //foreach (var module in assemblyDefinition.Modules)
+            //{
+            //    foreach (var type in module.Types)
+            //    {
+            //        foreach (var method in type.Methods)
+            //        {
+            //            if (method.HasBody && method.DebugInformation.HasSequencePoints)
+            //            {
+            //                foreach (var seqPoint in method.DebugInformation.SequencePoints)
+            //                {
+            //                    Console.WriteLine($"Method: {method.FullName}");
+            //                    Console.WriteLine($"File: {seqPoint.Document.Url}");
+            //                    Console.WriteLine($"Start Line: {seqPoint.StartLine}");
+            //                    Console.WriteLine($"End Line: {seqPoint.EndLine}");
+            //                    // Break or continue as needed
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         // Method to discover tests in an assembly (simplified for example purposes)

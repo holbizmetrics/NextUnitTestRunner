@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
-using NextUnit.TestRunner.TestClasses;
 using System.Reflection;
 
 namespace NextUnit.TestRunner

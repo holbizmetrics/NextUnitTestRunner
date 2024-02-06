@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Reflection;
 using static NextUnit.Core.AttributeLogic.LogicHandlers.CompileAttributeLogicHandler;
 using NextUnit.Core.AttributeLogic.LogicHandlers;
+using NextUnit.Core.Asserts;
 
 namespace NextUnit.TestRunner.UnitTests
 {
@@ -530,6 +531,15 @@ namespace DynamicNamespace
         {
         }
         #endregion AutoFixture.AutoMoq Test
+
+        [Test]
+        [Group("Blub")]
+        [Group("Test")]
+        public void BlubTest()
+        {
+
+        }
+
         ~TestRunnerTestsContainer2()
         {
 

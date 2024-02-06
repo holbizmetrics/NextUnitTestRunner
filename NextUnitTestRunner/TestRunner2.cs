@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using NextUnit.TestRunner.Assertions;
 using NextUnit.Core.TestAttributes;
 using System.Runtime.Loader;
 using NextUnit.Core.AttributeLogic;
+using NextUnit.Core.Asserts;
 
 namespace NextUnit.TestRunner
 {

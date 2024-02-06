@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AutoFixture.NextUnit\AutoFixture.NextUnit.csproj" />
     <ProjectReference Include="..\NextUnit.Autofixture.AutoMoq.Core\NextUnit.Autofixture.AutoMoq.Core.csproj" />
+    <ProjectReference Include="..\NextUnit.Compiler\NextUnit.Compiler.csproj" />
     <ProjectReference Include="..\NextUnit.Core\NextUnit.Core.csproj" />
     <ProjectReference Include="..\NextUnitTestAdapter\NextUnit.TestAdapter.csproj" />
   </ItemGroup>
