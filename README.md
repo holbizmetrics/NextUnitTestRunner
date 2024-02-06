@@ -36,6 +36,10 @@ Test Run Output Example (in Test Explorer, Visual Studio):
 
 ![image](https://github.com/holbizmetrics/NextUnitTestRunner/assets/48716952/9948619b-5520-4574-abcf-0f8adcba97fb)
 
+Now it's finally possible to use it in your own class libraries as intended, if the correct packages/references are added:
+
+![image](https://github.com/holbizmetrics/NextUnitTestRunner/assets/48716952/4d563bd7-4734-4b96-88a4-2752ef58d0a1)
+
 ## Installation
 
 NextUnit can be installed via NuGet Package Manager. To install, run the following command in your package manager console:
