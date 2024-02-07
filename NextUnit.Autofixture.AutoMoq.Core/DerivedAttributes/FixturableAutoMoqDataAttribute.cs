@@ -26,14 +26,30 @@ namespace NextUnit.Autofixture.AutoMoq.Core.DerivedAttributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class FixturableAutoMoqDataAttribute : AutoDataAttribute
     {
+        /// <summary>
+        /// Enables to use a customized fixture.
+        /// </summary>
         public Action<IFixture> CustomizeFixture { get; set; }
+
+        /// <summary>
+        /// Enables to use a self-defined AutoMoqCustomization.
+        /// </summary>
         public Action<AutoMoqCustomization> CustomizeMoq { get; set; }
 
+        /// <summary>
+        /// If no customization is needed this can be leveraged.
+        /// </summary>
         public FixturableAutoMoqDataAttribute()
             : base(() => CreateFixture(null, null))
         {
         }
 
+        /// <summary>
+        /// Puts the specified customizeFixture and customizeMoq into the constructor.
+        /// For more info see header description of this class.
+        /// </summary>
+        /// <param name="customizeFixture"></param>
+        /// <param name="customizeMoq"></param>
         public FixturableAutoMoqDataAttribute(Action<IFixture> customizeFixture, Action<AutoMoqCustomization> customizeMoq)
             : base(() => CreateFixture(customizeFixture, customizeMoq))
         {
@@ -41,6 +57,12 @@ namespace NextUnit.Autofixture.AutoMoq.Core.DerivedAttributes
             CustomizeMoq = customizeMoq;
         }
 
+        /// <summary>
+        /// This is needed to be used above by the constructor.
+        /// </summary>
+        /// <param name="customizeFixture"></param>
+        /// <param name="customizeMoq"></param>
+        /// <returns></returns>
         private static IFixture CreateFixture(Action<IFixture> customizeFixture, Action<AutoMoqCustomization> customizeMoq)
         {
             var fixture = new Fixture();

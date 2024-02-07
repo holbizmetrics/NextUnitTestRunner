@@ -28,7 +28,7 @@ namespace NextUnit.TestRunner
     /// If not, this will happen sequentially.
     /// 
     /// </summary>
-    public class TestRunner3 : TestRunner, ITestRunner3
+    public class TestRunner3 : TestRunner, ITestRunner3, IDisposable
     {
         public event ExecutionEventHandler BeforeTestRun;
         public event ExecutionEventHandler AfterTestRun;
@@ -58,6 +58,7 @@ namespace NextUnit.TestRunner
         public bool UseThreading { get; set; } = true;
 
         public Dictionary<Type, object> InstanceObjects = new Dictionary<Type, object>();
+        private bool disposedValue;
 
         public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<CommonTestAttribute> Attributes)> TestMethodsPerClass { get; private set; }
 
@@ -127,14 +128,14 @@ namespace NextUnit.TestRunner
         /// <param name="name"></param>
         public override void Run(string name, params Type[] types)
         {
-            AssemblyLoadContext.Default.Resolving += Default_Resolving;
-            AssemblyLoadContext.Default.Unloading += Default_Unloading;
-            AssemblyLoadContext.Default.ResolvingUnmanagedDll += Default_ResolvingUnmanagedDll;
+            TestRunnerAssemblyLoadContext.Default.Resolving += Default_Resolving;
+            TestRunnerAssemblyLoadContext.Default.Unloading += Default_Unloading;
+            TestRunnerAssemblyLoadContext.Default.ResolvingUnmanagedDll += Default_ResolvingUnmanagedDll;
             if (!File.Exists(name))
             {
                 return;
             }
-            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(name);
+            var assembly = TestRunnerAssemblyLoadContext.Default.LoadFromAssemblyPath(name);
 
             if (types == null || types.Length == 0)
             {
@@ -162,6 +163,7 @@ namespace NextUnit.TestRunner
         private void Default_Unloading(AssemblyLoadContext obj)
         {
             Trace.WriteLine($"Default unloading: {obj.ToString()}");
+            obj.Unload();
         }
 
         /// <summary>
@@ -483,6 +485,35 @@ namespace NextUnit.TestRunner
                     }
                 }
             }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~TestRunner3()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

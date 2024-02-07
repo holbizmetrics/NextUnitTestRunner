@@ -41,11 +41,13 @@ namespace NextUnit.TestRunner
         event ExecutionEventHandler ErrorEventHandler;
     }
 
-     public interface ITestRunner3 : ITestRunner
+    public interface ITestRunner3 : ITestRunner
     {
+        bool UseThreading { get; set; }
         AttributeLogicMapper AttributeLogicMapper { get; set; }
         bool UseCombinator { get; set; }
         bool RecreateClassObject { get; }
+        void Dispose();
     }
 
     /// <summary>
@@ -127,7 +129,7 @@ namespace NextUnit.TestRunner
                                     testResult.ExecutionTime = stopwatch.Elapsed;
                                     testResult.End = DateTime.Now;
                                     Trace.WriteLine(testResult.ToString());
-                                    Trace.WriteLine("");                                    
+                                    Trace.WriteLine("");
                                 }
                             }
                             catch (AssertException ex)
@@ -161,7 +163,7 @@ namespace NextUnit.TestRunner
                             {
                                 if (testResult == null)
                                 {
-                                    testResult =  new TestResult();
+                                    testResult = new TestResult();
                                 }
                                 testResult.End = DateTime.Now;
                                 testResult.StackTrace = lastException?.StackTrace;

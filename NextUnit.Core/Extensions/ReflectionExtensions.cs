@@ -1,5 +1,6 @@
 ﻿using NextUnit.Core.TestAttributes;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Resources;
@@ -21,6 +22,52 @@ namespace NextUnit.Core.Extensions
                 }
             }
             return list.ToArray();
+        }
+
+       public static void AssertMethodParameters<T>(
+            this MethodInfo methodInfo,
+            T testInstance,
+            Action<object, ParameterInfo> assertAction)
+        {
+            if (methodInfo == null) throw new ArgumentNullException(nameof(methodInfo));
+            if (assertAction == null) throw new ArgumentNullException(nameof(assertAction));
+
+            // Invoke the method with default parameters to simulate AutoData-like behavior
+            var parameters = methodInfo.GetParameters();
+            var parameterValues = new object[parameters.Length];
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+                parameterValues[i] = GenerateDefaultValue(parameter.ParameterType);
+            }
+
+            // Execute the method to populate parameters with "auto-generated" data
+            methodInfo.Invoke(testInstance, parameterValues);
+
+            // Assert each parameter based on the provided assertAction
+            foreach (var parameter in parameters)
+            {
+                var parameterValue = parameterValues[parameter.Position];
+                assertAction(parameterValue, parameter);
+            }
+        }
+
+        private static object GenerateDefaultValue(Type type)
+        {
+            // Simulate AutoData behavior by generating default values
+            // This is a simplified example, you might need a more sophisticated solution for generating test data
+            if (type == typeof(int)) return default(int);
+            if (type == typeof(int?)) return default(int?);
+            if (type == typeof(bool)) return default(bool);
+            if (type == typeof(bool?)) return default(bool?);
+            if (type == typeof(string[])) return new string[0];
+            if (type == typeof(List<string>)) return new List<string>();
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                return Activator.CreateInstance(type);
+            }
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
         }
 
         /// <summary>
@@ -56,7 +103,7 @@ namespace NextUnit.Core.Extensions
             Type objectType = objectToGetValuesFrom.GetType();
             string[] invalidProperties = new string[] { "DeclaringMethod", "GenericParameterAttributes", "GenericParameterPosition" };
             PropertyInfo[] propertyInfos = objectType.GetProperties(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public);
-            
+
             Dictionary<string, object> values = new Dictionary<string, object>();
             foreach (var propertyInfo in propertyInfos)
             {
@@ -190,7 +237,7 @@ namespace NextUnit.Core.Extensions
         {
             Dictionary<string, object> values = new Dictionary<string, object>();
             PropertyInfo[] propertyInfos = attribute.GetType().GetProperties(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public);
-            foreach(PropertyInfo propertyInfo in propertyInfos)
+            foreach (PropertyInfo propertyInfo in propertyInfos)
             {
                 NextUnitValueAttribute nextUnitValueAttribute = propertyInfo.GetCustomAttribute<NextUnitValueAttribute>();
                 if (nextUnitValueAttribute == null) continue;
@@ -260,6 +307,20 @@ namespace NextUnit.Core.Extensions
                                         };
 
             return methodsWithAttributes;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static string[] GetAssemblyPaths()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies()
+                           // Filter to avoid assemblies without a physical location
+                           .Where(assembly => !string.IsNullOrWhiteSpace(assembly.Location))
+                           // Select the full path of the assembly
+                           .Select(assembly => assembly.Location)
+                           .ToArray();
         }
 
         /// <summary>
@@ -380,6 +441,89 @@ namespace NextUnit.Core.Extensions
                 // Add other type aliases as needed
                 default: return type.Name;
             }
+        }
+
+        /// <summary>
+        /// Given a lambda expression that calls a method, returns the method info.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expression">The expression.</param>
+        /// <returns></returns>
+        public static MethodInfo GetMethodInfo(Expression<Action> expression)
+        {
+            return GetMethodInfo((LambdaExpression)expression);
+        }
+
+        /// <summary>
+        /// Given a lambda expression that calls a method, returns the method info.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expression">The expression.</param>
+        /// <returns></returns>
+        public static MethodInfo GetMethodInfo<T>(Expression<Action<T>> expression)
+        {
+            return GetMethodInfo((LambdaExpression)expression);
+        }
+
+        /// <summary>
+        /// Given a lambda expression that calls a method, returns the method info.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expression">The expression.</param>
+        /// <returns></returns>
+        public static MethodInfo GetMethodInfo<T, TResult>(Expression<Func<T, TResult>> expression)
+        {
+            return GetMethodInfo((LambdaExpression)expression);
+        }
+
+        /// <summary>
+        /// Given a lambda expression that calls a method, returns the method info.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns></returns>
+        public static MethodInfo GetMethodInfo(LambdaExpression expression)
+        {
+            MethodCallExpression outermostExpression = expression.Body as MethodCallExpression;
+
+            if (outermostExpression == null)
+            {
+                throw new ArgumentException("Invalid Expression. Expression should consist of a Method call only.");
+            }
+
+            return outermostExpression.Method;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static string[] GetAllAssembliesFromSolutionTopLevelDirectory(string combine = null)
+        {
+            // Get the full path to the directory containing the executing assembly.
+            var executingAssemblyPath = Assembly.GetExecutingAssembly().Location;
+            var directoryPath = Path.GetDirectoryName(executingAssemblyPath);
+
+            // Assuming a standard solution structure, where the solution directory is two levels up from the bin directory.
+            var solutionDirectoryPath = Path.GetFullPath(Path.Combine(directoryPath, @"..\.."));
+
+            string topLevelBinDirectory = string.Empty;
+            if (!string.IsNullOrEmpty(combine))
+            {
+                // Define the path to the solution's top-level bin directory (adjust as necessary).
+                topLevelBinDirectory = Path.Combine(solutionDirectoryPath, combine);
+            }
+
+            // Check if the directory exists.
+            if (!Directory.Exists(topLevelBinDirectory))
+            {
+                Console.WriteLine("The top-level bin directory does not exist.");
+                return Array.Empty<string>();
+            }
+
+            // Get all DLL files in the top-level bin directory and its subdirectories.
+            var assemblyFiles = Directory.GetFiles(topLevelBinDirectory, "*.dll", SearchOption.AllDirectories);
+
+            return assemblyFiles;
         }
     }
 }

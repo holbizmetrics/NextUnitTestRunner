@@ -8,8 +8,10 @@ namespace NextUnit.TestRunner
     /// 
     /// To free the resources used TestRunnerAssemblyLoadContextInstance.Unload()
     /// </summary>
-    internal sealed class TestRunnerAssemblyLoadContext : AssemblyLoadContext
+    internal sealed class TestRunnerAssemblyLoadContext : AssemblyLoadContext, IDisposable
     {
+        private bool disposedValue;
+
         public TestRunnerAssemblyLoadContext()
             : base(isCollectible: true)
         {
@@ -25,6 +27,63 @@ namespace NextUnit.TestRunner
                 return base.LoadUnmanagedDll(unmanagedDllName);
             }
             return LoadUnmanagedDllFromPath(unmanagedDllName); ;
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                    Unload();
+
+                }
+
+                if (IsCollectible)
+                {
+                    Collect();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        private void Collect()
+        {
+            // Force garbage collection
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            // Optional: Monitor with WeakReference to confirm unload
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        /// <summary>
+        /// Call from outside to see if it worked reliably.
+        /// </summary>
+        /// <param name="assemblyLoadContext"></param>
+        public bool IsWeakReferenceAlive(AssemblyLoadContext assemblyLoadContext)
+        {
+            WeakReference weakReference = new WeakReference(assemblyLoadContext);
+            return !weakReference.IsAlive ? true : false;
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~TestRunnerAssemblyLoadContext()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using NextUnit.Core.Asserts;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
+using NextUnit.Core.Asserts;
+using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner.Attributes;
 using System.Diagnostics;
@@ -226,7 +228,23 @@ namespace DynamicNamespace
         [InjectData(1, 2, 3, "Name", false)]
         public void InjectDataAttributeTest(int intParam1, int intParam2, int intParam3, string name, bool @switch)
         {
+            TestParameters(new StackFrame(), Assert.IsNotNull);
         }
+
+        public delegate void IsNotNull(object o, string message);
+        public static void TestParameters(StackFrame stackFrame, params IsNotNull[] blub)
+        {
+            //MethodInfo methodInfo = stackFrame.GetMethod() as MethodInfo;
+            //ParameterInfo[] parameterInfo = methodInfo.GetParameters();
+            //foreach(ParameterInfo pi in parameterInfo)
+            //{
+            //    var frame = new StackTrace(true).GetFrame(1);
+            //    var arguments = ((MethodInfo)frame.GetMethod()).GetParameters();
+            //    int argumentIndex = pi.Position;
+            //    object value = argumentIndex[argumentIndex];
+            //}
+        }
+
         #endregion InjectDataAttribute Tests
 
         #region PermutationAttribute Test

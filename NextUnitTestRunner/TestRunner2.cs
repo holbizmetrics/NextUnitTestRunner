@@ -79,7 +79,7 @@ namespace NextUnit.TestRunner
             AssemblyLoadContext.Default.Resolving += Default_Resolving;
             AssemblyLoadContext.Default.Unloading += Default_Unloading;
             AssemblyLoadContext.Default.ResolvingUnmanagedDll += Default_ResolvingUnmanagedDll;
-            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(name);
+            var assembly = TestRunnerAssemblyLoadContext.Default.LoadFromAssemblyPath(name);
 
             Type[] types = assembly.GetTypes();
             Run(types);
@@ -93,6 +93,7 @@ namespace NextUnit.TestRunner
         private void Default_Unloading(AssemblyLoadContext obj)
         {
             Trace.WriteLine($"Default unloading: {obj.ToString()}");
+            obj.Unload();
         }
 
         private Assembly? Default_Resolving(AssemblyLoadContext arg1, AssemblyName arg2)

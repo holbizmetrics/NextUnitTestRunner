@@ -24,11 +24,11 @@ namespace AutoFixture.NextUnit.DerivedAttributes
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class AutoMoqDataSimpleAttribute : AutoDataAttribute
     {
-        public AutoMoqDataSimpleAttribute()
+        public AutoMoqDataSimpleAttribute(bool configureMembers = true, bool generateDelegates = true)
             : base(() => new Fixture().Customize(new AutoMoqCustomization
             {
-                ConfigureMembers = true,
-                GenerateDelegates = true
+                ConfigureMembers = configureMembers,
+                GenerateDelegates = generateDelegates
             }))
         {
         }

@@ -22,9 +22,28 @@ namespace NextUnit.Autofixture.AutoMoq.Core.DerivedAttributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class InlineAutoMoqDataAttribute : InlineAutoDataAttribute
     {
+        /// <summary>
+        /// This will also initialize moqs.
+        /// But it won't be setting up properties.
+        /// </summary>
+        /// <param name="objects"></param>
         public InlineAutoMoqDataAttribute(params object[] objects)
             : base(new AutoMoqDataAttribute(), objects)
         {
+        }
+
+        /// <summary>
+        /// When setupProperties = true then the additional behavior of AutoMoqDataAttribute
+        /// will automatically set up the properties as well.
+        /// This has been achieved by extending 
+        /// The <see cref="InlineAutoMoqDataAttribute"/> 
+        /// </summary>
+        /// <param name="setupProperties"></param>
+        /// <param name="objects"></param>
+        public InlineAutoMoqDataAttribute(bool setupProperties = true, params object[] objects)
+            : base(new AutoMoqDataAttribute(setupProperties), objects)
+        {
+
         }
     }
 }

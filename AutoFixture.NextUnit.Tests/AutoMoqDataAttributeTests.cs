@@ -37,9 +37,9 @@ namespace AutoFixture.NextUnit.Tests
         }
 
         [Test]
-        [AutoMoqData]
+        [AutoMoqData(true)]
         [Group(nameof(AutoMoqDataAttribute))]
-        public void AutoMoqDataAttribute_MockInterfaceAndCompleParametersInMethodTest()
+        public void AutoMoqDataAttribute_MockInterfaceAndComplexParametersInMethod_SetupProperties_Test()
         {
 
         }
