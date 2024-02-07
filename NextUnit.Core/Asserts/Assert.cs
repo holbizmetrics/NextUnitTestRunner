@@ -21,6 +21,12 @@
             }
         }
 
+        /// <summary>
+        /// Assert IsNull
+        /// </summary>
+        /// <param name="objectToCheck"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void IsNull(object objectToCheck, string message = null)
         {
             if (objectToCheck == null)
@@ -29,11 +35,23 @@
             }
         }
 
+        /// <summary>
+        /// Assert IsNull<typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectToCheck"></param>
+        /// <param name="message"></param>
         public static void IsNull<T>(object objectToCheck, string message = null)
         {
             IsNull(objectToCheck, message);
         }
 
+        /// <summary>
+        /// Assert IsNotNull
+        /// </summary>
+        /// <param name="objectToCheck"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void IsNotNull(object objectToCheck, string message = null)
         {
             if (objectToCheck == null)
@@ -42,18 +60,32 @@
             }
         }
 
+        /// <summary>
+        /// Assert IsNotNull<typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectToCheck"></param>
+        /// <param name="message"></param>
         public static void IsNotNull<T>(object objectToCheck, string message = null)
         {
             IsNull(objectToCheck, message);
         }
 
+        /// <summary>
+        /// Assert IsOfType<typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void IsOfType<T>(Type type, string message = null)
         {
             if (!(type is T))
             {
-                throw new AssertException("");
+                throw new AssertException($"{message}");
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -66,11 +98,6 @@
             {
                 throw new AssertException($"{message}: Should be false but was {condition}.");
             }
-        }
-
-        public static void IsOfType<T>(object objectToCheckTypeOf)
-        {
-
         }
 
         /// <summary>
@@ -107,19 +134,6 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="objectToCheck"></param>
-        /// <exception cref="AssertException"></exception>
-        public static void NotNull(object objectToCheck)
-        {
-            if (objectToCheck == null)
-            {
-                throw new AssertException("");
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="ExceptionType"></param>
         public static void ExpectedException(Type ExceptionType)
         {
@@ -136,7 +150,7 @@
         }
 
         /// <summary>
-        /// 
+        /// Assert Same<typeparamref name="T"/>
         /// </summary>
         public static void Same<T>(T expected, T actual)
         {
@@ -148,7 +162,7 @@
 
         
         /// <summary>
-        /// 
+        /// Assert NotSame<typeparamref name="T"/>
         /// </summary>
         public static void NotSame<T>(T expected, T actual)
         {
@@ -159,24 +173,11 @@
         }
 
         /// <summary>
-        /// 
+        /// Assert Pass
         /// </summary>
         public static void Pass()
         {
-
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="objectToTestAgainstNull"></param>
-        /// <exception cref="AssertException"></exception>
-        public static void IsNotNull(object objectToTestAgainstNull)
-        {
-            if (objectToTestAgainstNull == null)
-            {
-                throw new AssertException($"{objectToTestAgainstNull} is null.");
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>

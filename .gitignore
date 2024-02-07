@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/LocalNuGetPackages/NextUnit.Autofixture.AutoMoq.Core.1.0.0.nupkg.lnk
+/LocalNuGetPackages/NextUnit.TestRunner.1.0.0.nupkg.lnk
+/NextUnitTestRunner/TestRunner.cs
+/NextUnitTestRunner/TestRunner3.cs

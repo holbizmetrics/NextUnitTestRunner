@@ -421,6 +421,11 @@ namespace NextUnit.TestRunner
                                     testResult.State = ExecutedState.Passed;
                                 }
                             }
+                            else if (definition.Attributes.Count() == 1 && attribute is TestAttribute)
+                            {
+                                method.Invoke(classObject, null);
+                                testResult.State = ExecutedState.Passed;
+                            }
                         }
 
                         testResult.Start = DateTime.Now;

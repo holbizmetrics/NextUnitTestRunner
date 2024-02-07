@@ -14,10 +14,10 @@ namespace NextUnit.Core.AttributeLogic
         {
             _mapping = new Dictionary<Type, IAttributeLogicHandler>
             {
-                {typeof(AllCombinationsAttribute), new AllCombinationsAttributeLogicHandler() },
+                { typeof(AllCombinationsAttribute), new AllCombinationsAttributeLogicHandler() },
                 //{ typeof(CommonTestAttribute), new CommonTestAttributeLogicHandler() }, //Is this even needed?
-                {typeof(CompileAttribute), new CompileAttributeLogicHandler() },
-                {typeof(CustomExtendableAttribute), new CustomExtendableAttributeLogicHandler() },
+                { typeof(CompileAttribute), new CompileAttributeLogicHandler() },
+                { typeof(CustomExtendableAttribute), new CustomExtendableAttributeLogicHandler() },
                 { typeof(ConditionalRetryAttribute), new ConditionalRetryAttributeLogicHandler() },
                 { typeof(ConditionAttribute), new ConditionAttributeLogicHandler()},
                 { typeof(DependencyInjectionAttribute), new DependencyInjectionAttributeLogicHandler() },
@@ -27,7 +27,7 @@ namespace NextUnit.Core.AttributeLogic
                 { typeof(GroupAttribute), new GroupAttributeLogicHandler() },
                 { typeof(InjectDataAttribute), new InjectDataAttributeLogicHandler() },
                 { typeof(PermutationAttribute), new PermutationAttributeLogicHandler() },
-                {typeof(RunAllDelegatePermutationsAttribute), new RunAllDelegatePermutationsLogicHandler() },
+                { typeof(RunAllDelegatePermutationsAttribute), new RunAllDelegatePermutationsLogicHandler() },
                 { typeof(RandomAttribute), new RandomAttributeLogicHandler() },
                 { typeof(RepetitionsAttribute), new RepetitionsAttributeLogicHandler() },
                 { typeof(RetryAttribute), new RetryAttributeLogicHandler() },
@@ -55,6 +55,31 @@ namespace NextUnit.Core.AttributeLogic
                 }
             }
             return attributeLogicHandler;
+        }
+
+        public IAttributeLogicHandler GetHandlersFor((Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition, object classObject)
+        {
+            IEnumerable<Attribute> attributes = definition.Attributes;
+            IAttributeLogicHandler attributeLogicHandler = null;
+            if (attributes != null && attributes.Count() == 1 && attributes.First() is CommonTestAttribute)
+            {
+                attributeLogicHandler = _mapping.TryGetValue(typeof(CommonTestAttribute), out var handler) ? handler : null;
+            }
+            else
+            {
+                if (attributes.Any(x=>x is SkipAttribute))
+                {
+                    attributeLogicHandler = _mapping.TryGetValue(typeof(SkipAttribute), out var handler) ? handler: null;
+                    return attributeLogicHandler;
+                }
+                foreach (Attribute attribute in attributes)
+                {
+                    Type attributeType = attribute.GetType();
+                    attributeLogicHandler = _mapping.TryGetValue(attributeType, out var handler) ? handler : null;
+                    handler?.ProcessAttribute(attribute, definition.methodInfo, classObject);
+                }
+            }
+            return null;
         }
     }
 
