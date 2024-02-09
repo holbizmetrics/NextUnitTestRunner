@@ -1,4 +1,5 @@
-﻿using NextUnit.Core.TestAttributes;
+﻿using Microsoft.CodeAnalysis;
+using NextUnit.Core.TestAttributes;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -10,6 +11,23 @@ namespace NextUnit.Core.Extensions
 {
     public static class ReflectionExtensions
     {
+        public static bool IsAsyncMethod(this MethodInfo methodInfo)
+        {
+            return typeof(Task).IsAssignableFrom(methodInfo.ReturnType);
+        }
+
+        public static bool HasAsyncMethodAttributes(this MethodInfo methodInfo)
+        {
+            return HasSpecificCustomAttributes(methodInfo, typeof(NullableContextAttribute), typeof(AsyncStateMachineAttribute), typeof(DebuggerStepThroughAttribute));
+        }
+
+        public static bool HasSpecificCustomAttributes(this MethodInfo methodInfo, params Type[] attributeTypes)
+        {
+            var customAttributes = methodInfo.GetCustomAttributes().ToList();
+            return attributeTypes.Any(attributeType => customAttributes.Any(attribute => attributeType.IsInstanceOfType(attribute)));
+        }
+
+
         public static MethodInfo[] GetMethods(this Type type, string[] methodNames, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
         {
             List<MethodInfo> list = new List<MethodInfo>();
@@ -267,6 +285,11 @@ namespace NextUnit.Core.Extensions
             return GetMethodsWithAttributesAsIEnumerableGeneric<T>(types);
         }
 
+        public static IEnumerable<(Type t, MethodInfo m, IEnumerable<T>)> GetMethods2<T>(params Type[] types) where T : Attribute
+        {
+            return GetMethodsWithAttributesAsIEnumerableGeneric2<T>(types);
+        }
+
         //public static (string fileName, int lineNumber) GetSourceInformation(this MethodInfo methodInfo)
         //{
         //    // Create an instance of the method to get the stack trace
@@ -368,6 +391,20 @@ namespace NextUnit.Core.Extensions
                     Attributes = method.GetCustomAttributes(typeof(T), true).Cast<T>()
                 })
                 .Where(x => x.Attributes.Any())
+                .Select(x => (x.Type, x.Method, x.Attributes));
+        }
+
+        public static IEnumerable<(Type Type, MethodInfo Method, IEnumerable<T> Attributes)> GetMethodsWithAttributesAsIEnumerableGeneric2<T>(params Type[] types) where T : Attribute
+        {
+            return types
+                .SelectMany(type => type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+                .Select(method => new
+                {
+                    Type = method.DeclaringType,
+                    Method = method,
+                    Attributes = method.GetCustomAttributes(typeof(T), true).Cast<T>()
+                })
+                .Where(x => x.Attributes.Any(attribute => attribute.GetType().Namespace.Contains("NextUnit.")))
                 .Select(x => (x.Type, x.Method, x.Attributes));
         }
 

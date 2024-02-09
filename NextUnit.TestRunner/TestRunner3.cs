@@ -60,7 +60,7 @@ namespace NextUnit.TestRunner
         public Dictionary<Type, object> InstanceObjects = new Dictionary<Type, object>();
         private bool disposedValue;
 
-        public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<CommonTestAttribute> Attributes)> TestMethodsPerClass { get; private set; }
+        public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> TestMethodsPerClass { get; private set; }
 
         /// <summary>
         /// 
@@ -163,7 +163,10 @@ namespace NextUnit.TestRunner
         private void Default_Unloading(AssemblyLoadContext obj)
         {
             Trace.WriteLine($"Default unloading: {obj.ToString()}");
-            obj.Unload();
+            if (obj.IsCollectible)
+            {
+                obj.Unload();
+            }
         }
 
         /// <summary>
@@ -189,8 +192,8 @@ namespace NextUnit.TestRunner
             NextUnitTestExecutionContext.TestRunStart = DateTime.Now;
 
             //This will already discover all the tests for all types.
-            //So this could also be used by the TestDiscoverer now.
-            TestMethodsPerClass = ReflectionExtensions.GetMethodsWithAttributesAsIEnumerableGeneric<CommonTestAttribute>(types);
+            //So this could, respectively SHOULD also be used by the TestDiscoverer now.
+            TestMethodsPerClass = ReflectionExtensions.GetMethodsWithAttributesAsIEnumerableGeneric2<Attribute>(types);
 
             //thus, we only need to create the instance objects per type here.
             foreach (var testDefinition in TestMethodsPerClass)
@@ -251,6 +254,7 @@ namespace NextUnit.TestRunner
                         OnTestExecuting(new ExecutionEventArgs(method));
                         //Since we exclude the test marker attribute, a test logic handler should be found for each of the implemented framework attribute.
 
+                        testResult.Start = DateTime.Now;
                         //if being used attributes will be handled in a new way.
                         //which will be become the proper way.
                         //but until then it won't be 
@@ -266,8 +270,6 @@ namespace NextUnit.TestRunner
 
                             handler?.ProcessAttribute(attribute, method, classObject);
                         }
-
-                        testResult.Start = DateTime.Now;
 
                         testResult.State = ExecutedState.Passed;
                         stopwatch.Stop();
@@ -375,7 +377,7 @@ namespace NextUnit.TestRunner
         /// Executes the tests found by the TestDiscoverer.
         /// </summary>
         /// <param name="classTestMethodsAssociation"></param>
-        protected void ExecuteTests()
+        protected async void ExecuteTests()
         {
             string machineName = NextUnitTestEnvironmentContext.MachineName;
             foreach (var testDefinition in TestMethodsPerClass)
@@ -385,6 +387,11 @@ namespace NextUnit.TestRunner
 
                 MethodInfo method = definition.methodInfo;
                 object classObject = RecreateClassObject ? (InstanceObjects[definitionType] = Activator.CreateInstance(definitionType)) : InstanceObjects[definitionType];
+
+                //TODO:
+                //This will also have to be done in a totally different way.
+                //If handled correctly the type check and this initialization here shouldn't be needed anymore.
+                Type[] unallowedTypes = new Type[] { typeof(TestAttribute), typeof(GroupAttribute), typeof(SkipAttribute) };
 
                 foreach (Attribute attribute in definition.Attributes)
                 {
@@ -403,6 +410,7 @@ namespace NextUnit.TestRunner
                         OnTestExecuting(new ExecutionEventArgs(method));
                         //Since we exclude the test marker attribute, a test logic handler should be found for each of the implemented framework attribute.
 
+                        //TODO:
                         //if being used attributes will be handled in a new way.
                         //which will be become the proper way.
                         //but until then it won't be 
@@ -414,7 +422,16 @@ namespace NextUnit.TestRunner
                         }
                         else
                         {
-                            if (attribute.GetType() != typeof(TestAttribute))
+                            //TODO:
+                            //avoid false positives.
+                            //this has definitely to be improved by the combinator.
+
+                            //this if shouldn't be needed there as soon as the detection using 
+                            //TestMethodsPerClass = ReflectionExtensions.GetMethodsWithAttributesAsIEnumerableGeneric2<Attribute>(types);
+                            //works correctly.
+
+                            //Definitely the check for async would - for the current design - have to move into the single Attribute Logic Mappers.
+                            if (!unallowedTypes.Contains(attribute.GetType()) && attribute.GetType().Namespace.Contains("NextUnit."))
                             {
                                 var handler = AttributeLogicMapper.GetHandlerFor(attribute);
                                 handler?.ProcessAttribute(attribute, method, classObject);
@@ -423,10 +440,19 @@ namespace NextUnit.TestRunner
                                     testResult.State = ExecutedState.Passed;
                                 }
                             }
-                            else if (definition.Attributes.Count() == 1 && attribute is TestAttribute)
+                            else if ((definition.Attributes.Count() == 1 && attribute is TestAttribute) || method.HasAsyncMethodAttributes())
                             {
-                                method.Invoke(classObject, null);
-                                testResult.State = ExecutedState.Passed;
+                                if (method.IsAsyncMethod())
+                                {
+                                    var task = (Task)method.Invoke(classObject, null); // Assuming no parameters for simplicity
+                                    await task.ConfigureAwait(false);
+                                    // Handle the result of the async test execution
+                                }
+                                else
+                                {
+                                    method.Invoke(classObject, null);
+                                    testResult.State = ExecutedState.Passed;
+                                }
                             }
                         }
 

@@ -16,6 +16,8 @@ namespace NextUnit.Core.AttributeLogic
             {
                 { typeof(AllCombinationsAttribute), new AllCombinationsAttributeLogicHandler() },
                 //{ typeof(CommonTestAttribute), new CommonTestAttributeLogicHandler() }, //Is this even needed?
+                { typeof(DebugAttribute), new DebugAttributeLogicHandler() },
+                { typeof(DebuggerBreakAttribute), new DebugAttributeLogicHandler() },
                 { typeof(CompileAttribute), new CompileAttributeLogicHandler() },
                 { typeof(CustomExtendableAttribute), new CustomExtendableAttributeLogicHandler() },
                 { typeof(ConditionalRetryAttribute), new ConditionalRetryAttributeLogicHandler() },
@@ -43,7 +45,7 @@ namespace NextUnit.Core.AttributeLogic
             };
         }
 
-        public IAttributeLogicHandler GetHandlerFor(Attribute attribute)
+        public virtual IAttributeLogicHandler GetHandlerFor(Attribute attribute)
         {
             Type attributeType = attribute.GetType();
             IAttributeLogicHandler attributeLogicHandler = _mapping.TryGetValue(attributeType, out var handler) ? handler : null;

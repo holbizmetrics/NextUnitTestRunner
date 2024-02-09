@@ -1,6 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+//namespace NextUnit.Console.TestRunner;
+
 using NextUnit.Autofixture.AutoMoq.Core;
+using NextUnit.Core.Accessors;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner;
@@ -21,7 +24,7 @@ testRunner.ErrorEventHandler += TestRunner_ErrorEventHandler;
 
 string[] assemblyPaths = ReflectionExtensions.GetAllAssembliesFromSolutionTopLevelDirectory(@"..\..\");
 
-var testDLLs = assemblyPaths.Where(x => x.Contains("NextUnit.") && x.EndsWith(".Tests.dll"));
+var testDLLs = assemblyPaths.Where(x => x.Contains("NextUnit.") && x.EndsWith(".Tests.dll") && !x.Contains(@"obj\"));
 
 if (testDLLs == null)
 {
@@ -40,6 +43,8 @@ while (true)
 
     Console.Write("Enter your choice (1-5): ");
     var choice = Console.ReadLine();
+
+    AccessWrapper a = new AccessWrapper(typeof(Program));
 
     switch (choice)
     {
@@ -212,7 +217,7 @@ void SelectAndRunTestAssembly(ITestRunner3 testRunner)
     var number = Console.ReadLine();
     bool gotANumber = int.TryParse(number, out i);
     if (!gotANumber) return;
-    testRunner.Run(testDLLs.Take(i));
+    testRunner.Run(testDLLs.Skip(i-1).First());
 }
 
 void EnterAndRunTestAssembly(ITestRunner3 testRunner)

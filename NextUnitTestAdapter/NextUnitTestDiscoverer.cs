@@ -32,7 +32,7 @@ namespace NextUnitTestAdapter
             {
                 // Example: Load the assembly and discover test methods
                 var assembly = Assembly.LoadFrom(source);
-                IEnumerable<(Type Type, MethodInfo Method, IEnumerable<CommonTestAttribute> Attributes)> TestMethodsPerClass = ReflectionExtensions.GetMethodsWithAttributesAsIEnumerableGeneric<CommonTestAttribute>(assembly.GetTypes());
+                IEnumerable<(Type Type, MethodInfo Method, IEnumerable<CommonTestAttribute> Attributes)> TestMethodsPerClass = ReflectionExtensions.GetMethodsWithAttributesAsIEnumerableGeneric2<CommonTestAttribute>(assembly.GetTypes());
 
                 //so we should be able to execute here, already.
                 foreach (var testDefinition in TestMethodsPerClass)

@@ -17,4 +17,8 @@
     <ProjectReference Include="..\NextUnitTestAdapter\NextUnit.TestAdapter.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="AttributeLogic\" />
+  </ItemGroup>
+
 </Project>

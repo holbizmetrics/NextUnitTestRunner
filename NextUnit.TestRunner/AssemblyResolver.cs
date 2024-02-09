@@ -1,5 +1,4 @@
-﻿using System.Runtime.Loader;
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.Extensions.DependencyModel;
 
 namespace NextUnit.TestRunner

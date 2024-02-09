@@ -1,4 +1,9 @@
-﻿namespace NextUnit.Core.Asserts
+﻿using NextUnit.Core.TestAttributes;
+using System.Collections;
+using System.Diagnostics;
+using System.Reflection;
+
+namespace NextUnit.Core.Asserts
 {
     /// <summary>
     /// 
@@ -6,8 +11,82 @@
     public static class Assert
     {
         public static bool AutoAssertMessages { get; set; } = false;
-        
+
+        /// <summary>
+        /// This will be determining if the Asserts throw exceptions.
+        /// Not yet fully implemented.
+        /// 
+        /// </summary>
+        public static bool ThrowsExceptions { get; } = true;
+
+        /// <summary>
+        /// Method to compare two objects' properties for equality
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
+        public static void CompareProperties(object a, object b, string message = "", int depth = 0)
+        {
+            // Check for reference equality first
+            if (ReferenceEquals(a, b)) return;
+
+            // If either is null and they are not the same instance, they are not equal
+            if (a == null || b == null)
+                throw new AssertException($"{message}: One of the objects is null.");
+
+            // Handle arrays and collections
+            if (a is IEnumerable && b is IEnumerable)
+            {
+                var enumeratorA = ((IEnumerable)a).GetEnumerator();
+                var enumeratorB = ((IEnumerable)b).GetEnumerator();
+                while (enumeratorA.MoveNext() && enumeratorB.MoveNext())
+                {
+                    if (!enumeratorA.Current.Equals(enumeratorB.Current))
+                        throw new AssertException($"{message}: Elements in the collections do not match.");
+                }
+                return;
+            }
+
+            // Check if both objects are of the same type
+            if (a.GetType() != b.GetType())
+                throw new AssertException($"{message}: Objects are of different types.");
+
+            // Limit the recursion depth to prevent stack overflow
+            if (depth > 10)
+                throw new AssertException($"{message}: Recursion depth limit exceeded.");
+
+            // Compare each property
+            PropertyInfo[] properties = a.GetType().GetProperties();
+            foreach (var prop in properties)
+            {
+                object valueA = prop.GetValue(a);
+                object valueB = prop.GetValue(b);
+
+                if (valueA is ValueType || valueA is string)
+                {
+                    if (!Equals(valueA, valueB))
+                        throw new AssertException($"{message}: Property {prop.Name} does not match. {valueA} != {valueB}");
+                }
+                else if (valueA != null && valueB != null)
+                {
+                    // Recursively compare complex object properties
+                    CompareProperties(valueA, valueB, message, depth + 1);
+                }
+                else if (valueA != valueB) // One is null, the other is not
+                    throw new AssertException($"{message}: Property {prop.Name} does not match. One is null and the other is not.");
+            }
+        }
+
         #region Comparison Assertions
+        /// <summary>
+        /// Throws an exception if the given T is NOT greater than expected.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void IsGreaterThan<T>(T expected, T actual, string message = "") where T : IComparable<T>
         {
             if (actual.CompareTo(expected) <= 0)
@@ -16,6 +95,14 @@
             }
         }
 
+        /// <summary>
+        /// Throws an exception if the given T is NOT greater or less than expected.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void IsGreaterThanOrEqual<T>(T expected, T actual, string message = "") where T : IComparable<T>
         {
             if (actual.CompareTo(expected) < 0)
@@ -24,6 +111,14 @@
             }
         }
 
+        /// <summary>
+        /// Throws an exception if it is greater or equal than T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void IsLessThan<T>(T expected, T actual, string message = "") where T : IComparable<T>
         {
             if (actual.CompareTo(expected) >= 0)
@@ -32,6 +127,14 @@
             }
         }
 
+        /// <summary>
+        /// Throws an exception if greater than T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expected"></param>
+        /// <param name="actual"></param>
+        /// <param name="message"></param>
+        /// <exception cref="AssertException"></exception>
         public static void IsLessThanOrEqual<T>(T expected, T actual, string message = "") where T : IComparable<T>
         {
             if (actual.CompareTo(expected) > 0)
@@ -178,7 +281,7 @@
         /// <exception cref="AssertException"></exception>
         public static void IsFalse(bool condition, string message = null)
         {
-            if (!condition)
+            if (condition)
             {
                 throw new AssertException($"{message}: Should be false but was {condition}.");
             }
@@ -230,7 +333,7 @@
                 AreEqual((object)expected, (object)actual, message);
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -247,7 +350,7 @@
         }
 
         /// <summary>
-        /// Assert Same<typeparamref name="T"/>
+        /// Throws an exception if they are not the Same<typeparamref name="T"/>
         /// </summary>
         public static void Same<T>(T expected, T actual, string message)
         {
@@ -258,7 +361,7 @@
         }
 
         /// <summary>
-        /// Assert NotSame<typeparamref name="T"/>
+        /// Throws an exception if they are the Same<typeparamref name="T"/>
         /// </summary>
         public static void NotSame<T>(T expected, T actual, string message)
         {
@@ -271,7 +374,7 @@
 
         #region Type/Property assertions
         /// <summary>
-        /// Assert IsOfType<typeparamref name="T"/>
+        /// Throws an exception if  IsOfType<typeparamref name="T"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="type"></param>
@@ -286,7 +389,7 @@
         }
 
         /// <summary>
-        /// 
+        /// Checks if this type has the given property, if it is not found, we get an exception.
         /// </summary>
         /// <param name="propertyName"></param>
         /// <param name="objectToCheck"></param>
@@ -313,7 +416,7 @@
         }
 
         /// <summary>
-        /// 
+        /// Checks for an expected connection.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public static void ExpectedException<T>()
@@ -324,18 +427,18 @@
         /// <summary>
         /// Makes the test pass, no matter what had happened before.
         /// </summary>
-        public static void Pass()
+        public static void Pass(string message = null)
         {
-            throw new NotImplementedException();
+            //this shouldn't throw an exception itself so far.
         }
 
         /// <summary>
         /// Makes the test fail, no matter what had happened before.
         /// </summary>
         /// <exception cref="NotImplementedException"></exception>
-        public static void Fail()
+        public static void Fail(string message = null)
         {
-            throw new NotImplementedException();
+            throw new AssertException(message);
         }
         #endregion Flow Controlling Assertions
 
@@ -369,6 +472,116 @@
             }
         }
         #endregion Exception Assertions
+
+        #region Exception Tracking
+        public delegate void AssertionDelegateExpectedActual<T>(T expected, T actual, string message = null);
+        public delegate void AssertionDelegateExpectedActual(object expected, object actual, string message = null);
+
+        public delegate void AssertionDelegateExpected<T>(T expected, string message = null);
+        public delegate void AssertionDelegateExpected(object expected, string message = null);
+
+        public static (bool result, Exception thrownException) Exception<T>(AssertionDelegateExpectedActual<T> assertionDelegate, T expected, T actual, string message)
+        {
+            //Creates a stack overflow still, because it calls the exactly same delegate.
+            //throw new Exception($"Investigate overflow for {new StackFrame().GetMethod().Name}");
+            return Exception(assertionDelegate, (object)expected, (object)actual, message);
+        }
+
+        public static (bool result, Exception thrownException) Exception<T>(Delegate assertionDelegate, T expected, IEnumerable<T> actual, string message = null)
+        {
+            bool exceptionWasThrown = false;
+            Exception thrownException = null;
+            try
+            {
+                // Since Delegate.DynamicInvoke expects object[], wrap arguments in an object array
+                assertionDelegate.DynamicInvoke(new object[] { expected, actual, message });
+            }
+            catch (TargetInvocationException ex) when (ex.InnerException != null)
+            {
+                // TargetInvocationException wraps the actual exception thrown in the InnerException property
+                thrownException = ex.InnerException;
+                exceptionWasThrown = true;
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+                exceptionWasThrown = true;
+            }
+            return (exceptionWasThrown, thrownException);
+        }
+
+        public static (bool result, Exception thrownException) Exception(AssertionDelegateExpectedActual assertionDelegate, object expected, object actual, string message = null)
+        {
+            bool exceptionWasThrown = false;
+            Exception thrownException = null;
+            try
+            {
+                assertionDelegate(expected, actual, message);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+                exceptionWasThrown = true;
+            }
+            return (exceptionWasThrown, thrownException);
+        }
+
+        public static (bool result, Exception thrownException) Exception<T>(AssertionDelegateExpected<T> assertionDelegateExpected, T expected, string message = null)
+        {
+            bool exceptionWasThrown = false;
+            Exception thrownException = null;
+            try
+            {
+                assertionDelegateExpected(expected, message);
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+                exceptionWasThrown = true;
+            }
+            return (exceptionWasThrown, thrownException);
+        }
+
+        public static (bool result, Exception thrownException) Exception<T>(AssertionDelegateExpectedActual<T> assertionDelegate, params object[] values)
+        {
+            bool exceptionWasThrown = false;
+            Exception thrownException = null;
+            try
+            {
+                if (values != null && values.Length > 0 && values[0] != null && values[1] != null)
+                {
+                    assertionDelegate((T)values[0], (T)values[1], (values.Length > 2 && values[2] != null) ? (values[2] as string) : null);
+                }
+            }
+            catch (Exception ex)
+            {
+                thrownException = ex;
+                exceptionWasThrown = true;
+            }
+            return (exceptionWasThrown, thrownException);
+        }
+
+        public static (bool result, Exception thrownException) Exception(Delegate assertionDelegate, params object[] args)
+        {
+            bool exceptionWasThrown = false;
+            Exception thrownException = null;
+
+            try
+            {
+                // Dynamically invoke the delegate with the provided arguments.
+                assertionDelegate.DynamicInvoke(args);
+            }
+            catch (Exception ex)
+            {
+                // Catch the base Exception to simplify the handling logic.
+                // Consider catching more specific exceptions if needed.
+                thrownException = ex;
+                exceptionWasThrown = true;
+            }
+
+            return (exceptionWasThrown, thrownException);
+        }
+        #endregion Exception Tracking
 
         /// <summary>
         /// 

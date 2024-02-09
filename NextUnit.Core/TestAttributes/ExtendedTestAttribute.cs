@@ -10,10 +10,10 @@ namespace NextUnit.Core.TestAttributes
     /// But I want that. :-)
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class ExtendedTest : TestAttribute
+    public class ExtendedTestAttribute : TestAttribute
     {
         public object[] Values { get; set; } = null;
-        public ExtendedTest(params object[] values)
+        public ExtendedTestAttribute(params object[] values)
         {
             Values = values;
         }

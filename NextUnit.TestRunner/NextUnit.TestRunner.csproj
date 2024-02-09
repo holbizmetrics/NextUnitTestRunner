@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="4.18.1" />
+    <PackageReference Include="AutoFixture.AutoMoq" Version="4.18.1" />
+    <PackageReference Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.510501" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
+    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="17.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AutoFixture.NextUnit\AutoFixture.NextUnit.csproj" />
+    <ProjectReference Include="..\NextUnit.Autofixture.AutoMoq.Core\NextUnit.Autofixture.AutoMoq.Core.csproj" />
+    <ProjectReference Include="..\NextUnit.Core\NextUnit.Core.csproj" />
+    <ProjectReference Include="..\NextUnitHardwareContext\NextUnit.HardwareContext.csproj" />
+  </ItemGroup>
+
+</Project>

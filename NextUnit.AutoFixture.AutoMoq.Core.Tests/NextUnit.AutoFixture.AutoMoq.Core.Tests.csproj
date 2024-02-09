@@ -17,4 +17,9 @@
     <ProjectReference Include="..\NextUnitTestAdapter\NextUnit.TestAdapter.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Customizations\" />
+    <Folder Include="SpecimenBuilders\" />
+  </ItemGroup>
+
 </Project>

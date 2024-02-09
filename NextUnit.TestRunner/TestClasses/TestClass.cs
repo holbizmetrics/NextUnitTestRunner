@@ -1,11 +1,8 @@
-﻿using AutoFixture.AutoMoq;
-using AutoFixture;
+﻿using AutoFixture;
 using AutoFixture.NextUnit;
 using Moq;
 using NextUnit.Core.TestAttributes;
 using System.Diagnostics;
-using System.Net.Http.Headers;
-using AutoFixture.Kernel;
 using NextUnit.Autofixture.AutoMoq.Core.DerivedAttributes;
 
 namespace NextUnit.TestRunner.TestClasses
@@ -46,7 +43,7 @@ namespace NextUnit.TestRunner.TestClasses
         /// <summary>
         /// Tests an extended test attribute.
         /// </summary>
-        [ExtendedTest()]
+        [ExtendedTestAttribute()]
         public void ExtendedTest()
         {
             Trace.WriteLine("We've been called as well");

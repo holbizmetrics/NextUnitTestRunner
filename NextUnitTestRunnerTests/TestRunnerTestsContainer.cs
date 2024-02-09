@@ -149,7 +149,7 @@ namespace DynamicNamespace
             // Test logic here...
         }
         #endregion ConditionAttribute Tests
-       
+
         #region CustomExtendableAttribute Tests
         /// <summary>
         /// This provides extendable attributes to extend the framework.
@@ -272,9 +272,9 @@ namespace DynamicNamespace
 
         [Test]
         [Group(nameof(RandomAttribute))]
-        [Random(1,2)]
+        [Random(1, 2)]
         [Random(5, 2, 1)]
-        [Random(1,1, 1)]
+        [Random(1, 1, 1)]
         public void TestSeveralRandomAttributesEachOnlyExecutedOnce()
         {
 
@@ -292,7 +292,7 @@ namespace DynamicNamespace
         /// </summary>
         [Test]
         [Group(nameof(RandomAttribute))]
-        [Random(1,3,2)]
+        [Random(1, 3, 2)]
         public void TestSeveralRandomLegalAttributesMixed()
         {
 
@@ -305,7 +305,7 @@ namespace DynamicNamespace
         [Group(nameof(RandomAttribute))]
         [Random(0, 0, 0)]   //it wouldn't make sense to execute 0 times. As well as max = min.
         [Random(0, 0, -1)]  //it wouldn't make sense to execute -1 times. As well as max = min.
-        [Random(1,5, -1)]   //it wouldn't make sense to execute -1 times. Though the intervals are ok.
+        [Random(1, 5, -1)]   //it wouldn't make sense to execute -1 times. Though the intervals are ok.
         public void TestSeveralRandomAttributesMixedInvalid()
         {
 
@@ -350,7 +350,7 @@ namespace DynamicNamespace
         [Test]
         public static void RunAllDelegatePermutations()
         {
-            
+
         }
 
         public static void Test1()
@@ -362,7 +362,7 @@ namespace DynamicNamespace
         {
 
         }
-        
+
         public static void Test3()
         {
 

@@ -19,19 +19,10 @@ Only the TestRunner3 will be working with Visual Studio's TestExplorer, etc.</Pa
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.18.1" />
-    <PackageReference Include="AutoFixture.AutoMoq" Version="4.18.1" />
-    <PackageReference Include="FluentValidation" Version="11.9.0" />
-    <PackageReference Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.505301" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
-    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="17.8.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AutoFixture.NextUnit\AutoFixture.NextUnit.csproj" />
     <ProjectReference Include="..\NextUnit.Autofixture.AutoMoq.Core\NextUnit.Autofixture.AutoMoq.Core.csproj" />
     <ProjectReference Include="..\NextUnit.Core\NextUnit.Core.csproj" />
+    <ProjectReference Include="..\NextUnit.TestRunner\NextUnit.TestRunner.csproj" />
     <ProjectReference Include="..\NextUnitHardwareContext\NextUnit.HardwareContext.csproj" />
   </ItemGroup>
 
