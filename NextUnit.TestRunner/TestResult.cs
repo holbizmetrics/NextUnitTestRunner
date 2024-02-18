@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public enum ExecutedState
+    public enum ExecutionState
     {
         /// <summary>
         /// Test hasn't been started.
@@ -31,9 +31,14 @@
         NotFound,
 
         /// <summary>
+        /// Added to indicate as well if a test case may have been stuck.
+        /// </summary>
+        Running,
+
+        /// <summary>
         /// Other unknown error, due to framework bugs, possibly, etc. (for now)
         /// </summary>
-        UnknownError
+        UnknownError,
     }
 
     /// <summary>
@@ -42,7 +47,7 @@
     public class TestResult
     {
         public string DisplayName { get; internal set; } = string.Empty;
-        public ExecutedState State { get; internal set; } = ExecutedState.NotStarted;
+        public ExecutionState State { get; internal set; } = ExecutionState.NotStarted;
 
         public string StackTrace { get; internal set; } = string.Empty;
 

@@ -1,5 +1,7 @@
-﻿using NextUnit.HardwareContext.SystemInformation;
+﻿using NextUnit.Core.Extensions;
+using NextUnit.HardwareContext.SystemInformation;
 using System.Globalization;
+using System.Management;
 
 namespace NextUnit.TestRunner
 {
@@ -12,8 +14,8 @@ namespace NextUnit.TestRunner
         public static string CommandLine { get; } = SysInfo.CommandLine;
         public static int ProcessorCount { get; } = SysInfo.ProcessorCount;
         //public static string ProcessorName { get; } = SysInfo.ProcessorInfo;
-        public static object BiosInfo {get;} = SysInfo.BiosInfo;
-        public static object Capacity { get; } = SysInfo.Capacity;
+        public static IEnumerable<ManagementObject> BiosInfo {get;} = SysInfo.BiosInfo;
+        public static ulong Capacity { get; } = SysInfo.Capacity;
         public static OperatingSystem OperatingSystem { get; } = SysInfo.OperatingSystem;
         public static CultureInfo CurrentCulture { get; } = Thread.CurrentThread.CurrentCulture;
         public static CultureInfo CurrentUICulture { get; } = Thread.CurrentThread.CurrentUICulture;
@@ -23,7 +25,7 @@ namespace NextUnit.TestRunner
 $@"MachineName: {MachineName}
 CommandLine: {CommandLine}
 ProcessorCount: {ProcessorCount}
-BiosInfo: {BiosInfo}
+BiosInfo: {BiosInfo.As<string>()}
 Capacity: {Capacity}
 OperatingSystem: {OperatingSystem}";
         }

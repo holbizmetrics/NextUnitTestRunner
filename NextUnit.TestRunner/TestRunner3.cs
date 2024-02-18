@@ -271,10 +271,10 @@ namespace NextUnit.TestRunner
                             handler?.ProcessAttribute(attribute, method, classObject);
                         }
 
-                        testResult.State = ExecutedState.Passed;
+                        testResult.State = ExecutionState.Passed;
                         stopwatch.Stop();
 
-                        if (testResult.State != ExecutedState.Skipped)
+                        if (testResult.State != ExecutionState.Skipped)
                         {
                             testResult.ExecutionTime = stopwatch.Elapsed;
                             testResult.End = DateTime.Now;
@@ -319,7 +319,7 @@ namespace NextUnit.TestRunner
                         OnAfterTestRun(new ExecutionEventArgs(method, testResult));
                         if (lastException != null)
                         {
-                            testResult.State = ExecutedState.Failed;
+                            testResult.State = ExecutionState.Failed;
                             OnError(new ExecutionEventArgs(method, testResult, lastException));
                         }
                     }
@@ -396,15 +396,15 @@ namespace NextUnit.TestRunner
                 foreach (Attribute attribute in definition.Attributes)
                 {
                     Exception lastException = null;
-                    TestResult testResult = null;
+                    TestResult testResult = new TestResult();
                     try
                     {
                         OnBeforeTestRun(new ExecutionEventArgs(method));
-                        testResult = new TestResult();
                         testResult.Namespace = method.DeclaringType.ToString();
                         testResult.Class = method.DeclaringType.Name;
                         testResult.Workstation = machineName;
                         testResult.DisplayName = method.Name;
+                        testResult.State = ExecutionState.Running;
 
                         Stopwatch stopwatch = Stopwatch.StartNew();
                         OnTestExecuting(new ExecutionEventArgs(method));
@@ -437,7 +437,7 @@ namespace NextUnit.TestRunner
                                 handler?.ProcessAttribute(attribute, method, classObject);
                                 if (handler != null)
                                 {
-                                    testResult.State = ExecutedState.Passed;
+                                    testResult.State = ExecutionState.Passed;
                                 }
                             }
                             else if ((definition.Attributes.Count() == 1 && attribute is TestAttribute) || method.HasAsyncMethodAttributes())
@@ -446,12 +446,13 @@ namespace NextUnit.TestRunner
                                 {
                                     var task = (Task)method.Invoke(classObject, null); // Assuming no parameters for simplicity
                                     await task.ConfigureAwait(false);
+                                    testResult.State = ExecutionState.Passed;
                                     // Handle the result of the async test execution
                                 }
                                 else
                                 {
                                     method.Invoke(classObject, null);
-                                    testResult.State = ExecutedState.Passed;
+                                    testResult.State = ExecutionState.Passed;
                                 }
                             }
                         }
@@ -460,7 +461,7 @@ namespace NextUnit.TestRunner
 
                         stopwatch.Stop();
 
-                        if (testResult.State != ExecutedState.Skipped)
+                        if (testResult.State != ExecutionState.Skipped)
                         {
                             testResult.ExecutionTime = stopwatch.Elapsed;
                             testResult.End = DateTime.Now;
@@ -505,7 +506,7 @@ namespace NextUnit.TestRunner
                         OnAfterTestRun(new ExecutionEventArgs(method, testResult));
                         if (lastException != null)
                         {
-                            testResult.State = ExecutedState.Failed;
+                            testResult.State = ExecutionState.Failed;
                             OnError(new ExecutionEventArgs(method, testResult, lastException));
                         }
                     }

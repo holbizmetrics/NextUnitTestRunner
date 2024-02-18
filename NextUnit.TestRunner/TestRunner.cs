@@ -125,7 +125,7 @@ namespace NextUnit.TestRunner
                                     method.Invoke(classObject, parameters);
                                     stopwatch.Stop();
 
-                                    testResult.State = ExecutedState.Passed;
+                                    testResult.State = ExecutionState.Passed;
                                     testResult.ExecutionTime = stopwatch.Elapsed;
                                     testResult.End = DateTime.Now;
                                     Trace.WriteLine(testResult.ToString());

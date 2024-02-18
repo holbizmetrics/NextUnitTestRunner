@@ -1,7 +1,5 @@
 ﻿using NextUnit.Core.AttributeLogic.LogicHandlers;
-using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
-using System.Diagnostics;
 using System.Reflection;
 
 namespace NextUnit.Core.AttributeLogic
@@ -35,6 +33,7 @@ namespace NextUnit.Core.AttributeLogic
                 { typeof(RetryAttribute), new RetryAttributeLogicHandler() },
                 { typeof(RunAfterAttribute), new RunAfterAttributeLogicHandler() },
                 { typeof(RunBeforeAttribute), new RunBeforeAttributeLogicHandler() },
+                {typeof(RunIfEnvVarAttribute), new RunIfEnvVarAttributeLogicHandler() },
                 { typeof(RunInThreadAttribute), new RunInThreadAttributeLogicHandler() },
                 { typeof(SkipAttribute), new SkipAttributeLogicHandler() },
                 { typeof(TimeoutAttribute), new TimeoutAttributeLogicHandler() },

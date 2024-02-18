@@ -1,7 +1,5 @@
-﻿using NextUnit.Core.TestAttributes;
-using System.Collections;
-using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
+using NextUnit.Core.Extensions;
 
 namespace NextUnit.Core.Asserts
 {
@@ -28,54 +26,7 @@ namespace NextUnit.Core.Asserts
         /// <exception cref="AssertException"></exception>
         public static void CompareProperties(object a, object b, string message = "", int depth = 0)
         {
-            // Check for reference equality first
-            if (ReferenceEquals(a, b)) return;
-
-            // If either is null and they are not the same instance, they are not equal
-            if (a == null || b == null)
-                throw new AssertException($"{message}: One of the objects is null.");
-
-            // Handle arrays and collections
-            if (a is IEnumerable && b is IEnumerable)
-            {
-                var enumeratorA = ((IEnumerable)a).GetEnumerator();
-                var enumeratorB = ((IEnumerable)b).GetEnumerator();
-                while (enumeratorA.MoveNext() && enumeratorB.MoveNext())
-                {
-                    if (!enumeratorA.Current.Equals(enumeratorB.Current))
-                        throw new AssertException($"{message}: Elements in the collections do not match.");
-                }
-                return;
-            }
-
-            // Check if both objects are of the same type
-            if (a.GetType() != b.GetType())
-                throw new AssertException($"{message}: Objects are of different types.");
-
-            // Limit the recursion depth to prevent stack overflow
-            if (depth > 10)
-                throw new AssertException($"{message}: Recursion depth limit exceeded.");
-
-            // Compare each property
-            PropertyInfo[] properties = a.GetType().GetProperties();
-            foreach (var prop in properties)
-            {
-                object valueA = prop.GetValue(a);
-                object valueB = prop.GetValue(b);
-
-                if (valueA is ValueType || valueA is string)
-                {
-                    if (!Equals(valueA, valueB))
-                        throw new AssertException($"{message}: Property {prop.Name} does not match. {valueA} != {valueB}");
-                }
-                else if (valueA != null && valueB != null)
-                {
-                    // Recursively compare complex object properties
-                    CompareProperties(valueA, valueB, message, depth + 1);
-                }
-                else if (valueA != valueB) // One is null, the other is not
-                    throw new AssertException($"{message}: Property {prop.Name} does not match. One is null and the other is not.");
-            }
+            ReflectionExtensions.CompareProperties(a, b, message, depth);
         }
 
         #region Comparison Assertions
@@ -221,6 +172,16 @@ namespace NextUnit.Core.Asserts
             {
                 throw new AssertException($"{message} Should be true but was {condition}.");
             }
+        }
+
+        /// <summary>
+        /// Returns the only element of a sequence that satisfies a specified condition, and throws an exception if more than one such element exists.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objects"></param>
+        public static void Only<T>(IEnumerable<T> objects, Func<T, bool> predicate)
+        {
+            objects.Single(predicate);
         }
 
         /// <summary>

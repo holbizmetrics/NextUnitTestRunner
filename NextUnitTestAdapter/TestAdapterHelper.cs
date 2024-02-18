@@ -16,10 +16,10 @@ namespace NextUnit.TestAdapter
             Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult testResult = new Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult(testCase);
             TestOutcome testOutcome = nextUnitTestResult.State switch
             {
-                ExecutedState.Passed => testResult.Outcome = TestOutcome.Passed,
-                ExecutedState.Failed => testResult.Outcome = TestOutcome.Failed,
-                ExecutedState.Skipped => testResult.Outcome = TestOutcome.Skipped,
-                ExecutedState.NotFound => testResult.Outcome = TestOutcome.NotFound,
+                ExecutionState.Passed => testResult.Outcome = TestOutcome.Passed,
+                ExecutionState.Failed => testResult.Outcome = TestOutcome.Failed,
+                ExecutionState.Skipped => testResult.Outcome = TestOutcome.Skipped,
+                ExecutionState.NotFound => testResult.Outcome = TestOutcome.NotFound,
             };
             testResult.Outcome = testOutcome;
             return testResult;

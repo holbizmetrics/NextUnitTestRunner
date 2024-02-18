@@ -1,10 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
+using NextUnit.Core.Asserts;
 using NextUnit.Core.TestAttributes;
+using System.Collections;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Resources;
 using System.Runtime.CompilerServices;
 
 namespace NextUnit.Core.Extensions
@@ -42,10 +42,10 @@ namespace NextUnit.Core.Extensions
             return list.ToArray();
         }
 
-       public static void AssertMethodParameters<T>(
-            this MethodInfo methodInfo,
-            T testInstance,
-            Action<object, ParameterInfo> assertAction)
+        public static void AssertMethodParameters<T>(
+             this MethodInfo methodInfo,
+             T testInstance,
+             Action<object, ParameterInfo> assertAction)
         {
             if (methodInfo == null) throw new ArgumentNullException(nameof(methodInfo));
             if (assertAction == null) throw new ArgumentNullException(nameof(assertAction));
@@ -203,6 +203,80 @@ namespace NextUnit.Core.Extensions
         public static bool IsComparable(this Type type)
         {
             return typeof(IComparable).IsAssignableFrom(type);
+        }
+
+        /// <summary>
+        /// Gets ITestContext implementing custom attributes.
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        public static List<ITestContext> Test(MethodInfo method)
+        {
+            var testContextAttributes = method.GetCustomAttributes()
+                .Where(attr => attr is ITestContext)
+                .Cast<ITestContext>()
+                .ToList();
+            return testContextAttributes;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="message"></param>
+        /// <param name="depth"></param>
+        /// <exception cref="AssertException"></exception>
+        public static void CompareProperties(object a, object b, string message = "", int depth = 0)
+        {
+            // Check for reference equality first
+            if (ReferenceEquals(a, b)) return;
+
+            // If either is null and they are not the same instance, they are not equal
+            if (a == null || b == null)
+                throw new AssertException($"{message}: One of the objects is null.");
+
+            // Handle arrays and collections
+            if (a is IEnumerable && b is IEnumerable)
+            {
+                var enumeratorA = ((IEnumerable)a).GetEnumerator();
+                var enumeratorB = ((IEnumerable)b).GetEnumerator();
+                while (enumeratorA.MoveNext() && enumeratorB.MoveNext())
+                {
+                    if (!enumeratorA.Current.Equals(enumeratorB.Current))
+                        throw new AssertException($"{message}: Elements in the collections do not match.");
+                }
+                return;
+            }
+
+            // Check if both objects are of the same type
+            if (a.GetType() != b.GetType())
+                throw new AssertException($"{message}: Objects are of different types.");
+
+            // Limit the recursion depth to prevent stack overflow
+            if (depth > 10)
+                throw new AssertException($"{message}: Recursion depth limit exceeded.");
+
+            // Compare each property
+            PropertyInfo[] properties = a.GetType().GetProperties();
+            foreach (var prop in properties)
+            {
+                object valueA = prop.GetValue(a);
+                object valueB = prop.GetValue(b);
+
+                if (valueA is ValueType || valueA is string)
+                {
+                    if (!Equals(valueA, valueB))
+                        throw new AssertException($"{message}: Property {prop.Name} does not match. {valueA} != {valueB}");
+                }
+                else if (valueA != null && valueB != null)
+                {
+                    // Recursively compare complex object properties
+                    CompareProperties(valueA, valueB, message, depth + 1);
+                }
+                else if (valueA != valueB) // One is null, the other is not
+                    throw new AssertException($"{message}: Property {prop.Name} does not match. One is null and the other is not.");
+            }
         }
 
         /// <summary>
@@ -528,6 +602,47 @@ namespace NextUnit.Core.Extensions
             }
 
             return outermostExpression.Method;
+        }
+
+        public static void TestProperties<T>(this T objectToTest)
+        {
+            var properties = objectToTest.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(prop => prop.CanRead && prop.CanWrite);
+
+            foreach (var property in properties)
+            {
+                object originalValue = property.GetValue(objectToTest);
+                object testValue = GetTestValue(property.PropertyType);
+
+                // Skip properties that don't have a setter or a suitable test value
+                if (testValue == null) continue;
+
+                // Set the test value and retrieve it back
+                property.SetValue(objectToTest, testValue);
+                object retrievedValue = property.GetValue(objectToTest);
+
+                // Verify the set operation was successful
+                if (!Equals(testValue, retrievedValue))
+                {
+                    throw new AssertException($"Property test failed for '{property.Name}'. Expected value: {testValue}, Retrieved value: {retrievedValue}");
+                }
+
+                // Optionally, reset the property to its original value
+                property.SetValue(objectToTest, originalValue);
+            }
+        }
+
+        private static object GetTestValue(Type propertyType)
+        {
+            // Handle common types with predefined test values
+            if (propertyType == typeof(int) || propertyType == typeof(int?)) return 123;
+            if (propertyType == typeof(string)) return "TestString";
+            if (propertyType == typeof(bool) || propertyType == typeof(bool?)) return true;
+            if (propertyType.IsEnum) return Activator.CreateInstance(propertyType); // Use the first enum value
+                                                                                    // Add more types as needed
+
+            // For complex types, consider using mocking libraries or custom factory methods
+            return null; // Return null if no suitable test value is found
         }
 
         /// <summary>

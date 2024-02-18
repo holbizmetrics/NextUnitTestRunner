@@ -39,7 +39,9 @@ while (true)
     Console.WriteLine("3. Enter a test assembly path to run.");
     Console.WriteLine("4. Run TestRunnerTestsContainer2 tests.");
     Console.WriteLine("5. Run the Test Runner for a selected type.");
-    Console.WriteLine("6. Exit.");
+    Console.WriteLine("6. Run the Test Runner for a all detected tests x times.");
+    Console.WriteLine("7. Run the Test Runner for a selected types x times.");
+    Console.WriteLine("8. Exit.");
 
     Console.Write("Enter your choice (1-5): ");
     var choice = Console.ReadLine();
@@ -69,6 +71,14 @@ while (true)
             return;
 
         case "6":
+            RunAllTestsSequentiallyXTimes(testRunner);
+            return;
+
+        case "7":
+            RunForSelectedAssemblyXTimes(testRunner);
+            return;
+
+        case "8":
             Console.WriteLine("Exit.");
             return;
 
@@ -158,11 +168,12 @@ void TestRunner_AfterTestRun(object? sender, ExecutionEventArgs e)
 {
     string testResultStateText = e.TestResult.State switch
     {
-        ExecutedState.Passed => "<Green>passed</Green>",
-        ExecutedState.Failed => "<Red>failed</Red>",
-        ExecutedState.Skipped => "<Blue>skipped</Blue>",
-        ExecutedState.UnknownError => "<Cyan>Unknown Error</Cyan>",
-        ExecutedState.NotStarted => "<White>Not started</White>",
+        ExecutionState.Passed => "<Green>passed</Green>",
+        ExecutionState.Failed => "<Red>failed</Red>",
+        ExecutionState.Skipped => "<Blue>skipped</Blue>",
+        ExecutionState.UnknownError => "<Cyan>Unknown Error</Cyan>",
+        ExecutionState.NotStarted => "<White>Not started</White>",
+        ExecutionState.Running => "<Yellow>Running</Yellow>"
     };
     string output =
     $@"MethodInfo: <Blue>{e.MethodInfo}</Blue>
@@ -248,6 +259,25 @@ void RunTestContainer2Tests(ITestRunner3 testRunner)
 void RunForSelectedType(ITestRunner3 testRunner)
 {
     Console.WriteLine("This won't work on your system, yet.");
+}
+
+void RunAllTestsSequentiallyXTimes(ITestRunner3 testRunner)
+{
+    // Your logic for the user to enter a test assembly path to run
+    "<Green>Enter the iterations of the test assemblies to run:</Green>".WriteColoredLine();
+    var count = Console.ReadLine();
+
+    int maxIterations = 0;
+    bool gotANumber = int.TryParse(count, out maxIterations);
+    for (int i = 0;i< maxIterations;i++)
+    {
+        RunAllTestsSequentially(testRunner);
+    }
+}
+
+void RunForSelectedAssemblyXTimes(ITestRunner3 testRunner)
+{
+
 }
 
 public class TestMarkedPropertiesAttribute : Attribute

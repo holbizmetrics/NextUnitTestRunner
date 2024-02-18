@@ -13,7 +13,7 @@ namespace AutoFixture.NextUnit.Tests
         [Group(nameof(AutoDataAttribute))]
         public void AutoDataNoParametersInjectingTest()
         {
-
+            //this is fine. We can pass, if we get here.
         }
 
         /// <summary>

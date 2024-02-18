@@ -215,17 +215,17 @@ namespace NextUnit.TestRunner
                                             Debug.WriteLine($"Given: {parameters}, Expected: {parameterInfos}");
                                         }
 #endif
-                                        testResult.State = ExecutedState.Skipped;
+                                        testResult.State = ExecutionState.Skipped;
                                         OnError(new ExecutionEventArgs(method, testResult));
                                     }
                                     else
                                     {
                                         method.Invoke(classObject, parameters);
-                                        testResult.State = ExecutedState.Passed;
+                                        testResult.State = ExecutionState.Passed;
                                     }
                                     stopwatch.Stop();
 
-                                    if (testResult.State != ExecutedState.Skipped)
+                                    if (testResult.State != ExecutionState.Skipped)
                                     {
                                         testResult.ExecutionTime = stopwatch.Elapsed;
                                         testResult.End = DateTime.Now;
