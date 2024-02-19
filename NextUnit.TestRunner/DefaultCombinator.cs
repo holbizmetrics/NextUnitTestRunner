@@ -1,4 +1,5 @@
-﻿using NextUnit.Core.AttributeLogic;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 using System.Reflection;
@@ -15,7 +16,7 @@ namespace NextUnit.TestRunner
         /// But for now it makes things at least working again.
         /// </summary>
         public AttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
-        public override async void ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object classInstance = null)
+        public override async Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object classInstance = null)
         {
             Type type = testDefinition.type;
             MethodInfo methodInfo = testDefinition.methodInfo;
@@ -52,6 +53,7 @@ namespace NextUnit.TestRunner
                     //testResult.State = ExecutionState.Passed;
                 }
             }
+            return TestResult.Empty;
         }
     }
 }

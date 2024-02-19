@@ -1,6 +1,8 @@
 ﻿#define ADAPTER_TEST
 
+#if ADAPTER_TEST
 using System.Diagnostics;
+#endif
 using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;

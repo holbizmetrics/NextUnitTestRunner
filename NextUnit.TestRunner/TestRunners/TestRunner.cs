@@ -13,7 +13,7 @@ namespace NextUnit.TestRunner.TestRunners
         void Run(string name, params Type[] types);
         void Run(object objectToGetTypeFrom);
         event ExecutionEventHandler BeforeTestRun;
-        public ITestDiscoverer TestDiscoverer { get; set; }
+        ITestDiscoverer TestDiscoverer { get; set; }
 
         /// <summary>
         /// This event will be fired after each test run.

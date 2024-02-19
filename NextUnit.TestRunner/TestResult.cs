@@ -46,6 +46,26 @@
     /// </summary>
     public class TestResult
     {
+        public static TestResult Empty
+        {
+            get
+            {
+                return new TestResult
+                {
+                    DisplayName = string.Empty,
+                    State = ExecutionState.NotStarted,
+                    StackTrace = string.Empty,
+                    Start = DateTime.MinValue, // or some other appropriate default value
+                    End = DateTime.MinValue, // or some other appropriate default value
+                    ExecutionTime = TimeSpan.Zero,
+                    Workstation = string.Empty,
+                    Class = string.Empty,
+                    Namespace = string.Empty,
+                    Exception = null
+                };
+            }
+        }
+
         public string DisplayName { get; internal set; } = string.Empty;
         public ExecutionState State { get; internal set; } = ExecutionState.NotStarted;
 

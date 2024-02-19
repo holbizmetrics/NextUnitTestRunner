@@ -86,7 +86,6 @@ namespace NextUnit.TestRunner.TestRunners
         public bool UseThreading { get; set; } = true;
 
         private bool disposedValue;
-
         public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> TestMethodsPerClass { get; private set; }
         public Combinator Combinator { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool UseCombinator { get => false; set => value = false; } //this flag can't be used here anymore because we need to use a combinator now anyway. Relict of refactoring for now.
@@ -466,7 +465,8 @@ namespace NextUnit.TestRunner.TestRunners
 
     public interface ITestRunner4 : ITestRunner3
     {
-        public Combinator Combinator { get; set; }
-        public IInstanceCreationBehavior InstanceCreationBehavior { get; set; }
+        Combinator Combinator { get; set; }
+        IInstanceCreationBehavior InstanceCreationBehavior { get; set; }
+        TestResult ExecuteTest((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition);
     }
 }

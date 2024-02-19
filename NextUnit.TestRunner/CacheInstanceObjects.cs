@@ -46,7 +46,12 @@ namespace NextUnit.TestRunner
             {
                 return InstanceObjects[type];
             }
-            throw new NotImplementedException();
+            else
+            {
+                object InstanceObject = Activator.CreateInstance(type);
+                InstanceObjects.Add(type, InstanceObject);
+                return InstanceObject;
+            }
         }
     }
 }

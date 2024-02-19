@@ -9,7 +9,6 @@ using NextUnit.TestRunner;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
-using static NextUnit.Core.AttributeLogic.AttributeCombinator;
 
 namespace NextUnitTestAdapter
 {
@@ -27,7 +26,6 @@ namespace NextUnitTestAdapter
 #if ADAPTER_TEST
             Debugger.Launch();
 #endif
-
             TestDiscoverer testDiscoverer = new TestDiscoverer();
             logger.SendMessage(TestMessageLevel.Error, "Discovering Tests:");
             foreach (string source in sources)
@@ -65,6 +63,6 @@ namespace NextUnitTestAdapter
                     discoverySink.SendTestCase(testCase);
                 }
             }
-        }      
+        }
     }
 }

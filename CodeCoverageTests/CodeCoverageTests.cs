@@ -1,4 +1,5 @@
 ﻿using NextUnit.Core.TestAttributes;
+using System.Diagnostics;
 
 namespace NextUnit.CodeCoverage.Tests
 {
@@ -11,7 +12,7 @@ namespace NextUnit.CodeCoverage.Tests
         [Group(nameof(CodeCoverage))]
         public void CodeCoverageTest()
         {
-
+            Debugger.Launch();
         }
     }
 }
