@@ -1,8 +1,10 @@
 ﻿#define ADAPTER_TEST
 
+#if ADAPTER_TEST
+using System.Diagnostics;
+#endif
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System.Diagnostics;
 
 namespace NextUnit.TestAdapter
 {
@@ -27,7 +29,8 @@ namespace NextUnit.TestAdapter
 #if ADAPTER_TEST
             Debugger.Launch();
 #endif
-            frameworkHandle.LaunchProcessWithDebuggerAttached(null, null, null, null);
+            //frameworkHandle.LaunchProcessWithDebuggerAttached(null, null, null, null);
+            frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Informational, "RunTests");
             foreach (var test in tests)
             {
                 // Example: Mark the start of the test
@@ -40,7 +43,7 @@ namespace NextUnit.TestAdapter
                     // Example: Record the outcome of the test
                     frameworkHandle.RecordResult(result);
                 }
-                catch(InvalidOperationException ex)
+                catch (InvalidOperationException ex)
                 {
                     frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Error, ex.ToString());
                     frameworkHandle.RecordEnd(test, TestOutcome.Failed);

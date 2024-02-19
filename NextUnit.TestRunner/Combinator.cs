@@ -4,11 +4,14 @@ namespace NextUnit.TestRunner
 {
     public abstract class Combinator : ICombinator
     {
-        public abstract void ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object classInstance = null);
+        public TestResult CurrentTestResult { get; set; } = null;
+
+        public abstract Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object classInstance = null);
     }
 
     public interface ICombinator
     {
-        void ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object classInstance = null);
+        Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object classInstance = null);
+        public TestResult CurrentTestResult { get; set; }
     }
 }

@@ -1,7 +1,9 @@
-﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+﻿#if ADAPTER_TEST
+using System.Diagnostics;
+#endif
+
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
-using NextUnit.Core.Extensions;
-using NextUnit.TestRunner;
 using NextUnit.TestRunner.TestRunners;
 using System.Diagnostics;
 using System.Reflection;
@@ -13,10 +15,8 @@ namespace NextUnit.TestAdapter
     [ExtensionUri(Definitions.DiscovererURI)]
     public abstract class NextUnitBaseExecutor : IRunContext
     {
-        protected ITestRunner3 TestRunner = new TestRunner3();
+        protected ITestRunner4 TestRunner = new TestRunner4();
         public Type[] Types { get; set; } = null;
-
-        public Dictionary<Type, object> Properties { get; set; } = new Dictionary<Type, object>();
 
         #region IRunContext Interface
         public virtual bool KeepAlive => false;
@@ -45,6 +45,9 @@ namespace NextUnit.TestAdapter
         /// <returns></returns>
         protected virtual TestResult ExecuteTest(TestCase testCase)
         {
+#if ADAPTER_TEST
+            Debugger.Launch();
+#endif
             List<string> files = new StackTrace().GetFrames()?.Select((StackFrame x) => x.GetMethod()?.DeclaringType?.Assembly.CodeBase).Distinct().ToList();
 
             IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> classTestMethodsAssociation = null;
@@ -58,18 +61,17 @@ namespace NextUnit.TestAdapter
                     (Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition = classTestMethodAssociation;
 
                     Type definitionType = definition.type;
-                    if (!Properties.ContainsKey(definitionType))
-                    {
-                        Properties.Add(definitionType, Activator.CreateInstance(definitionType));
-                    }
+                    if (TestRunner.InstanceCreationBehavior.OnlyInitializeAtStartBehavior) TestRunner.InstanceCreationBehavior.CreateInstance(definitionType);
                 }
             }
 
-            IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> methodFoundByName = ReflectionExtensions.FindMethodByName(classTestMethodsAssociation, testCase.DisplayName);
-           
-            (Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes) methodDefinition = methodFoundByName.First();
+            string fullNameToMatch = $"{testCase.FullyQualifiedName}";
+            IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> methodFoundByFullName =
+                classTestMethodsAssociation
+                .Where(x => $"{x.Type.Namespace}.{x.Type.Name}.{x.Method.Name}" == fullNameToMatch);
 
-            NextUnitTestResult nextUnitTestResult = TestRunner.ExecuteTest(methodDefinition.Method, Properties[methodDefinition.Type]);
+            var methodToExecute = methodFoundByFullName.First(); // After ensuring there's at least one match.
+            NextUnitTestResult nextUnitTestResult = TestRunner.ExecuteTest(methodToExecute);
             return testCase.ConvertTestCase(nextUnitTestResult);
         }
 
