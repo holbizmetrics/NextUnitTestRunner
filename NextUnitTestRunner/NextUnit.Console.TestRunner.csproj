@@ -20,6 +20,7 @@ Only the TestRunner3 will be working with Visual Studio's TestExplorer, etc.</Pa
 
   <ItemGroup>
     <ProjectReference Include="..\AutoFixture.NextUnit\AutoFixture.NextUnit.csproj" />
+    <ProjectReference Include="..\NextUnit.AssemblyReader\NextUnit.AssemblyReader.csproj" />
     <ProjectReference Include="..\NextUnit.Autofixture.AutoMoq.Core\NextUnit.Autofixture.AutoMoq.Core.csproj" />
     <ProjectReference Include="..\NextUnit.Core\NextUnit.Core.csproj" />
     <ProjectReference Include="..\NextUnit.TestRunner\NextUnit.TestRunner.csproj" />

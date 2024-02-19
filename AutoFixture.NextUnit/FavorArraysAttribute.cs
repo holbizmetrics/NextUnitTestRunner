@@ -11,7 +11,7 @@ namespace AutoFixture.NextUnit
     public sealed class FavorArraysAttribute : CustomizeAttribute
     {
         /// <summary>
-        /// 
+        /// Gets the customization.
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>

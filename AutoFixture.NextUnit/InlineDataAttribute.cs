@@ -51,7 +51,7 @@ namespace AutoFixture.NextUnit
         }
 
         /// <summary>
-        /// 
+        /// Gets the data of the specifed medthodInfo
         /// </summary>
         /// <param name="methodInfo"></param>
         /// <returns></returns>
@@ -63,7 +63,7 @@ namespace AutoFixture.NextUnit
         }
 
         /// <summary>
-        /// 
+        /// Used to display the name.
         /// </summary>
         /// <param name="methodInfo"></param>
         /// <param name="data"></param>

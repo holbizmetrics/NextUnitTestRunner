@@ -20,7 +20,7 @@ namespace NextUnit.TestRunner
     {
         public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> Discover(params Type[] types)
         {
-            IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> testMethodsPerClass = ReflectionExtensions.GetMethodsWithAttributesAsIEnumerable(types);
+            IEnumerable <(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> testMethodsPerClass = ReflectionExtensions.GetMethodsWithAttributesAsIEnumerableGeneric2<Attribute>(types);
             return testMethodsPerClass;
         }
 

@@ -5,7 +5,7 @@ using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 
-namespace NextUnit.TestRunner
+namespace NextUnit.TestRunner.TestRunners
 {
     public interface ITestRunner
     {
@@ -48,6 +48,7 @@ namespace NextUnit.TestRunner
         bool UseCombinator { get; set; }
         bool RecreateClassObject { get; }
         void Dispose();
+        TestResult ExecuteTest(MethodInfo methodInfo, object classInstance);
     }
 
     /// <summary>
@@ -186,7 +187,7 @@ namespace NextUnit.TestRunner
 
         public virtual IEnumerable<(Type Type, MethodInfo Method, IEnumerable<TestAttribute> Attributes)> ExecutedMethodsPerClass
         {
-            get { return this.ClassTestMethodsAssociation; }
+            get { return ClassTestMethodsAssociation; }
         }
     }
 }

@@ -1,35 +1,53 @@
 ﻿using NextUnit.Core.Extensions;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class FuzzingAttributeLogicHandler : IAttributeLogicHandler
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="attribute"></param>
-        /// <param name="testMethod"></param>
-        /// <param name="testInstance"></param>
         public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
         {
             var testDataGenerator = new TestDataGenerator();
-            var parameters = testMethod.GetParameters();
+            var parameterInfos = testMethod.GetParameters();
+            var allParameterValues = new List<IEnumerable<object>>();
 
-            foreach (var parameter in parameters)
+            // Generate test data for each parameter
+            foreach (var parameter in parameterInfos)
             {
-                if (parameter.ParameterType.IsComparable() && parameter.ParameterType.IsEquatable())
-                {
-                    var testData = testDataGenerator.GenerateTestData(parameter.ParameterType);
+                var testData = testDataGenerator.GenerateTestData(parameter.ParameterType);
+                allParameterValues.Add(testData);
+            }
 
-                    foreach (var data in testData)
-                    {
-                        testMethod.Invoke(testInstance, data);
-                        // Handle and record test results
-                    }
+            // Generate all possible combinations of parameter values
+            foreach (var combination in GenerateParameterCombinations(allParameterValues, 0))
+            {
+                try
+                {
+                    testMethod.Invoke(testInstance, combination.ToArray());
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions or record failures as needed
+                }
+            }
+        }
+
+        // Generates all combinations of parameter values
+        private IEnumerable<IEnumerable<object>> GenerateParameterCombinations(List<IEnumerable<object>> allParameterValues, int parameterIndex)
+        {
+            if (parameterIndex == allParameterValues.Count)
+            {
+                yield return new object[0];
+                yield break;
+            }
+
+            foreach (var item in allParameterValues[parameterIndex])
+            {
+                foreach (var restCombination in GenerateParameterCombinations(allParameterValues, parameterIndex + 1))
+                {
+                    yield return new[] { item }.Concat(restCombination);
                 }
             }
         }
@@ -38,29 +56,24 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
         {
             private Random _random = new Random();
 
-            public IEnumerable<object[]> GenerateTestData(Type parameterType)
+            public IEnumerable<object> GenerateTestData(Type parameterType)
             {
-                List<object[]> testData = new List<object[]>();
-
-                // Example for int type
+                // Adapted to generate a sequence of test data values for a single parameter
                 if (parameterType == typeof(int))
                 {
-                    testData.Add(new object[] { _random.Next() }); // Random int
-                    testData.Add(new object[] { int.MaxValue });   // Max value
-                    testData.Add(new object[] { int.MinValue });   // Min value
+                    return new object[] { 0, 1, -1, _random.Next(), int.MaxValue, int.MinValue };
                 }
-
-                // Example for string type
                 else if (parameterType == typeof(string))
                 {
-                    testData.Add(new object[] { Guid.NewGuid().ToString() });  // Random string
-                    testData.Add(new object[] { string.Empty });               // Empty string
-                    testData.Add(new object[] { null });                       // Null
+                    return new object[] { string.Empty, null, "test", Guid.NewGuid().ToString() };
                 }
-
-                // Add cases for other types as needed...
-
-                return testData;
+                // Extend to other types as needed
+                else if (parameterType.IsValueType || parameterType == typeof(object))
+                {
+                    // For value types and object, create a default instance
+                    return new object[] { Activator.CreateInstance(parameterType) };
+                }
+                return new object[] { null }; // Fallback for reference types
             }
         }
     }

@@ -5,13 +5,13 @@ using AutoFixture.Kernel;
 namespace AutoFixture.NextUnit
 {
     /// <summary>
-    /// 
+    /// Modest attribute
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public sealed class ModestAttribute : CustomizeAttribute
     {
         /// <summary>
-        /// 
+        /// Gets the customization.
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>

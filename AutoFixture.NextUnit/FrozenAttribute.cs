@@ -11,9 +11,8 @@ namespace AutoFixture.NextUnit
     {
         public Matching By { get; set; } = Matching.ExactType; // Default matching strategy
 
-
         /// <summary>
-        /// 
+        /// Gets the customization.
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
@@ -37,8 +36,9 @@ namespace AutoFixture.NextUnit
         {
             var requestType = request as Type;
             if (requestType == null)
+            {
                 return false;
-
+            }
             // Implement matching logic based on _matchingCriteria
             // For example, for exact type match:
             if (_matchingCriteria == Matching.ExactType)
@@ -50,5 +50,4 @@ namespace AutoFixture.NextUnit
             return false;
         }
     }
-
 }
