@@ -8,7 +8,7 @@ namespace NextUnit.TestRunner
     /// 
     /// To free the resources used TestRunnerAssemblyLoadContextInstance.Unload()
     /// </summary>
-    internal sealed class TestRunnerAssemblyLoadContext : AssemblyLoadContext, IDisposable
+    public sealed class TestRunnerAssemblyLoadContext : AssemblyLoadContext, IDisposable
     {
         private bool disposedValue;
 

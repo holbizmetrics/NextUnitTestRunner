@@ -8,7 +8,7 @@ using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.Asserts;
 
-namespace NextUnit.TestRunner
+namespace NextUnit.TestRunner.TestRunners
 {
     /// <summary>
     /// A little bit further progressed TestRunner.
@@ -128,14 +128,14 @@ namespace NextUnit.TestRunner
         /// <param name="name"></param>
         public override void Run(string name, params Type[] types)
         {
-            TestRunnerAssemblyLoadContext.Default.Resolving += Default_Resolving;
-            TestRunnerAssemblyLoadContext.Default.Unloading += Default_Unloading;
-            TestRunnerAssemblyLoadContext.Default.ResolvingUnmanagedDll += Default_ResolvingUnmanagedDll;
+            AssemblyLoadContext.Default.Resolving += Default_Resolving;
+            AssemblyLoadContext.Default.Unloading += Default_Unloading;
+            AssemblyLoadContext.Default.ResolvingUnmanagedDll += Default_ResolvingUnmanagedDll;
             if (!File.Exists(name))
             {
                 return;
             }
-            var assembly = TestRunnerAssemblyLoadContext.Default.LoadFromAssemblyPath(name);
+            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(name);
 
             if (types == null || types.Length == 0)
             {
@@ -198,7 +198,7 @@ namespace NextUnit.TestRunner
             //thus, we only need to create the instance objects per type here.
             foreach (var testDefinition in TestMethodsPerClass)
             {
-                (Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition = ((Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes))testDefinition;
+                (Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition = testDefinition;
                 Type definitionType = definition.type;
                 if (!InstanceObjects.ContainsKey(definition.type))
                 {
@@ -335,8 +335,8 @@ namespace NextUnit.TestRunner
 
         public TestRunner3(bool useThreading = true, bool useCombinator = false)
         {
-            this.UseThreading = useThreading;
-            this.UseCombinator = useCombinator;
+            UseThreading = useThreading;
+            UseCombinator = useCombinator;
         }
 
         public TestRunner3(ITestDiscoverer testDiscoverer = null, AttributeLogicMapper attributeLogicMapper = null, bool? useThreading = true, bool? useCombinator = false)
@@ -350,25 +350,25 @@ namespace NextUnit.TestRunner
         #region Fluent Syntax
         public TestRunner3 With(ITestDiscoverer testDiscoverer)
         {
-            this.TestDiscoverer = testDiscoverer;
+            TestDiscoverer = testDiscoverer;
             return this;
         }
 
         public TestRunner3 WithUseCombinator(bool useCombinator)
         {
-            this.UseCombinator = useCombinator;
+            UseCombinator = useCombinator;
             return this;
         }
 
         public TestRunner3 With(AttributeLogicMapper attributeLogicMapper)
         {
-            this.AttributeLogicMapper = attributeLogicMapper;
+            AttributeLogicMapper = attributeLogicMapper;
             return this;
         }
 
         public TestRunner3 WithUseThreading(bool useThreading)
         {
-            this.UseThreading = useThreading;
+            UseThreading = useThreading;
             return this;
         }
         #endregion Fluent Syntax
@@ -440,7 +440,7 @@ namespace NextUnit.TestRunner
                                     testResult.State = ExecutionState.Passed;
                                 }
                             }
-                            else if ((definition.Attributes.Count() == 1 && attribute is TestAttribute) || method.HasAsyncMethodAttributes())
+                            else if (definition.Attributes.Count() == 1 && attribute is TestAttribute || method.HasAsyncMethodAttributes())
                             {
                                 if (method.IsAsyncMethod())
                                 {

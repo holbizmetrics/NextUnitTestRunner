@@ -5,7 +5,7 @@ using System.Runtime.Loader;
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Asserts;
 
-namespace NextUnit.TestRunner
+namespace NextUnit.TestRunner.TestRunners
 {
     /// <summary>
     /// A little bit further progressed TestRunner.
@@ -79,7 +79,7 @@ namespace NextUnit.TestRunner
             AssemblyLoadContext.Default.Resolving += Default_Resolving;
             AssemblyLoadContext.Default.Unloading += Default_Unloading;
             AssemblyLoadContext.Default.ResolvingUnmanagedDll += Default_ResolvingUnmanagedDll;
-            var assembly = TestRunnerAssemblyLoadContext.Default.LoadFromAssemblyPath(name);
+            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(name);
 
             Type[] types = assembly.GetTypes();
             Run(types);
@@ -206,7 +206,7 @@ namespace NextUnit.TestRunner
                                     testResult.Start = DateTime.Now;
 
                                     ParameterInfo[] parameterInfos = method.GetParameters();
-                                    if (parameters == null && parameterInfos.Length > 0 || (parameters != null && parameters.Length != method.GetParameters().Length && method.GetParameters().Length > 0))
+                                    if (parameters == null && parameterInfos.Length > 0 || parameters != null && parameters.Length != method.GetParameters().Length && method.GetParameters().Length > 0)
                                     {
 #if DEBUG
                                         Debug.WriteLine($"Parameter mismatch for method {method}. No parameters specified or the value is null.");

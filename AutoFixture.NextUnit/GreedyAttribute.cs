@@ -13,6 +13,12 @@ namespace AutoFixture.NextUnit
     /// </summary>
     public class GreedyAttribute : CustomizeAttribute
     {
+        /// <summary>
+        /// Gets the customization.
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public override ICustomization GetCustomization(ParameterInfo parameter)
         {
             if (parameter == null)

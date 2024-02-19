@@ -49,6 +49,7 @@
         public string DisplayName { get; internal set; } = string.Empty;
         public ExecutionState State { get; internal set; } = ExecutionState.NotStarted;
 
+        public DateTime CreationTime { get; } = DateTime.Now;
         public string StackTrace { get; internal set; } = string.Empty;
 
         /// <summary>

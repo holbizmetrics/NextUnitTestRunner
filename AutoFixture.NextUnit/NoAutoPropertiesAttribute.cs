@@ -1,5 +1,4 @@
-﻿// AutoFixture.NextUnit.NoAutoPropertiesAttribute
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace AutoFixture.NextUnit
 {
@@ -10,7 +9,7 @@ namespace AutoFixture.NextUnit
     public sealed class NoAutoPropertiesAttribute : CustomizeAttribute
     {
         /// <summary>
-        /// 
+        /// Gets the customization.
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>

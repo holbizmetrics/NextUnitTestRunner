@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NextUnit.Core.TestAttributes
+﻿namespace NextUnit.Core.TestAttributes
 {
     /// <summary>
     /// Use this to fuzz a test, respectively parameters.

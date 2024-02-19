@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
+	<Commands package="guidPackage">
+		<Menus>
+			<!-- Optionally define a menu if needed -->
+		</Menus>
+		<Groups>
+			<Group guid="guidCommandSet" id="myMenuGroupId" priority="0x0600">
+				<!--<Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>-->
+			</Group>
+		</Groups>
+		<Buttons>
+			<Button guid="guidCommandSet" id="myCommandId" priority="0x0100" type="Button">
+				<Parent guid="guidCommandSet" id="myMenuGroupId" />
+				<!-- Icon definition is optional. Remove or update the guid and id if you have a specific icon -->
+				<!--<Icon guid="guidImages" id="bmpPic1" />-->
+				<Strings>
+					<ButtonText>Invoke My Command</ButtonText>
+				</Strings>
+			</Button>
+		</Buttons>
+	</Commands>
+	<Symbols>
+		<!-- Define the GUIDs and IDs used in the .vsct file -->
+		<GuidSymbol name="guidCommandSet" value="{c2f5c3b2-7bcd-4a12-b36f-5fb3e5b5a1c2}">
+			<IDSymbol name="myMenuGroupId" value="0x1020"/>
+			<IDSymbol name="myCommandId" value="0x0100"/>
+		</GuidSymbol>
+		<!-- Optional: Define the package GUID if it's used in the Commands section -->
+		<GuidSymbol name="guidPackage" value="{b461d79b-7136-419c-86f4-d0fbe20aaac1}"/>
+		<!-- If you have an icon, define its GUID and ID here -->
+		<!--<GuidSymbol name="guidImages" value="{guid-for-images}">
+      <IDSymbol name="bmpPic1" value="1" />
+    </GuidSymbol>-->
+	</Symbols>
+</CommandTable>

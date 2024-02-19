@@ -1,7 +1,5 @@
 ﻿namespace NextUnit.Core.TestAttributes
 {
-   
-
     /// <summary>
     /// Used to mark a test.
     /// </summary>

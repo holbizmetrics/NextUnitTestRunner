@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using NextUnit.Core.Extensions;
 using NextUnit.TestRunner;
+using NextUnit.TestRunner.TestRunners;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -12,7 +13,7 @@ namespace NextUnit.TestAdapter
     [ExtensionUri(Definitions.DiscovererURI)]
     public abstract class NextUnitBaseExecutor : IRunContext
     {
-        protected TestRunner3 TestRunner = new TestRunner3();
+        protected ITestRunner3 TestRunner = new TestRunner3();
         public Type[] Types { get; set; } = null;
 
         public Dictionary<Type, object> Properties { get; set; } = new Dictionary<Type, object>();

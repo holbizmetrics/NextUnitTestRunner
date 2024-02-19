@@ -10,7 +10,7 @@ namespace AutoFixture.NextUnit
     public sealed class FavorEnumerablesAttribute : CustomizeAttribute
     {
         /// <summary>
-        /// 
+        /// Gets the customization.
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
