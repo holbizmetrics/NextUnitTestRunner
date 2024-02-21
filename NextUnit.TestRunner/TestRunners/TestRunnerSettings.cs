@@ -1,5 +1,6 @@
 ﻿using NextUnit.Autofixture.AutoMoq.Core;
 using NextUnit.Core.AttributeLogic;
+using NextUnit.Core.Combinators;
 using NextUnit.TestRunner;
 using System;
 using System.Collections.Generic;
@@ -21,10 +22,10 @@ namespace NextUnit.TestRunner.TestRunners
     /// </summary>
     public abstract class TestRunnerSettings
     {
-        public abstract Combinator Combinator { get; set; }
+        public abstract ICombinator Combinator { get; set; }
         public abstract ITestDiscoverer TestDiscoverer { get; set; }
         public abstract bool UseThreading { get; set; }
-        public abstract AttributeLogicMapper AttributeLogicMapper { get; set; }
+        public abstract IAttributeLogicMapper AttributeLogicMapper { get; set; }
         public abstract IInstanceCreationBehavior InstanceCreationBehavior { get; set; }
 
         public TestRunnerSettings()
@@ -57,12 +58,12 @@ namespace NextUnit.TestRunner.TestRunners
             this.InstanceCreationBehavior = testRunner.InstanceCreationBehavior;
         }
 
-        public override Combinator Combinator { get;set; }
+        public override ICombinator Combinator { get;set; }
 
         public override ITestDiscoverer TestDiscoverer { get; set; }
         public override bool UseThreading { get; set; }
 
-        public override AttributeLogicMapper AttributeLogicMapper { get; set; }
+        public override IAttributeLogicMapper AttributeLogicMapper { get; set; }
 
         public override IInstanceCreationBehavior InstanceCreationBehavior { get; set; }
     }
@@ -75,13 +76,13 @@ namespace NextUnit.TestRunner.TestRunners
         {
         }
 
-        public override Combinator Combinator { get => new DefaultCombinator(); set { } }
+        public override ICombinator Combinator { get => new DefaultCombinator(); set { } }
 
         public override ITestDiscoverer TestDiscoverer { get => new TestDiscoverer(); set { } }
 
         public override bool UseThreading { get => false; set { } }
 
-        public override AttributeLogicMapper AttributeLogicMapper { get => new AutofixtureAutomoqAttributeAttributeLogicMapper(); set { } }
+        public override IAttributeLogicMapper AttributeLogicMapper { get => new AutofixtureAutomoqAttributeAttributeLogicMapper(); set { } }
 
         public override IInstanceCreationBehavior InstanceCreationBehavior { get => new RecreateObjectInstanceForEachTest(); set { } }
     }

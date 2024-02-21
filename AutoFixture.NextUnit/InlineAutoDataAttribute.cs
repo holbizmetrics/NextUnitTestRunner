@@ -1,6 +1,5 @@
 ﻿using AutoFixture.Kernel;
 using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AutoFixture.NextUnit
 {

@@ -3,6 +3,7 @@
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using NextUnit.AssemblyReader;
 using NextUnit.Core.TestAttributes;
 using NextUnit.TestAdapter;
 using NextUnit.TestRunner;
@@ -19,12 +20,13 @@ namespace NextUnitTestAdapter
     [Category(Definitions.managed)]//[Category("managed")]
     public class NextUnitTestDiscoverer : Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter.ITestDiscoverer
     {
-        public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
+        public virtual void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
         {
             List<string> files = new StackTrace().GetFrames()?.Select((StackFrame x) => x.GetMethod()?.DeclaringType?.Assembly.CodeBase).Distinct().ToList();
 
 #if ADAPTER_TEST
             Debugger.Launch();
+            Debugger.Break();
 #endif
             TestDiscoverer testDiscoverer = new TestDiscoverer();
             logger.SendMessage(TestMessageLevel.Error, "Discovering Tests:");
@@ -43,7 +45,9 @@ namespace NextUnitTestAdapter
                     var testCase = new TestCase(method.Name, new Uri(Definitions.DiscovererURI), source); //new TestCase(method.Name, new Uri("executor://NextUnitTestDiscoverer"), source);
                     string fullyQualifiedName = $"{definitionType.Namespace}.{definitionType.Name}.{method.Name}";
                     testCase.FullyQualifiedName = fullyQualifiedName;
-                    testCase.CodeFilePath = Definitions.DiscovererURI;
+                    testCase.CodeFilePath = "";
+                    testCase.LineNumber = 7;
+
                     GroupAttribute groupAttribute = method.GetCustomAttribute<GroupAttribute>();
                     if (groupAttribute != null)
                     {

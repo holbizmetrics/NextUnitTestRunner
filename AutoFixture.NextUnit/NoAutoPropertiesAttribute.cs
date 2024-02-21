@@ -3,7 +3,9 @@
 namespace AutoFixture.NextUnit
 {
     /// <summary>
-    /// 
+    /// An attribute that can be applied to parameters in an AutoDataAttribute-driven Theory to 
+    /// indicate that the parameter value should not have properties auto populated when the
+    /// IFixture creates an instance of that type.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public sealed class NoAutoPropertiesAttribute : CustomizeAttribute

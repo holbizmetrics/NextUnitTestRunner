@@ -33,6 +33,12 @@ namespace NextUnit.AssemblyReader
             return Directory.GetFiles(path, pdbExtension, SearchOption.AllDirectories);
         }
 
+        public static string GetPDBNameFromAssemblyName(string assemblyName)
+        {
+            string pdbName = assemblyName.Replace(".dll", ".pdb").Replace(".exe", ".pdb");
+            return pdbName;
+        }
+
         public static string GetCallingAssemblyPath => Assembly.GetCallingAssembly().Location;
         public static string GetEntryAssemblyPath => Assembly.GetEntryAssembly().Location;
         public static string GetExecutingAssemblyPath => Assembly.GetExecutingAssembly().Location;

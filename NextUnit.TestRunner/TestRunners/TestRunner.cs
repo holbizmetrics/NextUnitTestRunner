@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using NextUnit.Core;
 using NextUnit.Core.Asserts;
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
@@ -44,7 +45,7 @@ namespace NextUnit.TestRunner.TestRunners
     public interface ITestRunner3 : ITestRunner
     {
         bool UseThreading { get; set; }
-        AttributeLogicMapper AttributeLogicMapper { get; set; }
+        IAttributeLogicMapper AttributeLogicMapper { get; set; }
         bool UseCombinator { get; set; }
         bool RecreateClassObject { get; }
         void Dispose();

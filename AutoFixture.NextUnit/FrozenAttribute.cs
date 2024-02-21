@@ -4,7 +4,9 @@ using System.Reflection;
 namespace AutoFixture.NextUnit
 {
     /// <summary>
-    /// Will provide a FrozenAttribute.
+    /// An attribute that can be applied to parameters in an AutoDataAttribute-driven Theory to indicate that
+    /// the parameter value should be frozen so that the same instance is returned every time the IFixture creates an instance of
+    /// that type.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class FrozenAttribute : CustomizeAttribute

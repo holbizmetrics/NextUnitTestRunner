@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
+using NextUnitTestAdapter;
 
 namespace NextUnit.TestAdapter
 {
@@ -34,7 +35,9 @@ namespace NextUnit.TestAdapter
         public void RunTests(IEnumerable<TestCase>? tests, IRunContext? runContext, IFrameworkHandle? frameworkHandle)
         {
 #if ADAPTER_TEST
+            Debug.WriteLine($"Hello from {nameof(NextUnitTestExecutor)}");
             Debugger.Launch();
+            Debugger.Break();
 #endif
             var settings = runContext?.RunSettings?.SettingsXml;
             frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Informational, "RunTests");

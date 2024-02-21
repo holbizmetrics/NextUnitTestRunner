@@ -1,15 +1,12 @@
 ﻿using AutoFixture.Kernel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection.Metadata;
 
 namespace AutoFixture.NextUnit
 {
     /// <summary>
-    /// Provides an AutoFixture.NextUnit.GreedyAttribute.
+    /// An attribute that can be applied to parameters in an AutoDataAttribute-driven TestCase to indicate that
+    /// the parameter value should be created using the most greedy constructor that can be satisfied by an IFixture.
     /// </summary>
     public class GreedyAttribute : CustomizeAttribute
     {

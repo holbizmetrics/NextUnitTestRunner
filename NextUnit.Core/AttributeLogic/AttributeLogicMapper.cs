@@ -4,7 +4,13 @@ using System.Reflection;
 
 namespace NextUnit.Core.AttributeLogic
 {
-    public class AttributeLogicMapper
+    public interface IAttributeLogicMapper
+    {
+        IAttributeLogicHandler GetHandlerFor(Attribute attribute);
+        IAttributeLogicHandler GetHandlersFor((Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition, object classObject);
+    }
+
+    public class AttributeLogicMapper : IAttributeLogicMapper
     {
         protected readonly Dictionary<Type, IAttributeLogicHandler> _mapping;
 
@@ -13,7 +19,6 @@ namespace NextUnit.Core.AttributeLogic
             _mapping = new Dictionary<Type, IAttributeLogicHandler>
             {
                 { typeof(AllCombinationsAttribute), new AllCombinationsAttributeLogicHandler() },
-                //{ typeof(CommonTestAttribute), new CommonTestAttributeLogicHandler() }, //Is this even needed?
                 { typeof(DebugAttribute), new DebugAttributeLogicHandler() },
                 { typeof(DebuggerBreakAttribute), new DebugAttributeLogicHandler() },
                 { typeof(CompileAttribute), new CompileAttributeLogicHandler() },
@@ -22,7 +27,7 @@ namespace NextUnit.Core.AttributeLogic
                 { typeof(ConditionAttribute), new ConditionAttributeLogicHandler()},
                 { typeof(DependencyInjectionAttribute), new DependencyInjectionAttributeLogicHandler() },
                 { typeof(ExecuteUntilTimeoutAttribute), new ExecuteUntilTimeoutAttributeLogicHandler() },
-                //{typeof(ExtendedTestAttribute), new ExtendedTestAttributeLogicHandler } //Is this even needed?
+                //{ typeof(ExtendedTestAttribute), new ExtendedTestAttributeLogicHandler } //Is this even needed?
                 { typeof(FuzzingAttribute), new FuzzingAttributeLogicHandler() },
                 { typeof(GroupAttribute), new GroupAttributeLogicHandler() },
                 { typeof(InjectDataAttribute), new InjectDataAttributeLogicHandler() },
@@ -33,12 +38,12 @@ namespace NextUnit.Core.AttributeLogic
                 { typeof(RetryAttribute), new RetryAttributeLogicHandler() },
                 { typeof(RunAfterAttribute), new RunAfterAttributeLogicHandler() },
                 { typeof(RunBeforeAttribute), new RunBeforeAttributeLogicHandler() },
-                {typeof(RunIfEnvVarAttribute), new RunIfEnvVarAttributeLogicHandler() },
+                { typeof(RunIfEnvVarAttribute), new RunIfEnvVarAttributeLogicHandler() },
                 { typeof(RunInThreadAttribute), new RunInThreadAttributeLogicHandler() },
                 { typeof(SkipAttribute), new SkipAttributeLogicHandler() },
                 { typeof(TimeoutAttribute), new TimeoutAttributeLogicHandler() },
                 { typeof(TimeoutRetryAttribute), new TimeoutRetryAttributeLogicHandler() }
-                //{typeof(TestAttribute), TestLogicHandler } //is this even needed?!
+                //{ typeof(TestAttribute), TestLogicHandler } //is this even needed?!
 
                 // More mappings...
             };

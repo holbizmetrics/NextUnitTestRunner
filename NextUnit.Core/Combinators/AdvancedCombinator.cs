@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace NextUnit.TestRunner
+namespace NextUnit.Core.Combinators
 {
     /// <summary>
     /// 
