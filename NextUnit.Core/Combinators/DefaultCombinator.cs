@@ -16,6 +16,7 @@ namespace NextUnit.Core.Combinators
         /// But for now it makes things at least working again.
         /// </summary>
         public AttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
+        protected Stopwatch Stopwatch { get; private set; } = null;
         public override async Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object classInstance = null)
         {
             TestResult testResult = TestResult.Empty;
@@ -38,31 +39,30 @@ namespace NextUnit.Core.Combinators
                 executionAttributes.Add(testDefinition.attributes.First(attr => attr is TestAttribute));
             }
 
-            if (testDefinition.methodInfo.Name.Contains("AssertIsFalse_Successful_Test"))
+            StackFrame stackFrame = new StackFrame();
+            List<string> files = new StackTrace().GetFrames()?.Select((StackFrame x) => x.GetMethod()?.DeclaringType?.Assembly.CodeBase).Distinct().ToList();
+
+            // This will be just used for diagnoses for now to get rid of errors.
+            var debugObject = new
             {
-                StackFrame stackFrame = new StackFrame();
-                List<string> files = new StackTrace().GetFrames()?.Select((StackFrame x) => x.GetMethod()?.DeclaringType?.Assembly.CodeBase).Distinct().ToList();
-
-                var debugObject = new {
-                    ExecutingAssembly = Assembly.GetExecutingAssembly(),
-                    CallingAssembly = Assembly.GetCallingAssembly(),
-                    HasNativeImage = stackFrame.HasNativeImage(),
-                    NativeImageBase = stackFrame.GetNativeImageBase(),
-                    NativeIP = stackFrame.GetNativeIP(),
-                    FileColumnNumber = stackFrame.GetFileColumnNumber(),
-                    FileLineNumber = stackFrame.GetFileLineNumber(),
-                    ILOffset = stackFrame.HasILOffset() ? stackFrame.GetILOffset() : -1,
-                    NativeOffset = stackFrame.GetNativeOffset(),
-                    Files = files
-                };
-
-            }
+                ExecutingAssembly = Assembly.GetExecutingAssembly(),
+                CallingAssembly = Assembly.GetCallingAssembly(),
+                HasNativeImage = stackFrame.HasNativeImage(),
+                NativeImageBase = stackFrame.GetNativeImageBase(),
+                NativeIP = stackFrame.GetNativeIP(),
+                FileColumnNumber = stackFrame.GetFileColumnNumber(),
+                FileLineNumber = stackFrame.GetFileLineNumber(),
+                ILOffset = stackFrame.HasILOffset() ? stackFrame.GetILOffset() : -1,
+                NativeOffset = stackFrame.GetNativeOffset(),
+                Files = files,
+                Method = testDefinition.methodInfo,
+                Type = testDefinition.type,
+                Attributes = testDefinition.attributes,
+            };
 
             Type type = testDefinition.type;
             MethodInfo methodInfo = testDefinition.methodInfo;
             IEnumerable<Attribute> attributes = testDefinition.attributes;
-
-            Stopwatch stopwatch = new Stopwatch();
 
             if (executionAttributes.Count() == 1 && executionAttributes.First() is TestAttribute)
             {
@@ -70,11 +70,11 @@ namespace NextUnit.Core.Combinators
                 if (methodInfo.IsAsyncMethod())
                 {
                     //end the TestResult preparation.
-                    stopwatch = Stopwatch.StartNew();
+                    Stopwatch = Stopwatch.StartNew();
                     var task = (Task)methodInfo.Invoke(classInstance, null); // Assuming no parameters for simplicity
                     await task.ConfigureAwait(false);
 
-                    EndTestResult(testResult, stopwatch);
+                    EndTestResult(testResult);
 
                     // Handle the result of the async test execution
                     testResult.State = ExecutionState.Passed;
@@ -83,10 +83,12 @@ namespace NextUnit.Core.Combinators
                 {
                     methodInfo.Invoke(classInstance, null);
 
-                    EndTestResult(testResult, stopwatch);
+                    EndTestResult(testResult);
                 }
                 return testResult;
             }
+
+            string[] namespaces = new string[] { "NextUnit.", "AutoFixture.NextUnit" };
 
             // Definitely the check for async would - for the current design - have to move into the single Attribute Logic Mappers.
             foreach (Attribute attribute in executionAttributes)
@@ -96,14 +98,12 @@ namespace NextUnit.Core.Combinators
                 {
                     continue;
                 }
-                if (attribute.GetType().Namespace.Contains("NextUnit."))
+                string attributeNameSpace = attribute.GetType().Namespace;
+                if (attributeNameSpace.Contains("NextUnit.") || attributeNameSpace.Contains("AutoFixture.NextUnit"))
                 {
                     //Start with the TestResult preparation.
                     Type declaringType = testDefinition.methodInfo.DeclaringType;
                     PrepareTestResult(testDefinition, testResult, declaringType);
-
-                    stopwatch = Stopwatch.StartNew();
-                    testResult.Start = DateTime.Now;
 
                     testResult.State = ExecutionState.Running;
 
@@ -111,32 +111,35 @@ namespace NextUnit.Core.Combinators
                     handler?.ProcessAttribute(attribute, methodInfo, classInstance);
 
                     //end the TestResult preparation.
-                    EndTestResult(testResult, stopwatch);
+                    EndTestResult(testResult);
                 }
                 else if (attribute is SkipAttribute)
                 {
                     testResult.State = ExecutionState.Skipped;
                 }
+                else
+                {
+                    //What namespace are we in?
+                    string nameSpace = attribute.GetType().Namespace;
+                }
             }
             return testResult;
         }
 
-        private static void PrepareTestResult((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, TestResult testResult, Type declaringType)
+        private void PrepareTestResult((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, TestResult testResult, Type declaringType)
         {
             testResult.Namespace = declaringType.ToString();
             testResult.Class = declaringType.Name;
-            if (string.IsNullOrEmpty(testResult.Class))
-            {
-
-            }
             testResult.Workstation = Environment.MachineName;
             testResult.DisplayName = testDefinition.methodInfo.Name;
+            testResult.Start = DateTime.Now;
+            Stopwatch = Stopwatch.StartNew();
         }
 
-        private static void EndTestResult(TestResult testResult, Stopwatch stopwatch)
+        private void EndTestResult(TestResult testResult)
         {
-            testResult.ExecutionTime = stopwatch.Elapsed;
-            stopwatch.Stop();
+            Stopwatch.Stop();
+            testResult.ExecutionTime = Stopwatch.Elapsed;
             testResult.End = DateTime.Now;
             testResult.State = ExecutionState.Passed;
         }

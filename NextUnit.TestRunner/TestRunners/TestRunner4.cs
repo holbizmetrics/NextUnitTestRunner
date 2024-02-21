@@ -453,11 +453,11 @@ namespace NextUnit.TestRunner.TestRunners
                     {
                         testResult = new TestResult();
                     }
-                    testResult.StackTrace = lastException?.StackTrace;
                     NextUnitTestExecutionContext.TestResults.Add(testResult);
                     OnAfterTestRun(new ExecutionEventArgs(method, testResult));
                     if (lastException != null)
                     {
+                        testResult.StackTrace = lastException?.StackTrace;
                         testResult.State = ExecutionState.Failed;
                         OnError(new ExecutionEventArgs(method, testResult, lastException));
                     }

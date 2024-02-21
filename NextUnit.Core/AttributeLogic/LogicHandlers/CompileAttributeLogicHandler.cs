@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.Emit;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
@@ -90,7 +91,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                     // For example, you could log the diagnostics or throw an exception
                     foreach (var diagnostic in result.Diagnostics)
                     {
-                        Console.WriteLine($"{diagnostic.Id}: {diagnostic.GetMessage()}");
+                        Trace.WriteLine($"{diagnostic.Id}: {diagnostic.GetMessage()}");
                     }
                     return null;
                 }

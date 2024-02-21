@@ -668,7 +668,7 @@ namespace NextUnit.Core.Extensions
             // Check if the directory exists.
             if (!Directory.Exists(topLevelBinDirectory))
             {
-                Console.WriteLine("The top-level bin directory does not exist.");
+                Trace.WriteLine("The top-level bin directory does not exist.");
                 return Array.Empty<string>();
             }
 

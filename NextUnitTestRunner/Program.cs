@@ -1,20 +1,14 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿#define DIAGNOSE_RUN
+// See https://aka.ms/new-console-template for more information
 
-//namespace NextUnit.Console.TestRunner;
-
-using NextUnit.AssemblyReader;
-using NextUnit.AssemblyReader.Extensions;
 using NextUnit.Autofixture.AutoMoq.Core;
 using NextUnit.Core;
-using NextUnit.Core.Accessors;
-using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner;
 using NextUnit.TestRunner.Extensions;
 using NextUnit.TestRunner.TestRunners;
 using NextUnit.TestRunner.UnitTests;
 using System.Diagnostics;
-using System.Reflection;
 
 Trace.Listeners.Add(new ConsoleTraceListener());
 ITestRunner4 testRunner = new TestRunner4().With(new TestDiscoverer()).With(new AutofixtureAutomoqAttributeAttributeLogicMapper());
@@ -27,6 +21,12 @@ testRunner.TestRunStarted += TestRunner_TestRunStarted;
 testRunner.TestRunFinished += TestRunner_TestRunFinished;
 testRunner.ErrorEventHandler += TestRunner_ErrorEventHandler;
 
+#if DIAGNOSE_RUN
+if (!Trace.Listeners.Contains(new ConsoleTraceListener()))
+{
+    Trace.Listeners.Add(new ConsoleTraceListener());
+}
+#endif
 
 string[] assemblyPaths = NextUnit.Core.Extensions.ReflectionExtensions.GetAllAssembliesFromSolutionTopLevelDirectory(@"..\..\");
 var testDLLs = assemblyPaths.Where(x => x.Contains("NextUnit.") && x.EndsWith(".Tests.dll") && !x.Contains(@"obj\"));
@@ -188,10 +188,6 @@ End: <Green>{e.TestResult.End}</Green>
 Execution Time: <Green>{e.TestResult.ExecutionTime}</Green>
 Workstation: <Green>{e.TestResult.Workstation}</Green>
 ";
-    if (e.TestResult.State == ExecutionState.NotStarted)
-    {
-
-    }
     output.WriteColoredLine();
     Trace.WriteLine(@"");
 }

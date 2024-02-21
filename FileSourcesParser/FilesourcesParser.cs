@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 
 namespace FileSourcesParser
 {
@@ -19,10 +20,10 @@ namespace FileSourcesParser
                         {
                             //foreach (var seqPoint in method.DebugInformation.SequencePoints)
                             {
-                                Console.WriteLine($"Method: {method.Name}");
-                                //Console.WriteLine($"File: {seqPoint.Document.Url}");
-                                //Console.WriteLine($"Start Line: {seqPoint.StartLine}");
-                                //Console.WriteLine($"End Line: {seqPoint.EndLine}");
+                                Trace.WriteLine($"Method: {method.Name}");
+                                //Trace.WriteLine($"File: {seqPoint.Document.Url}");
+                                //Trace.WriteLine($"Start Line: {seqPoint.StartLine}");
+                                //Trace.WriteLine($"End Line: {seqPoint.EndLine}");
                                 // Break or continue as needed
                             }
                         }

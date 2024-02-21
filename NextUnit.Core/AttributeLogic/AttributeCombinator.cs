@@ -1,6 +1,7 @@
 ﻿using NextUnit.Core.Combinators;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace NextUnit.Core.AttributeLogic
@@ -100,10 +101,10 @@ namespace NextUnit.Core.AttributeLogic
             // and which actions to take based on those interactions.
 
             // For simplicity, let's say we're just logging the combined attributes for now.
-            Console.WriteLine($"Processing combined attributes for {testMethod.Name}");
+            Trace.WriteLine($"Processing combined attributes for {testMethod.Name}");
             foreach (var attribute in attributes)
             {
-                Console.WriteLine(attribute.GetType().Name);
+                Trace.WriteLine(attribute.GetType().Name);
             }
 
             // Actual logic goes here

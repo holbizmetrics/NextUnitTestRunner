@@ -1,4 +1,5 @@
 ﻿using Microsoft.DiaSymReader;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace NextUnit.AssemblyReader
@@ -83,7 +84,7 @@ namespace NextUnit.AssemblyReader
         //    // Check if the directory exists.
         //    if (!Directory.Exists(topLevelBinDirectory))
         //    {
-        //        Console.WriteLine("The top-level bin directory does not exist.");
+        //        Trace.WriteLine("The top-level bin directory does not exist.");
         //        return Array.Empty<string>();
         //    }
 
@@ -135,11 +136,11 @@ namespace NextUnit.AssemblyReader
                 // Now you can use diaSession and globalScope to query for symbols
                 // This is where you would add your logic to work with the symbols
 
-                Console.WriteLine("PDB queried successfully.");
+                Trace.WriteLine("PDB queried successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error querying PDB: {ex.Message}");
+                Trace.WriteLine($"Error querying PDB: {ex.Message}");
             }
         }
     }
