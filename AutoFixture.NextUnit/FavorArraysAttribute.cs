@@ -1,5 +1,4 @@
-﻿// AutoFixture.NextUnit.FavorArraysAttribute
-using System.Reflection;
+﻿using System.Reflection;
 using AutoFixture.Kernel;
 
 namespace AutoFixture.NextUnit

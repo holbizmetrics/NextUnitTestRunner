@@ -6,6 +6,9 @@ using System.Runtime.Loader;
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Asserts;
 using System.ComponentModel;
+using NextUnit.Core.Combinators;
+using NextUnit.Core;
+using NextUnit.Autofixture.AutoMoq.Core;
 
 namespace NextUnit.TestRunner.TestRunners
 {
@@ -64,7 +67,7 @@ namespace NextUnit.TestRunner.TestRunners
         public event ExecutionEventHandler TestRunFinished;
         public event ExecutionEventHandler ErrorEventHandler;
 
-        public AttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
+        public IAttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
 
         public bool UseConstructorDisposeOfTestClass { get; set; } = false;
 
@@ -82,7 +85,7 @@ namespace NextUnit.TestRunner.TestRunners
         /// e.g.  
         ///
         /// </summary>
-        public Combinator UsedCombinator { get; set; } = new DefaultCombinator();
+        public Combinator UsedCombinator { get; set; } = new DefaultCombinator { AttributeLogicMapper = new AutofixtureAutomoqAttributeAttributeLogicMapper() };
         public bool UseThreading { get; set; } = true;
 
         private bool disposedValue;
@@ -112,7 +115,7 @@ namespace NextUnit.TestRunner.TestRunners
         }
 
         /// <summary>
-        /// 
+        /// This will be fired before the test is run.
         /// </summary>
         /// <param name="e"></param>
         protected void OnBeforeTestRun(ExecutionEventArgs e)
@@ -121,7 +124,7 @@ namespace NextUnit.TestRunner.TestRunners
         }
 
         /// <summary>
-        /// 
+        /// This will be fired after the test was run.
         /// </summary>
         /// <param name="e"></param>
         protected void OnAfterTestRun(ExecutionEventArgs e)
@@ -165,6 +168,10 @@ namespace NextUnit.TestRunner.TestRunners
             ErrorEventHandler?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Runs the tests for this specicif object type.
+        /// </summary>
+        /// <param name="objectToGetTypeFrom"></param>
         public override void Run(object objectToGetTypeFrom)
         {
             Run(objectToGetTypeFrom.GetType());
@@ -177,20 +184,36 @@ namespace NextUnit.TestRunner.TestRunners
         /// <param name="name"></param>
         public override void Run(string name, params Type[] types)
         {
-            AssemblyLoadContext.Default.Resolving += Default_Resolving;
-            AssemblyLoadContext.Default.Unloading += Default_Unloading;
-            AssemblyLoadContext.Default.ResolvingUnmanagedDll += Default_ResolvingUnmanagedDll;
+            TestRunnerAssemblyLoadContext.Default.Resolving += Default_Resolving;
+            TestRunnerAssemblyLoadContext.Default.Unloading += Default_Unloading;
+            TestRunnerAssemblyLoadContext.Default.ResolvingUnmanagedDll += Default_ResolvingUnmanagedDll;
             if (!File.Exists(name))
             {
                 return;
             }
-            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(name);
+            Assembly loadedAssembly = null;
 
+            loadedAssembly = AssemblyLoadContext.Default.Assemblies.Where(x => x.GetName().Name == Path.GetFileNameWithoutExtension(name)).FirstOrDefault();
+
+            if (loadedAssembly == null)
+            {
+                loadedAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(name);
+            }
             if (types == null || types.Length == 0)
             {
-                types = assembly.GetTypes();
+                try
+                {
+                    types = loadedAssembly.GetTypes();
+                }
+                catch(Exception ex)
+                {
+                    Trace.WriteLine("LoadFromAssembly GetTypes() caused an error:");
+                    Trace.WriteLine("--------------------------------------------");
+                    Trace.WriteLine(ex);
+                }
             }
             Run(types);
+            this.Default_Unloading(AssemblyLoadContext.Default);
         }
 
         /// <summary>
@@ -211,11 +234,7 @@ namespace NextUnit.TestRunner.TestRunners
         /// <param name="obj"></param>
         private void Default_Unloading(AssemblyLoadContext obj)
         {
-            Trace.WriteLine($"Default unloading: {obj.ToString()}");
-            if (obj.IsCollectible)
-            {
-                obj.Unload();
-            }
+            TestRunnerAssemblyLoadContext.UnloadAssemblyContext(TestRunnerAssemblyLoadContext.Default);
         }
 
         /// <summary>
@@ -227,7 +246,32 @@ namespace NextUnit.TestRunner.TestRunners
         /// <exception cref="NotImplementedException"></exception>
         private Assembly? Default_Resolving(AssemblyLoadContext arg1, AssemblyName arg2)
         {
-            throw new NotImplementedException();
+            return LoadAdditionalAssemblies(arg1, arg2);
+        }
+
+        /// <summary>
+        /// Check for additional assemblies to load.
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="arg2"></param>
+        /// <returns></returns>
+        protected Assembly? LoadAdditionalAssemblies(AssemblyLoadContext arg1, AssemblyName arg2)
+        {
+            // Define the custom path where your assemblies are located
+            string assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MyAssemblies");
+
+            // Construct the path to the assembly file
+            string assemblyFilePath = Path.Combine(assemblyPath, $"{arg2.Name}.dll");
+
+            // Check if the assembly file exists
+            if (File.Exists(assemblyFilePath))
+            {
+                // Load and return the assembly from the file
+                return arg1.LoadFromAssemblyPath(assemblyFilePath);
+            }
+
+            // If the assembly was not found in the custom path, return null to let the default resolver handle it
+            return null;
         }
 
         /// <summary>
@@ -278,17 +322,22 @@ namespace NextUnit.TestRunner.TestRunners
             OnTestRunFinished(new ExecutionEventArgs());
         }
 
+        /// <summary>
+        /// Executes a test.
+        /// 
+        /// Will be called by
+        /// 
+        /// 1. By TestAdapter.ExecuteTest
+        /// 2. By the TestRunner.ExecuteTest itself.
+        /// </summary>
+        /// <param name="testDefinition"></param>
+        /// <returns></returns>
         public TestResult ExecuteTest((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition)
         {
-            TestResult testResult = new TestResult();
-            testResult.State = ExecutionState.Running;
-
             Type type = testDefinition.type;
-
-            object instanceObject = InstanceCreationBehavior.CreateInstance(type);
-            UsedCombinator.ProcessCombinedAttributes(testDefinition, instanceObject);
-            testResult.State = ExecutionState.Passed;
-            return testResult;
+            object instanceObject = InstanceCreationBehavior.CreateInstance(type); // this will for sure take a little longer if the test instance object needs to be reinstantiated for every TestMethod run.
+            Task<TestResult> task = UsedCombinator.ProcessCombinedAttributes(testDefinition, instanceObject);
+            return task.Result;
         }
 
         /// <summary>
@@ -362,30 +411,14 @@ namespace NextUnit.TestRunner.TestRunners
                 IEnumerable<Attribute> attributes = definition.Attributes;
 
                 Exception lastException = null;
-                TestResult testResult = new TestResult();
+                TestResult testResult = null;
                 try
                 {
                     OnBeforeTestRun(new ExecutionEventArgs(method));
 
-                    testResult.Namespace = method.DeclaringType.ToString();
-                    testResult.Class = method.DeclaringType.Name;
-                    testResult.Workstation = machineName;
-                    testResult.DisplayName = method.Name;
-
-                    Stopwatch stopwatch = Stopwatch.StartNew();
                     OnTestExecuting(new ExecutionEventArgs(method));
 
                     testResult = ExecuteTest(definition);
-
-                    testResult.Start = DateTime.Now;
-
-                    stopwatch.Stop();
-
-                    if (testResult.State != ExecutionState.Skipped)
-                    {
-                        testResult.ExecutionTime = stopwatch.Elapsed;
-                        testResult.End = DateTime.Now;
-                    }
                 }
                 catch (AssertException ex)
                 {
@@ -420,7 +453,6 @@ namespace NextUnit.TestRunner.TestRunners
                     {
                         testResult = new TestResult();
                     }
-                    testResult.End = DateTime.Now;
                     testResult.StackTrace = lastException?.StackTrace;
                     NextUnitTestExecutionContext.TestResults.Add(testResult);
                     OnAfterTestRun(new ExecutionEventArgs(method, testResult));

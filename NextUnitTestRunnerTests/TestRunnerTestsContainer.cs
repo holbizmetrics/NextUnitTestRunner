@@ -425,7 +425,7 @@ namespace DynamicNamespace
         [Group("Test")]
         public void BlubTest()
         {
-
+            Assert.Fail();
         }
     }
 }

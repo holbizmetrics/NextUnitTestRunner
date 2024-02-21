@@ -79,6 +79,7 @@ namespace NextUnit.HardwareContext.Tests
         }
 
         [Test]
+        [RunInThread(ApartmentState.STA, false, "de-DE")]
         [Group(nameof(SysInfo))]
         public void GetUSBDevicesTest()
         {

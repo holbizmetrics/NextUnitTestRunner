@@ -1,6 +1,6 @@
-﻿using NextUnitTestResult = NextUnit.TestRunner.TestResult;
+﻿using NextUnitTestResult = NextUnit.Core.TestResult;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using NextUnit.TestRunner;
+using NextUnit.Core;
 
 namespace NextUnit.TestAdapter
 {

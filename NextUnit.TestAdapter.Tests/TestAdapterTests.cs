@@ -8,7 +8,6 @@ namespace NextUnit.TestAdapter.Tests
         [Group(nameof(TestAdapter))]
         public void TestAdapterTes()
         {
-
         }
     }
 }

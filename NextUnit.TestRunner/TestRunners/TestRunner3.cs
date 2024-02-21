@@ -7,6 +7,7 @@ using System.Runtime.Loader;
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.Asserts;
+using NextUnit.Core;
 
 namespace NextUnit.TestRunner.TestRunners
 {
@@ -38,7 +39,7 @@ namespace NextUnit.TestRunner.TestRunners
         public event ExecutionEventHandler TestRunFinished;
         public event ExecutionEventHandler ErrorEventHandler;
 
-        public AttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
+        public IAttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
 
         /// <summary>
         /// If set for each test run the class object will be reinstantiated. Not implemented, yet.
@@ -262,7 +263,7 @@ namespace NextUnit.TestRunner.TestRunners
                         {
                             var customAttributes = method.GetCustomAttributes<Attribute>().ToArray();
                             var combinator = new AttributeCombinator(customAttributes);
-                            combinator.ProcessCombinedAttributes(method, classObject);
+                            combinator.ProcessCombinedAttributes(method, classObject, customAttributes);
                         }
                         else
                         {
@@ -418,7 +419,7 @@ namespace NextUnit.TestRunner.TestRunners
                         {
                             var customAttributes = method.GetCustomAttributes<Attribute>().ToArray();
                             var combinator = new AttributeCombinator(customAttributes);
-                            combinator.ProcessCombinedAttributes(method, classObject);
+                            combinator.ProcessCombinedAttributes(method, classObject, customAttributes);
                         }
                         else
                         {

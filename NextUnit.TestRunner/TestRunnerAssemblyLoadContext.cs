@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.Loader;
 
 namespace NextUnit.TestRunner
@@ -15,6 +16,26 @@ namespace NextUnit.TestRunner
         public TestRunnerAssemblyLoadContext()
             : base(isCollectible: true)
         {
+        }
+
+        public void Unload()
+        {
+            if (this.IsCollectible)
+            {
+                this.Unload();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="assemblyLoadContext"></param>
+        public static void UnloadAssemblyContext(AssemblyLoadContext assemblyLoadContext)
+        {
+            if (AssemblyLoadContext.Default.IsCollectible)
+            {
+                assemblyLoadContext.Unload();
+            }
         }
 
         protected override Assembly Load(AssemblyName assemblyName) => null;

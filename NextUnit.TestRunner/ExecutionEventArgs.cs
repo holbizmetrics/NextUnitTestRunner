@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using NextUnit.Core;
+using System.Reflection;
 
 namespace NextUnit.TestRunner
 {

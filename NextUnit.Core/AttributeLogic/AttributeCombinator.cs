@@ -1,4 +1,5 @@
-﻿using NextUnit.Core.Extensions;
+﻿using NextUnit.Core.Combinators;
+using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 using System.Reflection;
 
@@ -18,13 +19,14 @@ namespace NextUnit.Core.AttributeLogic
     /// [Condition, Group]
     /// etc.
     /// </summary>
-    public class AttributeCombinator
+    public class AttributeCombinator : ICombinator
     {
         private Dictionary<Type, Delegate> delegateDictionary = new Dictionary<Type, Delegate>();
         private readonly Attribute[] attributes;
 
         private AttributeLogicMapper AttributeLogicMapper = new AttributeLogicMapper();
 
+        public TestResult CurrentTestResult { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public class AttributeCombinationKey
         {
@@ -91,20 +93,20 @@ namespace NextUnit.Core.AttributeLogic
             return;
         }
 
-        public void ProcessCombinedAttributes(MethodInfo testMethod, object testInstance)
+        public void ProcessCombinedAttributes(MethodInfo testMethod, object testInstance, IEnumerable<Attribute> attributes)
         {
-            CheckSimpleCases(testMethod, testInstance);
-            CombinableAttribute ANDABLEAttributes = Combine.And(attributes.AnyIsOf(typeof(SkipAttribute), typeof(SkipAttribute)));
-            bool result = ANDABLEAttributes.Invoke(null);
+            // Example processing logic
+            // This method would contain the logic to decide how attributes interact
+            // and which actions to take based on those interactions.
+
+            // For simplicity, let's say we're just logging the combined attributes for now.
+            Console.WriteLine($"Processing combined attributes for {testMethod.Name}");
             foreach (var attribute in attributes)
             {
-                // Process each attribute as per the combined effect
-                // This might involve invoking the respective attribute logic handler
-                if (attribute is TestAttribute)
-                {
-                    continue;
-                }
+                Console.WriteLine(attribute.GetType().Name);
             }
+
+            // Actual logic goes here
         }
 
         private void CheckSimpleCases(MethodInfo testMethod, object testInstance)
@@ -163,6 +165,11 @@ namespace NextUnit.Core.AttributeLogic
                     return;
                 }
             }
+        }
+
+        public Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object classInstance = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

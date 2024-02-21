@@ -1,4 +1,4 @@
-﻿namespace NextUnit.TestRunner
+﻿namespace NextUnit.Core
 {
     /// <summary>
     /// 
@@ -66,30 +66,30 @@
             }
         }
 
-        public string DisplayName { get; internal set; } = string.Empty;
-        public ExecutionState State { get; internal set; } = ExecutionState.NotStarted;
+        public string DisplayName { get; set; } = string.Empty;
+        public ExecutionState State { get; set; } = ExecutionState.NotStarted;
 
         public DateTime CreationTime { get; } = DateTime.Now;
-        public string StackTrace { get; internal set; } = string.Empty;
+        public string StackTrace { get; set; } = string.Empty;
 
         /// <summary>
         /// When the test was started.
         /// </summary>
-        public DateTime Start { get; internal set; }
+        public DateTime Start { get; set; }
         
         /// <summary>
         /// When the test finished.
         /// </summary>
-        public DateTime End { get; internal set; }
-        public TimeSpan ExecutionTime { get; internal set; } = TimeSpan.Zero;
+        public DateTime End { get; set; }
+        public TimeSpan ExecutionTime { get; set; } = TimeSpan.Zero;
 
         /// <summary>
         /// On which machine we are running.
         /// </summary>
-        public string Workstation { get; internal set; } = string.Empty;
-        public string Class { get; internal set; } = string.Empty;
-        public string Namespace { get; internal set; } = string.Empty;
-        public Exception Exception { get; internal set; } = null;
+        public string Workstation { get; set; } = string.Empty;
+        public string Class { get; set; } = string.Empty;
+        public string Namespace { get; set; } = string.Empty;
+        public Exception Exception { get; set; } = null;
 
         public override string ToString()
         {

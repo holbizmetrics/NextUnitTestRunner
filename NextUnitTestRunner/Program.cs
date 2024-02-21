@@ -5,6 +5,7 @@
 using NextUnit.AssemblyReader;
 using NextUnit.AssemblyReader.Extensions;
 using NextUnit.Autofixture.AutoMoq.Core;
+using NextUnit.Core;
 using NextUnit.Core.Accessors;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
@@ -187,7 +188,7 @@ End: <Green>{e.TestResult.End}</Green>
 Execution Time: <Green>{e.TestResult.ExecutionTime}</Green>
 Workstation: <Green>{e.TestResult.Workstation}</Green>
 ";
-    if (e.TestResult.Exception is not null)
+    if (e.TestResult.State == ExecutionState.NotStarted)
     {
 
     }

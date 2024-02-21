@@ -14,7 +14,9 @@ namespace NextUnit.TestAdapter
         public void Cancel()
         {
 #if ADAPTER_TEST
+            Debug.WriteLine($"Hello from {nameof(NextUnitTestExecutor2)}");
             Debugger.Launch();
+            Debugger.Break();
 #endif
         }
 
@@ -27,7 +29,9 @@ namespace NextUnit.TestAdapter
         public void RunTests(IEnumerable<TestCase>? tests, IRunContext? runContext, IFrameworkHandle? frameworkHandle)
         {
 #if ADAPTER_TEST
+            Debug.WriteLine($"Hello from {nameof(NextUnitTestExecutor2)}");
             Debugger.Launch();
+            Debugger.Break();
 #endif
             //frameworkHandle.LaunchProcessWithDebuggerAttached(null, null, null, null);
             frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Informational, "RunTests");

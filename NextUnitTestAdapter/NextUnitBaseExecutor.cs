@@ -8,14 +8,14 @@ using NextUnit.TestRunner.TestRunners;
 using System.Diagnostics;
 using System.Reflection;
 
-using NextUnitTestResult = NextUnit.TestRunner.TestResult;
+using NextUnitTestResult = NextUnit.Core.TestResult;
 using TestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 namespace NextUnit.TestAdapter
 {
     [ExtensionUri(Definitions.DiscovererURI)]
     public abstract class NextUnitBaseExecutor : IRunContext
     {
-        protected ITestRunner4 TestRunner = new TestRunner4();
+        protected ITestRunner4 TestRunner { get; set; } = new TestRunner4();
         public Type[] Types { get; set; } = null;
 
         #region IRunContext Interface

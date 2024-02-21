@@ -93,7 +93,7 @@ namespace NextUnit.HardwareContext.SystemInformation
 
         public static List<CimInstance> GetUSBDevices()
         {
-            return QueryCIMInstances("Get-PnpDevice");
+            return QueryCIMInstances("Win32_PnPEntity");
         }
 
         public static List<CimInstance> GetNetworkShares()

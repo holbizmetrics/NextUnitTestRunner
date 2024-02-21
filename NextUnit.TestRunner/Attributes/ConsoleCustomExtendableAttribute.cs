@@ -11,7 +11,7 @@ namespace NextUnit.TestRunner.Attributes
     {
         public ConsoleCustomExtendableAttribute()
         {
-            Console.WriteLine("Hallo -------------------------------------------------------------------------------");
+            Console.WriteLine($"(Hello from {this.GetType()}: Hallo -------------------------------------------------------------------------------");
         }
     }
 }

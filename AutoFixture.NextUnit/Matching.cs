@@ -1,6 +1,4 @@
 ﻿// AutoFixture.NextUnit.Matching
-using System;
-
 namespace AutoFixture.NextUnit
 {
     [Flags]

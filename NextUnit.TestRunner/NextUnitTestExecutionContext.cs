@@ -1,4 +1,6 @@
-﻿namespace NextUnit.TestRunner
+﻿using NextUnit.Core;
+
+namespace NextUnit.TestRunner
 {
     /// <summary>
     /// This is valid for the whole test suite
