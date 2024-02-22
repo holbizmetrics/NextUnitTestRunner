@@ -12,6 +12,10 @@ namespace NextUnit.Autofixture.AutoMoq.Core
         public AutofixtureAutomoqAttributeAttributeLogicMapper()
         {
             _mapping.Add(typeof(AutoDataAttribute), new AutoDataAttributeLogicHandler());
+            
+            // this is referring to a parameter attribute.
+            _mapping.Add(typeof(CustomizeAttribute), new CustomizeAttributeLogicHandler());
+            
             _mapping.Add(typeof(FavorArraysAttribute), new FavorArraysAttributeLogicHandler());
             _mapping.Add(typeof(FavorEnumerablesAttribute), new FavorEnumerablesAttributeLogicHandler());
             _mapping.Add(typeof(FrozenAttribute), new FrozenAttributeLogicHandler());

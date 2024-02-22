@@ -68,7 +68,7 @@ namespace NextUnit.HardwareContext.Tests
         [Group(nameof(SysInfo))]
         public void GetDrivesTest()
         {
-            Assert.AreEqual<DriveInfo[]>(DriveInfo.GetDrives(), SysInfo.DriveInfos);
+            Assert.EqualElementsOrdered<DriveInfo>(DriveInfo.GetDrives(), SysInfo.DriveInfos);
         }
 
         [Test]

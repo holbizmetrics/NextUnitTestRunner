@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace NextUnit.TestGenerator
+﻿namespace NextUnit.TestGenerator
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class OutputGenerator
     {
         public bool EmbedIntoNamespace { get; set; } = true;
@@ -43,6 +42,12 @@ $@"class {typeText}
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="indentLevel"></param>
+        /// <returns></returns>
         private string IndentLines(string text, int indentLevel)
         {
             if (!Indentation || indentLevel < 1)

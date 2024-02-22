@@ -2,6 +2,9 @@
 
 namespace NextUnit.Core.TestAttributes
 {
+    /// <summary>
+    /// This attribute is used for the DebuggerLaunchAttribute and DebuggerBreakAttribute to either launch or break.
+    /// </summary>
     public abstract class CommonDebugAttribute : CommonTestAttribute
     {
         public bool Condition { get; set; } = false;

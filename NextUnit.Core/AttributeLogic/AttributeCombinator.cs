@@ -27,7 +27,7 @@ namespace NextUnit.Core.AttributeLogic
 
         private AttributeLogicMapper AttributeLogicMapper = new AttributeLogicMapper();
 
-        public TestResult CurrentTestResult { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public TestResult CurrentTestResult { get => TestResult.Empty; set { } }
 
         public class AttributeCombinationKey
         {
@@ -94,14 +94,19 @@ namespace NextUnit.Core.AttributeLogic
             return;
         }
 
-        public void ProcessCombinedAttributes(MethodInfo testMethod, object testInstance, IEnumerable<Attribute> attributes)
+        public void ProcessCombinedAttributes(Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes)
+        {
+            ProcessCombinedAttributes(new ( type, methodInfo, attributes ));
+        }
+
+        public void ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition)
         {
             // Example processing logic
             // This method would contain the logic to decide how attributes interact
             // and which actions to take based on those interactions.
 
             // For simplicity, let's say we're just logging the combined attributes for now.
-            Trace.WriteLine($"Processing combined attributes for {testMethod.Name}");
+            Trace.WriteLine($"Processing combined attributes for {testDefinition.methodInfo.Name}");
             foreach (var attribute in attributes)
             {
                 Trace.WriteLine(attribute.GetType().Name);

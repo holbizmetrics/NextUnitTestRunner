@@ -280,6 +280,7 @@ namespace NextUnit.TestRunner.TestRunners
         /// <param name="type"></param>
         public void Run(params Type[] types)
         {
+            //Will be fired when the complete test run has started (for the moment also valid for: per assembly).
             OnTestRunStarted(new ExecutionEventArgs());
 
             NextUnitTestExecutionContext.TestRunStart = DateTime.Now;
@@ -319,6 +320,7 @@ namespace NextUnit.TestRunner.TestRunners
                 ExecuteTests();
             }
 
+            //Will be fired when the complete test run has finished (for the moment also valid for: per assembly).
             OnTestRunFinished(new ExecutionEventArgs());
         }
 
@@ -415,9 +417,7 @@ namespace NextUnit.TestRunner.TestRunners
                 try
                 {
                     OnBeforeTestRun(new ExecutionEventArgs(method));
-
                     OnTestExecuting(new ExecutionEventArgs(method));
-
                     testResult = ExecuteTest(definition);
                 }
                 catch (AssertException ex)

@@ -7,13 +7,14 @@ namespace AutoFixture.NextUnit.Tests
     {
         public override ICustomization GetCustomization(ParameterInfo parameter)
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
+
     public class CustomizeAttributeTests
     {
         [Test]
-        public void CustomizeAttributeTest([Blub] int n1)
+        public void CustomizeAttributeTestAsParameterTest([Blub] int n1)
         {
 
         }

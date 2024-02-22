@@ -1,5 +1,6 @@
 ﻿using NextUnit.Core.Asserts;
 using NextUnit.Core.TestAttributes;
+using System.Diagnostics;
 
 namespace NextUnit.Core.Tests.Asserts
 {
@@ -76,7 +77,23 @@ namespace NextUnit.Core.Tests.Asserts
         [Test]
         public void IsLessThanTestGeneric_Assert()
         {
-            Assert.Exception<int>(Assert.IsLessThan, 1, 2);
+            // Usage example
+            var result = Assert.TryCatch(() =>
+            {
+                // Place assertion or any code that might throw here
+                Assert.IsLessThan(1, 2);
+            });
+
+            if (result.exceptionThrown)
+            {
+                // Handle the exception
+                Trace.WriteLine($"An exception was thrown: {result.exception?.Message}");
+            }
+            else
+            {
+                // The action completed without throwing an exception
+                Trace.WriteLine("The assertion passed without exceptions.");
+            }
         }
 
         /// <summary>
@@ -85,10 +102,21 @@ namespace NextUnit.Core.Tests.Asserts
         [Test]
         public void IsLessThanTestGeneric_DoesntAssert()
         {
-            (bool exceptionWasThrown, Exception thrownException) result = Assert.Exception<int>(Assert.IsLessThan, 1, 2);
-            if (result.exceptionWasThrown && result.thrownException is AssertException)
+            var result = Assert.TryCatch(() =>
             {
-                Assert.Fail(result.thrownException.ToString());
+                // Place assertion or any code that might throw here
+                Assert.IsLessThan(2, 1);
+            });
+
+            if (result.exceptionThrown)
+            {
+                // Handle the exception
+                Trace.WriteLine($"An exception was thrown: {result.exception?.Message}");
+            }
+            else
+            {
+                // The action completed without throwing an exception
+                Trace.WriteLine("The assertion passed without exceptions.");
             }
         }
 

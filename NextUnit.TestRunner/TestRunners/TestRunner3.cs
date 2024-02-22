@@ -263,7 +263,7 @@ namespace NextUnit.TestRunner.TestRunners
                         {
                             var customAttributes = method.GetCustomAttributes<Attribute>().ToArray();
                             var combinator = new AttributeCombinator(customAttributes);
-                            combinator.ProcessCombinedAttributes(method, classObject, customAttributes);
+                            combinator.ProcessCombinedAttributes(method.DeclaringType, method, customAttributes);
                         }
                         else
                         {
@@ -419,7 +419,7 @@ namespace NextUnit.TestRunner.TestRunners
                         {
                             var customAttributes = method.GetCustomAttributes<Attribute>().ToArray();
                             var combinator = new AttributeCombinator(customAttributes);
-                            combinator.ProcessCombinedAttributes(method, classObject, customAttributes);
+                            combinator.ProcessCombinedAttributes(testDefinition);
                         }
                         else
                         {

@@ -58,9 +58,7 @@ namespace NextUnit.TestAdapter
 
                 foreach (var classTestMethodAssociation in classTestMethodsAssociation)
                 {
-                    (Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition = classTestMethodAssociation;
-
-                    Type definitionType = definition.type;
+                    Type definitionType = classTestMethodAssociation.Type;
                     if (TestRunner.InstanceCreationBehavior.OnlyInitializeAtStartBehavior) TestRunner.InstanceCreationBehavior.CreateInstance(definitionType);
                 }
             }

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using NextUnit.Core.AttributeLogic;
+using System.Reflection;
 
 namespace NextUnit.Core.Combinators
 {
@@ -9,7 +10,7 @@ namespace NextUnit.Core.Combinators
     {
         public override Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object instanceObject = null)
         {
-            //var combinator = new AttributeCombinator(customAttributes);
+            var combinator = new AttributeCombinator(testDefinition.attributes.ToArray());
             return Task.FromResult(TestResult.Empty);
         }
     }

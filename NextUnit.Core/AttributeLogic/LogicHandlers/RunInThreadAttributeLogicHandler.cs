@@ -4,10 +4,16 @@ using System.Reflection;
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     /// <summary>
-    /// 
+    /// This will cause the method to be run in a thread.
     /// </summary>
     public class RunInThreadAttributeLogicHandler : IAttributeLogicHandler
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="attribute"></param>
+        /// <param name="testMethod"></param>
+        /// <param name="testInstance"></param>
         public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
         {
             RunInThreadAttribute runInThreadAttribute = attribute as RunInThreadAttribute;

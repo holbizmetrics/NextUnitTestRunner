@@ -1,6 +1,8 @@
-﻿using NextUnit.Core.AttributeLogic;
+﻿using Microsoft.CodeAnalysis;
+using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
+using System;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -37,6 +39,22 @@ namespace NextUnit.Core.Combinators
             {
                 // Ensure the single TestAttribute is included for processing, this step might be redundant if TestAttribute was not excluded initially
                 executionAttributes.Add(testDefinition.attributes.First(attr => attr is TestAttribute));
+            }
+            else if (testDefinition.attributes.Any(attr => attr is TestAttribute) && testDefinition.attributes.Any(attr => attr is System.Runtime.CompilerServices.NullableContextAttribute) && testDefinition.attributes.Count(attr => attr is GroupAttribute) >= 0)
+            {
+                //TODO: this is not completely correct. The problems will definitely solved in the new combinator design.
+                executionAttributes.Clear();
+                executionAttributes.Add(testDefinition.attributes.First(attr => attr is TestAttribute));
+            }
+
+            if (testDefinition.methodInfo.Name.Contains("IsLessThanOrEqual_DoesNotAssert_WhenActualIsLessThanExpected"))
+            {
+
+            }
+
+            if (executionAttributes.Count() == 0)
+            {
+
             }
 
             StackFrame stackFrame = new StackFrame();
@@ -81,6 +99,8 @@ namespace NextUnit.Core.Combinators
                 }
                 else
                 {
+                    //var handler = AttributeLogicMapper.GetHandlerFor(attribute);
+                    //handler?.ProcessAttribute(attribute, methodInfo, classInstance);
                     methodInfo.Invoke(classInstance, null);
 
                     EndTestResult(testResult);
@@ -123,6 +143,7 @@ namespace NextUnit.Core.Combinators
                     string nameSpace = attribute.GetType().Namespace;
                 }
             }
+
             return testResult;
         }
 
