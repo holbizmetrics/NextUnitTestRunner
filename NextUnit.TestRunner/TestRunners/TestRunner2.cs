@@ -176,7 +176,9 @@ namespace NextUnit.TestRunner.TestRunners
 
                             //Since we exclude the test marker attribute, a test logic handler should be found for each of the implemented framework attribute.
                             var handler = attributeLogicMapper.GetHandlerFor(attribute);
-                            handler?.ProcessAttribute(attribute, method, this);
+                            
+                            //TODO: I guess we can throw away TestRunner2 when TestRunner5 is working.
+                            handler?.ProcessAttribute(attribute, method, null, this);
 
                             //This has now to be accomplished with the help of the handler?.ProcessAttribute
                             //parameters = MethodAttributeInterpreter.Interpret(attribute as CommonTestAttribute);
@@ -186,7 +188,7 @@ namespace NextUnit.TestRunner.TestRunners
                             //}
 
                             Exception lastException = null;
-                            TestResult testResult = null;
+                            TestResult testResult = TestResult.Empty;
                             try
                             {
                                 for (int i = 0; i < executionCount; i++)
@@ -239,7 +241,7 @@ namespace NextUnit.TestRunner.TestRunners
                             catch (AssertException ex)
                             {
                                 lastException = ex;
-                                Trace.WriteLine(ex.Message);
+                                Trace.WriteLine(ex);
                             }
                             catch (TargetInvocationException ex)
                             {

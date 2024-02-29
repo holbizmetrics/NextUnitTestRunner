@@ -3,6 +3,7 @@ namespace NextUnit.AssemblyReader.Extensions
 {
     public static class ReflectionExtensions
     {
+
         /// <summary>
         /// Gets all the sources for an assembly.
         /// </summary>
@@ -20,8 +21,8 @@ namespace NextUnit.AssemblyReader.Extensions
                 string newName = module.FullyQualifiedName.Replace(".dll", ".pdb").Replace(".exe", ".pdb");
                 try
                 {
-                    PdbReader.CreatePDBCopiesInTemporaryDirectory(newName, Path.Combine(tempDirectory, newName));
-                    IReadOnlyCollection<string> moduleFiles = PdbReader.GetAllDocumentPathsFromPdb(newName);
+                    PDBReader.CreatePDBCopiesInTemporaryDirectory(newName, Path.Combine(tempDirectory, newName));
+                    IReadOnlyCollection<string> moduleFiles = PDBReader.GetAllDocumentPathsFromPdb(newName);
                     fileSources.AddRange(moduleFiles);
                 }
                 catch (Exception ex)

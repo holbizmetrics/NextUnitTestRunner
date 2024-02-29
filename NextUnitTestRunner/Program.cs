@@ -2,24 +2,28 @@
 // See https://aka.ms/new-console-template for more information
 
 using NextUnit.Autofixture.AutoMoq.Core;
-using NextUnit.Core;
+using NextUnit.Console.TestRunner;
 using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner;
 using NextUnit.TestRunner.Extensions;
 using NextUnit.TestRunner.TestRunners;
+using NextUnit.TestRunner.TestRunners.NewFolder;
 using NextUnit.TestRunner.UnitTests;
 using System.Diagnostics;
 
-Trace.Listeners.Add(new ConsoleTraceListener());
-ITestRunner4 testRunner = new TestRunner4().With(new TestDiscoverer()).With(new AutofixtureAutomoqAttributeAttributeLogicMapper());
+//Trace.Listeners.Add(new ConsoleTraceListener());
+
+EventHandlings eventHandlings = new EventHandlings();
+
+ITestRunner5 testRunner = new TestRunner5().With(new TestDiscoverer()).With(new AutofixtureAutomoqAttributeAttributeLogicMapper());
 testRunner.UseCombinator = false;
 testRunner.AttributeLogicMapper = new AutofixtureAutomoqAttributeAttributeLogicMapper();
-testRunner.AfterTestRun += TestRunner_AfterTestRun;
-testRunner.BeforeTestRun += TestRunner_BeforeTestRun;
-testRunner.TestExecuting += TestRunner_TestExecuting;
-testRunner.TestRunStarted += TestRunner_TestRunStarted;
-testRunner.TestRunFinished += TestRunner_TestRunFinished;
-testRunner.ErrorEventHandler += TestRunner_ErrorEventHandler;
+testRunner.AfterTestRun += eventHandlings.TestRunner_AfterTestRun;
+testRunner.BeforeTestRun += eventHandlings.TestRunner_BeforeTestRun;
+testRunner.TestExecuting += eventHandlings.TestRunner_TestExecuting;
+testRunner.TestRunStarted += eventHandlings.TestRunner_TestRunStarted;
+testRunner.TestRunFinished += eventHandlings.TestRunner_TestRunFinished;
+testRunner.ErrorEventHandler += eventHandlings.TestRunner_ErrorEventHandler;
 
 #if DIAGNOSE_RUN
 if (!Trace.Listeners.Contains(new ConsoleTraceListener()))
@@ -95,102 +99,9 @@ while (true)
     Console.Clear();
 }
 
-void TestRunner_ErrorEventHandler(object sender, ExecutionEventArgs e)
-{
-    string errorText =
-$@"MethodInfo: <Green>{e.MethodInfo}</Green>
-TestResult: <Green>{e.TestResult}</Green>";
-    if (e.LastException != null)
-    {
-        errorText =
-$@"{errorText}
 
-Exception:
 
-<Red>{e.LastException}</Red>";
-    };
-    $"Test execution error: {errorText}".WriteColoredLine();
-}
 
-void TestRunner_TestRunFinished(object sender, ExecutionEventArgs e)
-{
-    // Show Hardware Snapshots
-    Trace.WriteLine("Hardware snapshot:");
-
-    string output = GetEnvironmentContext();
-    output.WriteColoredLine();
-    Trace.WriteLine("");
-
-    Trace.WriteLine(NextUnitTestExecutionContext.ToString());
-    Trace.WriteLine("");
-}
-
-void TestRunner_TestRunStarted(object sender, ExecutionEventArgs e)
-{
-    // Show Hardware Snapshots
-    Trace.WriteLine("Hardware snapshot:");
-    string output = GetEnvironmentContext();
-    output.WriteColoredLine();
-    Trace.WriteLine("");
-
-    output = GetTestExecutionContext();
-    output.WriteColoredLine();
-    Trace.WriteLine("");
-}
-
-void TestRunner_TestExecuting(object? sender, ExecutionEventArgs e)
-{
-}
-
-void TestRunner_BeforeTestRun(object? sender, ExecutionEventArgs e)
-{
-}
-
-string GetEnvironmentContext()
-{
-    string output =
-$@"MachineName: <Green>{NextUnitTestEnvironmentContext.MachineName}</Green>
-CommandLine: <Green>{NextUnitTestEnvironmentContext.CommandLine}</Green>
-ProcessorCount: <Green>{NextUnitTestEnvironmentContext.ProcessorCount}</Green>
-BiosInfo: <Green>{NextUnitTestEnvironmentContext.BiosInfo}</Green>
-Capacity: <Green>{NextUnitTestEnvironmentContext.Capacity}</Green>
-OperatingSystem: <Green>{NextUnitTestEnvironmentContext.OperatingSystem}</Green>";
-    return output;
-}
-
-string GetTestExecutionContext()
-{
-    string output =
-$@"TestRunStart: <Green>{NextUnitTestExecutionContext.TestRunStart}</Green>;
-TestRunEnd: <Green>{NextUnitTestExecutionContext.TestRunEnd}</Green>
-TestRunTime: <Green>{NextUnitTestExecutionContext.TestRunTime}</Green>";
-    return output;
-}
-
-void TestRunner_AfterTestRun(object? sender, ExecutionEventArgs e)
-{
-    string testResultStateText = e.TestResult.State switch
-    {
-        ExecutionState.Passed => "<Green>passed</Green>",
-        ExecutionState.Failed => "<Red>failed</Red>",
-        ExecutionState.Skipped => "<Blue>skipped</Blue>",
-        ExecutionState.UnknownError => "<Cyan>Unknown Error</Cyan>",
-        ExecutionState.NotStarted => "<White>Not started</White>",
-        ExecutionState.Running => "<Yellow>Running</Yellow>"
-    };
-    string output =
-    $@"MethodInfo: <Blue>{e.MethodInfo}</Blue>
-TestResult: {testResultStateText}
-DisplayName: <Green>{e.TestResult.DisplayName}</Green>
-Class: <Green>{e.TestResult.Class}, Namespace: {e.TestResult.Namespace}</Green>
-Start: <Green>{e.TestResult.Start}</Green>
-End: <Green>{e.TestResult.End}</Green>
-Execution Time: <Green>{e.TestResult.ExecutionTime}</Green>
-Workstation: <Green>{e.TestResult.Workstation}</Green>
-";
-    output.WriteColoredLine();
-    Trace.WriteLine(@"");
-}
 
 static ITestRunner3 InitializeTestRunner()
 {
@@ -209,6 +120,9 @@ void RunAllTestsSequentially(ITestRunner3 testRunner)
     testRunner.UseThreading = false;
     foreach (string testDLL in testDLLs)
     {
+        Console.WriteLine("--------------------------------------------------------------");
+        $"Now running tests for <CYAN>{Path.GetFileName(testDLL)}</CYAN>".WriteColoredLine();
+        Console.WriteLine("--------------------------------------------------------------");
         testRunner.Run(testDLL);
         testRunner.Dispose();
     }

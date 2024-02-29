@@ -7,7 +7,7 @@ namespace NextUnit.Core.AttributeLogic
     public interface IAttributeLogicMapper
     {
         IAttributeLogicHandler GetHandlerFor(Attribute attribute);
-        IAttributeLogicHandler GetHandlersFor((Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition, object classObject);
+        IAttributeLogicHandler GetHandlersFor((Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes, Delegate @delegate) definition, object classObject);
     }
 
     public class AttributeLogicMapper : IAttributeLogicMapper
@@ -41,6 +41,7 @@ namespace NextUnit.Core.AttributeLogic
                 { typeof(RunIfEnvVarAttribute), new RunIfEnvVarAttributeLogicHandler() },
                 { typeof(RunInThreadAttribute), new RunInThreadAttributeLogicHandler() },
                 { typeof(SkipAttribute), new SkipAttributeLogicHandler() },
+                { typeof(TestHookAttributeLogicHandler), new TestHookAttributeLogicHandler() },
                 { typeof(TimeoutAttribute), new TimeoutAttributeLogicHandler() },
                 { typeof(TimeoutRetryAttribute), new TimeoutRetryAttributeLogicHandler() }
                 //{ typeof(TestAttribute), TestLogicHandler } //is this even needed?!
@@ -63,7 +64,7 @@ namespace NextUnit.Core.AttributeLogic
             return attributeLogicHandler;
         }
 
-        public IAttributeLogicHandler GetHandlersFor((Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes) definition, object classObject)
+        public IAttributeLogicHandler GetHandlersFor((Type type, MethodInfo methodInfo, IEnumerable<Attribute> Attributes, Delegate @delegate) definition, object classObject)
         {
             IEnumerable<Attribute> attributes = definition.Attributes;
             IAttributeLogicHandler attributeLogicHandler = null;
@@ -82,7 +83,7 @@ namespace NextUnit.Core.AttributeLogic
                 {
                     Type attributeType = attribute.GetType();
                     attributeLogicHandler = _mapping.TryGetValue(attributeType, out var handler) ? handler : null;
-                    handler?.ProcessAttribute(attribute, definition.methodInfo, classObject);
+                    handler?.ProcessAttribute(attribute, definition.methodInfo, definition.@delegate, classObject);
                 }
             }
             return null;

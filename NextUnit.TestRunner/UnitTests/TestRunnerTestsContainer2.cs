@@ -250,7 +250,7 @@ namespace DynamicNamespace
         [Test]
         [Group(nameof(FuzzingAttribute))]
         [Fuzzing]
-        public void FuzzingAttributeTest(int n1, int n2)
+        public void FuzzingAttributeTestConsole(int n1, int n2)
         {
             int result = n1 + n2;
             Console.WriteLine($"n1 + n2: {n1 + n2}");

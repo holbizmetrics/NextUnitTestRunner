@@ -18,10 +18,10 @@ namespace NextUnit.Core.Tests.Extensions
         }
 
         [Test]
-        public void IsAsyncMethod_GivenAsyncMethod_ReturnsTrue()
+        public void IsAsyncMethod_GivenAsyncMethod_ReturnsTrue_Test()
         {
             // Arrange
-            MethodInfo methodInfo = this.GetType().GetMethod(nameof(AsyncMethod), BindingFlags.Public | BindingFlags.Instance);
+            MethodInfo methodInfo = this.GetType().GetMethod(nameof(AsyncMethodTest), BindingFlags.Public | BindingFlags.Instance);
 
             // Act
             bool result = ReflectionExtensions.IsAsyncMethod(methodInfo);
@@ -34,7 +34,7 @@ namespace NextUnit.Core.Tests.Extensions
         public void IsAsyncMethod_GivenNonAsyncMethod_ReturnsFalse()
         {
             // Arrange
-            MethodInfo methodInfo = this.GetType().GetMethod(nameof(NonAsyncMethod));
+            MethodInfo methodInfo = this.GetType().GetMethod(nameof(NonAsyncMethodTest));
 
             // Act
             bool result = ReflectionExtensions.IsAsyncMethod(methodInfo);
@@ -44,7 +44,7 @@ namespace NextUnit.Core.Tests.Extensions
         }
 
         [Test]
-        public void GetMethodsWithAttributesAsIEnumerableGeneric2_FindsMethodsWithAttribute()
+        public void GetMethodsWithAttributesAsIEnumerableGeneric2_FindsMethodsWithAttribute_Test()
         {
             // Arrange
             Type[] types = { typeof(ReflectionExtensionsTests) };
@@ -58,10 +58,10 @@ namespace NextUnit.Core.Tests.Extensions
         }
 
         [Test]
-        public void HasAsyncMethodAttributes_GivenMethodWithoutAsyncAttributes_ReturnsFalse()
+        public void HasAsyncMethodAttributes_GivenMethodWithoutAsyncAttributes_ReturnsFalse_Test()
         {
             // Arrange
-            MethodInfo methodInfo = typeof(ReflectionExtensionsTests).GetMethod(nameof(ReflectionExtensionsTests.MethodWithoutAttributes));
+            MethodInfo methodInfo = typeof(ReflectionExtensionsTests).GetMethod(nameof(ReflectionExtensionsTests.MethodWithAttributesTest));
 
             // Act
             bool result = ReflectionExtensions.HasAsyncMethodAttributes(methodInfo);
@@ -71,10 +71,10 @@ namespace NextUnit.Core.Tests.Extensions
         }
 
         [Test]
-        public void HasAsyncMethodAttributes_GivenMethodWithAsyncAttributes_ReturnsTrue()
+        public void HasAsyncMethodAttributes_GivenMethodWithAsyncAttributes_ReturnsTrue_Test()
         {
             // Arrange
-            MethodInfo methodInfo = typeof(ReflectionExtensionsTests).GetMethod(nameof(ReflectionExtensionsTests.MethodWithAttributes));
+            MethodInfo methodInfo = typeof(ReflectionExtensionsTests).GetMethod(nameof(ReflectionExtensionsTests.MethodWithAttributesTest));
 
             // Act
             bool result = ReflectionExtensions.HasAsyncMethodAttributes(methodInfo);
@@ -84,24 +84,34 @@ namespace NextUnit.Core.Tests.Extensions
         }
 
         //[NullableContext(0)]
+        [Test]
+        public void MethodWithAttributesTest()
+        {
+
+        }
+
+        //TODO: Check. Because this will NOT be executed like this, yet.
+        [Test]
         [AsyncStateMachineAttribute(typeof(void))]
-        [DebuggerStepThroughAttribute]
-        public void MethodWithAttributes()
+        public void MethodWithAsyncStateMachineAttributeAdditionallyTest()
+        {
+
+        }
+        [Test]
+        public void MethodWithoutAttributesTest()
         {
 
         }
 
-        public void MethodWithoutAttributes()
+        [Test]
+        [AsyncStateMachineAttribute(typeof(void))]
+        public async Task AsyncMethodTest()
         {
 
         }
 
-        public async Task AsyncMethod()
-        {
-
-        }
-
-        public void NonAsyncMethod()
+        [Test]
+        public void NonAsyncMethodTest()
         {
 
         }

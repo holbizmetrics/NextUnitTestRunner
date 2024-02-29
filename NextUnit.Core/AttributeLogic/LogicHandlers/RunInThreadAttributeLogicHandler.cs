@@ -1,5 +1,6 @@
 ﻿using NextUnit.Core.TestAttributes;
 using System.Reflection;
+using NextUnit.Core.Extensions;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
@@ -14,10 +15,10 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
         /// <param name="attribute"></param>
         /// <param name="testMethod"></param>
         /// <param name="testInstance"></param>
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             RunInThreadAttribute runInThreadAttribute = attribute as RunInThreadAttribute;
-            Thread thread = new Thread(() => { testMethod.Invoke(testInstance, null); });
+            Thread thread = new Thread(() => { testMethod.Invoke(testInstance, @delegate, null); });
             thread.ApartmentState = runInThreadAttribute.ApartmentState;
             thread.IsBackground = runInThreadAttribute.IsBackground;
             if (runInThreadAttribute.CultureInfo != null)

@@ -11,6 +11,16 @@ using System.Threading.Tasks;
 
 namespace NextUnit.TestRunner.TestRunners
 {
+    public interface ITestRunnerSettings
+    {
+        ICombinator Combinator { get; set; }
+        ITestDiscoverer TestDiscoverer { get; set; }
+        bool UseThreading { get; set; }
+        IAttributeLogicMapper AttributeLogicMapper { get; set; }
+        IInstanceCreationBehavior InstanceCreationBehavior { get; set; }
+        bool PreferDelegates { get; set; }
+    }
+
     /// <summary>
     /// Contains settings for the TestRunner
     /// For now: 
@@ -20,13 +30,14 @@ namespace NextUnit.TestRunner.TestRunners
     /// 2. We can also setup the TestRunner using a fluent syntax since TestRunner3.
     /// 3. And also, now, we're able to summarize all settings in TestRunnerSettings that can be get/set.
     /// </summary>
-    public abstract class TestRunnerSettings
+    public abstract class TestRunnerSettings : ITestRunnerSettings
     {
         public abstract ICombinator Combinator { get; set; }
         public abstract ITestDiscoverer TestDiscoverer { get; set; }
         public abstract bool UseThreading { get; set; }
         public abstract IAttributeLogicMapper AttributeLogicMapper { get; set; }
         public abstract IInstanceCreationBehavior InstanceCreationBehavior { get; set; }
+        public bool PreferDelegates { get; set; }
 
         public TestRunnerSettings()
         {
@@ -69,11 +80,11 @@ namespace NextUnit.TestRunner.TestRunners
     }
 
 
-
     public class DefaultTestRunnerSettings : TestRunnerSettings
     {
         public DefaultTestRunnerSettings()
         {
+            this.PreferDelegates = true;
         }
 
         public override ICombinator Combinator { get => new DefaultCombinator(); set { } }

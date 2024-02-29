@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
+using NextUnit.Core.Extensions;
+
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
 	public class RunDuringAttributeLogicHandler : IAttributeLogicHandler
@@ -19,7 +21,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
 			// Check if the current time is within the begin and end range
 			if (now >= runDuringAttribute.Begin && now <= runDuringAttribute.End)
 			{
-				testMethod.Invoke(testInstance, null);
+				testMethod.Invoke(testInstance, @delegate, null);
 			}
 			else
 			{

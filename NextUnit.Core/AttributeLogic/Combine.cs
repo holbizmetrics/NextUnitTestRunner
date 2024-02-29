@@ -1,53 +1,53 @@
 ﻿namespace NextUnit.Core.AttributeLogic
 {
-    public delegate bool CombinableAttribute(object obj);
+    public delegate bool CombinableAttributeDelegate(object obj);
     
     /// <summary>
     /// Use this to define combinations of allowed objects, e.g. Attribute.
     /// </summary>
     public class Combine
     {
-        private CombinableAttribute[] m_ApredToCombine = null;
+        private CombinableAttributeDelegate[] m_ApredToCombine = null;
 
-        public static CombinableAttribute And(bool @return, params CombinableAttribute[] apredToCombine)
+        public static CombinableAttributeDelegate And(bool @return, params CombinableAttributeDelegate[] apredToCombine)
         {
             return new Combine(apredToCombine).And;
         }
 
-        public static CombinableAttribute Nand(params CombinableAttribute[] apredToCombine)
+        public static CombinableAttributeDelegate Nand(params CombinableAttributeDelegate[] apredToCombine)
         {
             return new Combine(new Combine(apredToCombine).And).Not;
         }
 
-        public static CombinableAttribute Or(params CombinableAttribute[] apredToCombine)
+        public static CombinableAttributeDelegate Or(params CombinableAttributeDelegate[] apredToCombine)
         {
             return new Combine(apredToCombine).Or;
         }
 
-        public static CombinableAttribute Nor(params CombinableAttribute[] apredToCombine)
+        public static CombinableAttributeDelegate Nor(params CombinableAttributeDelegate[] apredToCombine)
         {
             return new Combine(new Combine(apredToCombine).Or).Not;
         }
 
-        public static CombinableAttribute Xor(params CombinableAttribute[] apredToCombine)
+        public static CombinableAttributeDelegate Xor(params CombinableAttributeDelegate[] apredToCombine)
         {
             return new Combine(apredToCombine).Xor;
         }
 
-        public static CombinableAttribute Not(CombinableAttribute predToCombine)
+        public static CombinableAttributeDelegate Not(CombinableAttributeDelegate predToCombine)
         {
             return new Combine(predToCombine).Not;
         }
 
-        protected Combine(params CombinableAttribute[] apredToCombine)
+        protected Combine(params CombinableAttributeDelegate[] apredToCombine)
         {
             m_ApredToCombine = apredToCombine;
         }
 
         protected bool And(object obj)
         {
-            CombinableAttribute[] apredToCombine = m_ApredToCombine;
-            foreach (CombinableAttribute Attribute in apredToCombine)
+            CombinableAttributeDelegate[] apredToCombine = m_ApredToCombine;
+            foreach (CombinableAttributeDelegate Attribute in apredToCombine)
             {
                 if (!Attribute(obj))
                 {
@@ -59,8 +59,8 @@
 
         protected bool Or(object obj)
         {
-            CombinableAttribute[] apredToCombine = m_ApredToCombine;
-            foreach (CombinableAttribute Attribute in apredToCombine)
+            CombinableAttributeDelegate[] apredToCombine = m_ApredToCombine;
+            foreach (CombinableAttributeDelegate Attribute in apredToCombine)
             {
                 if (Attribute(obj))
                 {
@@ -73,8 +73,8 @@
         protected bool Xor(object obj)
         {
             bool flag = false;
-            CombinableAttribute[] apredToCombine = m_ApredToCombine;
-            foreach (CombinableAttribute Attribute in apredToCombine)
+            CombinableAttributeDelegate[] apredToCombine = m_ApredToCombine;
+            foreach (CombinableAttributeDelegate Attribute in apredToCombine)
             {
                 flag = (Attribute(obj) != flag);
             }

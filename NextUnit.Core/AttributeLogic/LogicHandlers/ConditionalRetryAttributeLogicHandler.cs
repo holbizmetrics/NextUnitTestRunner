@@ -1,5 +1,7 @@
 ﻿using NextUnit.Core.TestAttributes;
+using NextUnit.Core.Extensions;
 using System.Reflection;
+
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
@@ -8,7 +10,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class ConditionalRetryAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var conditionalRetryAttribute = attribute as ConditionalRetryAttribute;
             MethodInfo conditionMethod = testInstance.GetType().GetMethod(conditionalRetryAttribute.ConditionMethodName, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic); ;
@@ -22,7 +24,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
 
             while (attempts < conditionalRetryAttribute.MaxRetry || conditionalRetryAttribute.MaxRetry == -1)
             {
-                testMethod.Invoke(testInstance, null);
+                testMethod.Invoke(testInstance, @delegate, null);
 
                 conditionMet = (bool)conditionMethod.Invoke(testInstance, null);
                 if (conditionMet)

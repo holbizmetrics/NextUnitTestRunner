@@ -3,9 +3,19 @@ using System.Reflection;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
+    /// <summary>
+    /// Handles debug/break controlled by DebugAttribute.
+    /// </summary>
     public class DebugAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        /// <summary>
+        /// If true we'll create a Debugger.Launch(), if false it will be a Debugger.Break().
+        /// </summary>
+        /// <param name="attribute"></param>
+        /// <param name="testMethod"></param>
+        /// <param name="delegate"></param>
+        /// <param name="testInstance"></param>
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             CommonDebugAttribute debug = attribute as CommonDebugAttribute;
             if (debug.GetType() == typeof(DebugAttribute))

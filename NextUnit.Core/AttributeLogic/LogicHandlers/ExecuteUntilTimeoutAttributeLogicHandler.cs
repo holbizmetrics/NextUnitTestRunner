@@ -1,11 +1,7 @@
 ﻿using NextUnit.Core.TestAttributes;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using NextUnit.Core.Extensions;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
@@ -14,7 +10,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class ExecuteUntilTimeoutAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var executeUntilTimeoutAttribute = attribute as ExecuteUntilTimeoutAttribute;
             if (executeUntilTimeoutAttribute != null)
@@ -22,7 +18,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                 var stopwatch = Stopwatch.StartNew();
                 while (stopwatch.Elapsed < executeUntilTimeoutAttribute.Timeout)
                 {
-                    testMethod.Invoke(testInstance, null);
+                    testMethod.Invoke(testInstance, @delegate, null);
                     Thread.Sleep(executeUntilTimeoutAttribute.Interval);
                 }
                 stopwatch.Stop();

@@ -4,7 +4,7 @@ namespace AutoFixture.NextUnit.Tests
 {
     public class FavorArraysAttributeTests
     {
-        [Test]
+        [Test, AutoData]
         public void FavorArraysAttributeTest([FavorArrays] string[] stringArray)
         {
 

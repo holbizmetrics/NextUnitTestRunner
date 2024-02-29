@@ -1,6 +1,6 @@
 ﻿using NextUnit.Core.TestAttributes;
 using System.Reflection;
-
+using NextUnit.Core.Extensions;
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     /// <summary>
@@ -8,7 +8,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class TimeoutRetryAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var timeoutRetryAttribute = attribute as TimeoutRetryAttribute;
             if (timeoutRetryAttribute != null)
@@ -24,7 +24,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                     {
                         try
                         {
-                            testMethod.Invoke(testInstance, null);
+                            testMethod.Invoke(testInstance, @delegate, null);
                             testPassed = true;
                         }
                         catch (TargetInvocationException ex)

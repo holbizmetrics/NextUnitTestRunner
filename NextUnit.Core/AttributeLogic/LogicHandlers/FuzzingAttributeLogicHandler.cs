@@ -1,13 +1,11 @@
-﻿using NextUnit.Core.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
+using NextUnit.Core.Extensions;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     public class FuzzingAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var testDataGenerator = new TestDataGenerator();
             var parameterInfos = testMethod.GetParameters();
@@ -25,7 +23,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
             {
                 try
                 {
-                    testMethod.Invoke(testInstance, combination.ToArray());
+                    testMethod.Invoke(testInstance, @delegate, combination.ToArray());
                 }
                 catch (Exception ex)
                 {

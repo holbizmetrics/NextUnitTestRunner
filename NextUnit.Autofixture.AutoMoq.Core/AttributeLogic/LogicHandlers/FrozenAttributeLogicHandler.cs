@@ -4,6 +4,7 @@ using AutoFixture.NextUnit;
 using AutoFixture;
 using NextUnit.Core.AttributeLogic;
 using System.Reflection;
+using NextUnit.Core.Extensions;
 
 namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
 {
@@ -12,7 +13,7 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class FrozenAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var frozenAttribute = attribute as FrozenAttribute;
             if (frozenAttribute != null)
@@ -23,7 +24,7 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
                 var parameters = testMethod.GetParameters()
                                 .Select(p => ResolveParameter(fixture, p))
                                 .ToArray();
-                testMethod.Invoke(testInstance, parameters);
+                testMethod.Invoke(testInstance, @delegate, parameters);
             }
         }
 

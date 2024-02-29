@@ -1,6 +1,6 @@
 ﻿using NextUnit.Core.TestAttributes;
 using System.Reflection;
-
+using NextUnit.Core.Extensions;
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     /// <summary>
@@ -8,7 +8,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class DependencyInjectionAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var dependencyInjectionAttribute = attribute as DependencyInjectionAttribute;
             if (dependencyInjectionAttribute != null)
@@ -19,10 +19,9 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                 if (createObjectWhereInterfaceExistsIn != null)
                 {
                     var parameters = new object[] { createObjectWhereInterfaceExistsIn };
-                    testMethod.Invoke(testInstance, parameters);
+                    testMethod.Invoke(testInstance, @delegate, parameters);
                 }
             }
         }
     }
-
 }

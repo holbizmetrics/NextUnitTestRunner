@@ -3,13 +3,14 @@ using AutoFixture.Kernel;
 using AutoFixture.NextUnit;
 using AutoFixture;
 using NextUnit.Core.AttributeLogic;
+using NextUnit.Core.Extensions;
 using System.Reflection;
 
 namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
 {
     public class GreedyAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             GreedyAttribute greedyAttribute = attribute as GreedyAttribute;
             if (greedyAttribute != null)
@@ -20,7 +21,7 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
                 var parameters = testMethod.GetParameters()
                                 .Select(p => ResolveParameterWithGreedyConstructor(fixture, p))
                                 .ToArray();
-                testMethod.Invoke(testInstance, parameters);
+                testMethod.Invoke(testInstance, @delegate, parameters);
             }
         }
 

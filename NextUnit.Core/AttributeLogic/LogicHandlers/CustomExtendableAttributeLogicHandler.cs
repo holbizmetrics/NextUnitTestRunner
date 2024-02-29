@@ -1,4 +1,5 @@
 ﻿using NextUnit.Core.TestAttributes;
+using NextUnit.Core.Extensions;
 using System.Reflection;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
@@ -8,7 +9,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class CustomExtendableAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             CustomExtendableAttribute customExtendableAttribute = attribute as CustomExtendableAttribute;
             IEnumerable<object> returnValues = customExtendableAttribute.GetData(testMethod);
@@ -17,13 +18,13 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                 foreach (var dataItem in returnValues)
                 {
                     // Execute the test method with the provided data
-                    testMethod.Invoke(testInstance, new object[] { dataItem });
+                    testMethod.Invoke(testInstance, @delegate, new object[] { dataItem });
                 }
             }
             else
             {
                 // Execute the test method normally if no data is provided
-                testMethod.Invoke(testInstance, null);
+                testMethod.Invoke(testInstance, @delegate, null);
             }
         }
     }

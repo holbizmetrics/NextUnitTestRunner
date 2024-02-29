@@ -89,7 +89,7 @@ namespace NextUnit.TestRunner.TestRunners
         public bool UseThreading { get; set; } = true;
 
         private bool disposedValue;
-        public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> TestMethodsPerClass { get; private set; }
+        public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> TestMethodsPerClass { get; protected set; }
         public Combinator Combinator { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool UseCombinator { get => false; set => value = false; } //this flag can't be used here anymore because we need to use a combinator now anyway. Relict of refactoring for now.
 
@@ -334,7 +334,7 @@ namespace NextUnit.TestRunner.TestRunners
         /// </summary>
         /// <param name="testDefinition"></param>
         /// <returns></returns>
-        public TestResult ExecuteTest((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition)
+        public TestResult ExecuteTest((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate) testDefinition)
         {
             Type type = testDefinition.type;
             object instanceObject = InstanceCreationBehavior.CreateInstance(type); // this will for sure take a little longer if the test instance object needs to be reinstantiated for every TestMethod run.
@@ -404,8 +404,6 @@ namespace NextUnit.TestRunner.TestRunners
         /// <param name="classTestMethodsAssociation"></param>
         protected async void ExecuteTests()
         {
-            string machineName = NextUnitTestEnvironmentContext.MachineName;
-
             foreach (var definition in TestMethodsPerClass)
             {
                 MethodInfo method = definition.Method;
@@ -413,7 +411,7 @@ namespace NextUnit.TestRunner.TestRunners
                 IEnumerable<Attribute> attributes = definition.Attributes;
 
                 Exception lastException = null;
-                TestResult testResult = null;
+                TestResult testResult = TestResult.Empty;
                 try
                 {
                     OnBeforeTestRun(new ExecutionEventArgs(method));
@@ -423,7 +421,7 @@ namespace NextUnit.TestRunner.TestRunners
                 catch (AssertException ex)
                 {
                     lastException = ex;
-                    Trace.WriteLine(ex.Message);
+                    Trace.WriteLine(ex);
                 }
                 catch (TargetInvocationException ex)
                 {
@@ -492,6 +490,11 @@ namespace NextUnit.TestRunner.TestRunners
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        public TestResult ExecuteTest((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition)
+        {
+            throw new NotImplementedException();
         }
     }
 

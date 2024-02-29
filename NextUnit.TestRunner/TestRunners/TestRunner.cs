@@ -86,7 +86,9 @@ namespace NextUnit.TestRunner.TestRunners
             string machineName = Environment.MachineName;
 
             // Show Hardware Snapshots
+            Trace.WriteLine("------------------");
             Trace.WriteLine("Hardware snapshot:");
+            Trace.WriteLine("------------------");
             Trace.WriteLine(NextUnitTestEnvironmentContext.ToString());
             Trace.WriteLine("");
 
@@ -112,7 +114,7 @@ namespace NextUnit.TestRunner.TestRunners
                             }
 
                             Exception lastException = null;
-                            TestResult testResult = null;
+                            TestResult testResult = TestResult.Empty;
                             try
                             {
                                 for (int i = 0; i < executionCount; i++)
@@ -137,7 +139,7 @@ namespace NextUnit.TestRunner.TestRunners
                             catch (AssertException ex)
                             {
                                 lastException = ex;
-                                Trace.WriteLine(ex.Message);
+                                Trace.WriteLine(ex);
                             }
                             catch (TargetInvocationException ex)
                             {

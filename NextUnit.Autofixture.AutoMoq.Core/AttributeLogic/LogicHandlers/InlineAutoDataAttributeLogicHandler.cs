@@ -2,6 +2,7 @@
 using AutoFixture.Kernel;
 using AutoFixture.NextUnit;
 using AutoFixture;
+using NextUnit.Core.Extensions;
 using NextUnit.Core.AttributeLogic;
 using System.Reflection;
 
@@ -9,7 +10,7 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
 {
     public class InlineAutoDataAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var inlineAutoDataAttribute = attribute as InlineAutoDataAttribute;
             if (inlineAutoDataAttribute != null)
@@ -30,7 +31,7 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
                     arguments[i] = ResolveParameter(fixture, parameters[i]);
                 }
 
-                testMethod.Invoke(testInstance, arguments);
+                testMethod.Invoke(testInstance, @delegate, arguments);
             }
         }
 

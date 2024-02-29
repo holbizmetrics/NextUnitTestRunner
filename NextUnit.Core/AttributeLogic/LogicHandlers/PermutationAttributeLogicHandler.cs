@@ -1,16 +1,17 @@
 ﻿using System.Reflection;
+using NextUnit.Core.Extensions;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     public class PermutationAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var parameterInfos = testMethod.GetParameters();
             if (parameterInfos.Length == 0)
             {
                 // Invoke the method directly if it has no parameters
-                testMethod.Invoke(testInstance, null);
+                testMethod.Invoke(testInstance, @delegate, null);
                 return;
             }
 
@@ -23,7 +24,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
 
             foreach (var parameterSet in allParameterCombinations)
             {
-                testMethod.Invoke(testInstance, parameterSet.ToArray());
+                testMethod.Invoke(testInstance, @delegate, parameterSet.ToArray());
             }
         }
 

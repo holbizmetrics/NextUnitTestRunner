@@ -2,14 +2,14 @@
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
-using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace NextUnit.Core.Combinators
 {
     /// <summary>
-    /// 
+    /// Default Combinator to execute tests.
     /// </summary>
     public class DefaultCombinator : Combinator
     {
@@ -18,13 +18,13 @@ namespace NextUnit.Core.Combinators
         /// But for now it makes things at least working again.
         /// </summary>
         public AttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
-        protected Stopwatch Stopwatch { get; private set; } = null;
-        public override async Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object classInstance = null)
+        public override async Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate) testDefinition, object classInstance = null)
         {
             TestResult testResult = TestResult.Empty;
             // Filter and validate attributes
+            // Filter and validate attributes, excluding AsyncStateMachineAttribute
             var executionAttributes = testDefinition.attributes
-                .Where(attr => !(attr is GroupAttribute || attr is TestAttribute))
+                .Where(attr => !(attr is GroupAttribute || attr is TestAttribute || attr is NullableContextAttribute || attr.GetType().IsDefined(typeof(AsyncStateMachineAttribute), inherit: false)))
                 .ToList();
 
             // Check for exactly one TestAttribute and no other attributes
@@ -40,22 +40,27 @@ namespace NextUnit.Core.Combinators
                 // Ensure the single TestAttribute is included for processing, this step might be redundant if TestAttribute was not excluded initially
                 executionAttributes.Add(testDefinition.attributes.First(attr => attr is TestAttribute));
             }
-            else if (testDefinition.attributes.Any(attr => attr is TestAttribute) && testDefinition.attributes.Any(attr => attr is System.Runtime.CompilerServices.NullableContextAttribute) && testDefinition.attributes.Count(attr => attr is GroupAttribute) >= 0)
+            else if (testDefinition.attributes.Any(attr => attr is TestAttribute) && testDefinition.attributes.Count(attr => attr is GroupAttribute) >= 0)
             {
                 //TODO: this is not completely correct. The problems will definitely solved in the new combinator design.
+                executionAttributes.Add(testDefinition.attributes.First(attr => attr is TestAttribute));
+            }
+            else if (testDefinition.attributes.Any(attr => attr is TestAttribute) && testDefinition.attributes.Any(attr => attr is AsyncStateMachineAttribute) && testDefinition.attributes.Count(attr => attr is GroupAttribute) >= 0)
+            {
                 executionAttributes.Clear();
                 executionAttributes.Add(testDefinition.attributes.First(attr => attr is TestAttribute));
             }
-
-            if (testDefinition.methodInfo.Name.Contains("IsLessThanOrEqual_DoesNotAssert_WhenActualIsLessThanExpected"))
+            else
             {
 
             }
 
             if (executionAttributes.Count() == 0)
             {
-
+                throw new ExecutionEngineException("No execution attributes found!");
             }
+            executionAttributes.Remove(new AsyncStateMachineAttribute(typeof(void)));
+                
 
             StackFrame stackFrame = new StackFrame();
             List<string> files = new StackTrace().GetFrames()?.Select((StackFrame x) => x.GetMethod()?.DeclaringType?.Assembly.CodeBase).Distinct().ToList();
@@ -74,6 +79,7 @@ namespace NextUnit.Core.Combinators
                 NativeOffset = stackFrame.GetNativeOffset(),
                 Files = files,
                 Method = testDefinition.methodInfo,
+                Delegate = testDefinition.@delegate,
                 Type = testDefinition.type,
                 Attributes = testDefinition.attributes,
             };
@@ -84,15 +90,12 @@ namespace NextUnit.Core.Combinators
 
             if (executionAttributes.Count() == 1 && executionAttributes.First() is TestAttribute)
             {
-                PrepareTestResult(testDefinition, testResult, methodInfo.DeclaringType);
+                //end the TestResult preparation.
                 if (methodInfo.IsAsyncMethod())
                 {
-                    //end the TestResult preparation.
-                    Stopwatch = Stopwatch.StartNew();
-                    var task = (Task)methodInfo.Invoke(classInstance, null); // Assuming no parameters for simplicity
+                    var task = (Task)methodInfo.Invoke(classInstance, testDefinition.@delegate, null); // Assuming no parameters for simplicity
                     await task.ConfigureAwait(false);
 
-                    EndTestResult(testResult);
 
                     // Handle the result of the async test execution
                     testResult.State = ExecutionState.Passed;
@@ -101,10 +104,9 @@ namespace NextUnit.Core.Combinators
                 {
                     //var handler = AttributeLogicMapper.GetHandlerFor(attribute);
                     //handler?.ProcessAttribute(attribute, methodInfo, classInstance);
-                    methodInfo.Invoke(classInstance, null);
-
-                    EndTestResult(testResult);
+                    methodInfo.Invoke(classInstance, testDefinition.@delegate, null);
                 }
+                testResult.State = ExecutionState.Passed;
                 return testResult;
             }
 
@@ -114,7 +116,7 @@ namespace NextUnit.Core.Combinators
             foreach (Attribute attribute in executionAttributes)
             {
                 //We shouldn't have a TestAttribute here, but if so, skip it...
-                if (attribute is TestAttribute)
+                if (attribute is TestAttribute || attribute is AsyncIteratorStateMachineAttribute || attribute is AsyncStateMachineAttribute || attribute is DebuggerStepThroughAttribute || attribute is DebuggerStepperBoundaryAttribute)
                 {
                     continue;
                 }
@@ -123,15 +125,14 @@ namespace NextUnit.Core.Combinators
                 {
                     //Start with the TestResult preparation.
                     Type declaringType = testDefinition.methodInfo.DeclaringType;
-                    PrepareTestResult(testDefinition, testResult, declaringType);
 
                     testResult.State = ExecutionState.Running;
 
                     var handler = AttributeLogicMapper.GetHandlerFor(attribute);
-                    handler?.ProcessAttribute(attribute, methodInfo, classInstance);
+                    handler?.ProcessAttribute(attribute, testDefinition.methodInfo, testDefinition.@delegate, classInstance);
 
                     //end the TestResult preparation.
-                    EndTestResult(testResult);
+                    testResult.State = ExecutionState.Passed;
                 }
                 else if (attribute is SkipAttribute)
                 {
@@ -145,24 +146,6 @@ namespace NextUnit.Core.Combinators
             }
 
             return testResult;
-        }
-
-        private void PrepareTestResult((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, TestResult testResult, Type declaringType)
-        {
-            testResult.Namespace = declaringType.ToString();
-            testResult.Class = declaringType.Name;
-            testResult.Workstation = Environment.MachineName;
-            testResult.DisplayName = testDefinition.methodInfo.Name;
-            testResult.Start = DateTime.Now;
-            Stopwatch = Stopwatch.StartNew();
-        }
-
-        private void EndTestResult(TestResult testResult)
-        {
-            Stopwatch.Stop();
-            testResult.ExecutionTime = Stopwatch.Elapsed;
-            testResult.End = DateTime.Now;
-            testResult.State = ExecutionState.Passed;
         }
     }
 }

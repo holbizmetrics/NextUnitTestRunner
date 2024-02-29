@@ -235,7 +235,7 @@ namespace NextUnit.TestRunner.TestRunners
         {
             object[] parameters = null;
             IEnumerable<Attribute> attributes = method.GetCustomAttributes();
-            TestResult testResult = null;
+            TestResult testResult = TestResult.Empty;
             if (attributes.Any(x => x.GetType() == typeof(TestAttribute) || x.GetType().BaseType == typeof(TestAttribute)))
             {
                 int executionCount = 1;
@@ -269,7 +269,8 @@ namespace NextUnit.TestRunner.TestRunners
                         {
                             var handler = AttributeLogicMapper.GetHandlerFor(attribute);
 
-                            handler?.ProcessAttribute(attribute, method, classObject);
+                            //TODO: if we keep TestRunner3 as well. Otherwise we don't need to pay attention to this.
+                            //handler?.ProcessAttribute(attribute, method, classObject);
                         }
 
                         testResult.State = ExecutionState.Passed;
@@ -284,7 +285,7 @@ namespace NextUnit.TestRunner.TestRunners
                     //catch (AssertException ex)
                     //{
                     //    lastException = ex;
-                    //    Trace.WriteLine(ex.Message);
+                    //    Trace.WriteLine(ex);
                     //}
                     //catch (TargetInvocationException ex)
                     //{
@@ -435,7 +436,7 @@ namespace NextUnit.TestRunner.TestRunners
                             if (!unallowedTypes.Contains(attribute.GetType()) && attribute.GetType().Namespace.Contains("NextUnit."))
                             {
                                 var handler = AttributeLogicMapper.GetHandlerFor(attribute);
-                                handler?.ProcessAttribute(attribute, method, classObject);
+                                handler?.ProcessAttribute(attribute, method, null, classObject);
                                 if (handler != null)
                                 {
                                     testResult.State = ExecutionState.Passed;
@@ -471,7 +472,7 @@ namespace NextUnit.TestRunner.TestRunners
                     catch (AssertException ex)
                     {
                         lastException = ex;
-                        Trace.WriteLine(ex.Message);
+                        Trace.WriteLine(ex);
                     }
                     catch (TargetInvocationException ex)
                     {

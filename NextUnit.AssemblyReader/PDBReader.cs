@@ -7,7 +7,7 @@ namespace NextUnit.AssemblyReader
     /// <summary>
     /// Helper class to get specific contents of a PDB file.
     /// </summary>
-    public static class PdbReader
+    public static class PDBReader
     {
         //public static string AssemblyShortName => System.IO.Path.GetFileNameWithoutExtension(AssemblyFilePath).ToLowerInvariant();
         /// <summary>

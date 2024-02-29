@@ -1,6 +1,6 @@
 ﻿using NextUnit.Core.TestAttributes;
 using System.Reflection;
-
+using NextUnit.Core.Extensions;
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     /// <summary>
@@ -8,7 +8,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class AllCombinationsAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var parameterInfos = testMethod.GetParameters();
             var allParameterValues = parameterInfos.Select(pi => GetValuesForParameter(pi)).ToList();
@@ -19,7 +19,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
             // Invoke the test method with each combination of parameter values
             foreach (var combination in allCombinations)
             {
-                testMethod.Invoke(testInstance, combination.ToArray());
+                testMethod.Invoke(testInstance, @delegate, combination.ToArray());
             }
         }
 

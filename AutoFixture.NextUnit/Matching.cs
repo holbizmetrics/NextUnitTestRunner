@@ -1,5 +1,4 @@
-﻿// AutoFixture.NextUnit.Matching
-namespace AutoFixture.NextUnit
+﻿namespace AutoFixture.NextUnit
 {
     [Flags]
     public enum Matching

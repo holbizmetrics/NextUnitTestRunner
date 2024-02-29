@@ -8,7 +8,7 @@ namespace NextUnit.TestRunner
     /// <summary>
     /// Same as TestContext in other frameworks.
     /// </summary>
-    public static class NextUnitTestEnvironmentContext
+    public class NextUnitTestEnvironmentContext
     {
         public static string MachineName { get; } = SysInfo.MachineName;
         public static string CommandLine { get; } = SysInfo.CommandLine;
@@ -17,8 +17,8 @@ namespace NextUnit.TestRunner
         public static IEnumerable<ManagementObject> BiosInfo {get;} = SysInfo.BiosInfo;
         public static ulong Capacity { get; } = SysInfo.Capacity;
         public static OperatingSystem OperatingSystem { get; } = SysInfo.OperatingSystem;
-        public static CultureInfo CurrentCulture { get; } = Thread.CurrentThread.CurrentCulture;
-        public static CultureInfo CurrentUICulture { get; } = Thread.CurrentThread.CurrentUICulture;
+        public CultureInfo CurrentCulture { get; } = Thread.CurrentThread.CurrentCulture;
+        public CultureInfo CurrentUICulture { get; } = Thread.CurrentThread.CurrentUICulture;
         public static string ToString()
         {
             return

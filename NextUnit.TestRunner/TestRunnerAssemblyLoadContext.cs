@@ -41,6 +41,7 @@ namespace NextUnit.TestRunner
         protected override Assembly Load(AssemblyName assemblyName) => null;
 
         public bool UseBase { get; set; } = false;
+
         protected override nint LoadUnmanagedDll(string unmanagedDllName)
         {
             if (UseBase)

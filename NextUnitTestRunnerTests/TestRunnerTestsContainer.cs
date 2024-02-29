@@ -346,9 +346,9 @@ namespace DynamicNamespace
 
         #region RunAllDelegatePermutations Tests
         [RunAllDelegatePermutationsAttribute("Test1", "Test2", "Test3")]
-        [Group(nameof(RunAllDelegatePermutations))]
+        [Group(nameof(RunAllDelegatePermutationsTest))]
         [Test]
-        public static void RunAllDelegatePermutations()
+        public static void RunAllDelegatePermutationsTest()
         {
 
         }

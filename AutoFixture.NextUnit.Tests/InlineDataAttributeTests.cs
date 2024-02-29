@@ -1,9 +1,4 @@
 ﻿using NextUnit.Core.TestAttributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AutoFixture.NextUnit.Tests
 {
@@ -11,7 +6,7 @@ namespace AutoFixture.NextUnit.Tests
     {
         [Test]
         [InlineData(1)]
-        public void InlineDataAttributeTest()
+        public void InlineDataAttributeTest(int param1)
         {
 
         }

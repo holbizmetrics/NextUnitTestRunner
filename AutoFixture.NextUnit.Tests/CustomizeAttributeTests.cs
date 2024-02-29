@@ -14,9 +14,15 @@ namespace AutoFixture.NextUnit.Tests
     public class CustomizeAttributeTests
     {
         [Test]
-        public void CustomizeAttributeTestAsParameterTest([Blub] int n1)
+        public void CustomizeAttributeTestWithoutParameterAttribute()
         {
 
+        }
+
+        [Test, AutoData]
+        public void CustomizeAttributeTestAsParameterTest([Blub] int n1)
+        {
+        
         }
     }
 }

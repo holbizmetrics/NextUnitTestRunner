@@ -5,12 +5,103 @@ using System.Collections;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
 namespace NextUnit.Core.Extensions
 {
     public static class ReflectionExtensions
     {
+        public delegate void TestMethodDelegate();
+        public delegate void TestMethodDelegateWithParams(params object[] parameters);
+        public delegate Task AsyncTestMethodDelegate();
+        public delegate Task AsyncTestMethodDelegateWithParams(params object[] parameters);
+
+        private static DelegateTypeFactory DelegateTypeFactoryCache = null;
+
+
+        public static bool PreferDelegate { get; set; } = true;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <param name="instance"></param>
+        /// <param name="delegate"></param>
+        public static object Invoke(this MethodInfo methodInfo, object instance, Delegate @delegate = null, object[] parameters = null)
+        {
+            if (@delegate == null || !PreferDelegate)
+            {
+                return methodInfo.Invoke(instance, parameters);
+            }
+            else
+            {
+                return @delegate.DynamicInvoke(parameters);
+            }
+        }
+
+        public static Delegate CreateTestDelegate(this MethodInfo method, object instance = null)
+        {
+            if (DelegateTypeFactoryCache == null)
+            {
+                DelegateTypeFactoryCache = new DelegateTypeFactory();
+            }
+
+            Type delegateType = DelegateTypeFactoryCache.CreateDelegateType(method);
+
+            // Check if the method is static
+            if (method.IsStatic)
+            {
+                // For static methods, no target object is required
+                return Delegate.CreateDelegate(delegateType, null, method);
+            }
+            else
+            {
+                // Ensure instance is not null for instance methods
+                if (instance == null)
+                {
+                    throw new ArgumentNullException(nameof(instance), "An instance is required for instance methods.");
+                }
+                return Delegate.CreateDelegate(delegateType, instance, method);
+            }
+        }
+
+
+        /// <summary>
+        /// Creates a delegate from the method.
+        /// Should also work for async methods.
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        public static Delegate CreateTestDelegate(this MethodInfo method)
+        {
+            bool isAsync = typeof(Task).IsAssignableFrom(method.ReturnType);
+            bool hasParameters = method.GetParameters().Any();
+
+            if (isAsync)
+            {
+                if (hasParameters)
+                {
+                    return Delegate.CreateDelegate(typeof(AsyncTestMethodDelegateWithParams), null, method);
+                }
+                else
+                {
+                    return Delegate.CreateDelegate(typeof(AsyncTestMethodDelegate), null, method);
+                }
+            }
+            else
+            {
+                if (hasParameters)
+                {
+                    return Delegate.CreateDelegate(typeof(TestMethodDelegateWithParams), null, method);
+                }
+                else
+                {
+                    return Delegate.CreateDelegate(typeof(TestMethodDelegate), null, method);
+                }
+            }
+        }
+
         public static bool IsAsyncMethod(this MethodInfo methodInfo)
         {
             return typeof(Task).IsAssignableFrom(methodInfo.ReturnType);

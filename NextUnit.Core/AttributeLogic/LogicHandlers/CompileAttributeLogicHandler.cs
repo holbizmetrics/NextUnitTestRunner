@@ -14,7 +14,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class CompileAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             CompileAttribute compileAttribute = attribute as CompileAttribute;
             if (compileAttribute == null) return;
@@ -40,7 +40,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
             // Store the compiled object in a shared context accessible by the test method
             CompiledObjectRegistry.Register(testMethod.Name, !compiledType.IsStaticClass() ? compiledObject : null);
 
-            testMethod.Invoke(testInstance, null);
+            testMethod.Invoke(testInstance, @delegate, null);
         }
 
         /// <summary>

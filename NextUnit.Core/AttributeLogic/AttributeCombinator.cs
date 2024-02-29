@@ -44,7 +44,7 @@ namespace NextUnit.Core.AttributeLogic
         public AttributeCombinator(params Attribute[] attributes)
         {
             //Definition of combinable attributes.
-            Dictionary<CombinableAttribute, Delegate> keyValuePairs = new Dictionary<CombinableAttribute, Delegate>
+            Dictionary<CombinableAttributeDelegate, Delegate> keyValuePairs = new Dictionary<CombinableAttributeDelegate, Delegate>
             {
                 { Combine.And(attributes.AnyIsOf(
                         typeof(TestAttribute))), null },
@@ -87,10 +87,10 @@ namespace NextUnit.Core.AttributeLogic
             //CombinableAttribute combinableAttribute = CombinableAttribute.Combine(AttributeTypes);
         }
 
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var handler = AttributeLogicMapper.GetHandlerFor(attributes[0]);
-            handler?.ProcessAttribute(attributes[0], testMethod, testInstance);
+            handler?.ProcessAttribute(attributes[0], testMethod, @delegate, testInstance);
             return;
         }
 
@@ -115,65 +115,64 @@ namespace NextUnit.Core.AttributeLogic
             // Actual logic goes here
         }
 
-        private void CheckSimpleCases(MethodInfo testMethod, object testInstance)
-        {
+        //private void CheckSimpleCases(MethodInfo testMethod, object testInstance)
+        //{
+        //    // Apply interaction rules to attributes
+        //    // This might involve invoking specific logic handlers in a certain order,
+        //    // overriding some attributes with others, or even discarding some attributes.
 
-            // Apply interaction rules to attributes
-            // This might involve invoking specific logic handlers in a certain order,
-            // overriding some attributes with others, or even discarding some attributes.
+        //    //I guess if the attributes are null we shouldn't even get here?
+        //    if (attributes == null)
+        //    {
+        //        return;
+        //    }
+        //    if (attributes.Length == 1)
+        //    {
+        //        Attribute firstAttribute = attributes[0];
 
-            //I guess if the attributes are null we shouldn't even get here?
-            if (attributes == null)
-            {
-                return;
-            }
-            if (attributes.Length == 1)
-            {
-                Attribute firstAttribute = attributes[0];
+        //        Type firstAttributeType = firstAttribute.GetType();
+        //        string assertText = $"First attribute of method shouldn't be a {firstAttributeType}.";
+        //        //None of those should happen
+        //        //Debug.Assert(firstAttribute is GroupAttribute, assertText);
+        //        //Debug.Assert(firstAttribute is CommonTestAttribute, assertText);
+        //        //Debug.Assert(firstAttribute is SkipAttribute, assertText);
+        //        //Debug.Assert(firstAttribute is not TestAttribute, assertText);
 
-                Type firstAttributeType = firstAttribute.GetType();
-                string assertText = $"First attribute of method shouldn't be a {firstAttributeType}.";
-                //None of those should happen
-                //Debug.Assert(firstAttribute is GroupAttribute, assertText);
-                //Debug.Assert(firstAttribute is CommonTestAttribute, assertText);
-                //Debug.Assert(firstAttribute is SkipAttribute, assertText);
-                //Debug.Assert(firstAttribute is not TestAttribute, assertText);
+        //        if (firstAttribute is TestAttribute)
+        //        {
+        //            Delegate @delegate = delegateDictionary[firstAttributeType];
 
-                if (firstAttribute is TestAttribute)
-                {
-                    Delegate @delegate = delegateDictionary[firstAttributeType];
+        //            @delegate.DynamicInvoke(attributes[0], testMethod, testInstance);
+        //            return;
+        //        }
+        //        // If we only find a SkipAttribute we'll don't do anything.
+        //        else if (firstAttribute is SkipAttribute)
+        //        {
+        //            return;
+        //        }
 
-                    @delegate.DynamicInvoke(attributes[0], testMethod, testInstance);
-                    return;
-                }
-                // If we only find a SkipAttribute we'll don't do anything.
-                else if (firstAttribute is SkipAttribute)
-                {
-                    return;
-                }
+        //        if (firstAttribute is not TestAttribute)
+        //        {
+        //            return;
+        //        }
+        //    }
 
-                if (firstAttribute is not TestAttribute)
-                {
-                    return;
-                }
-            }
+        //    if (attributes.Length == 2)
+        //    {
+        //        if (attributes.AnyIsOf(typeof(SkipAttribute), typeof(TestAttribute)))
+        //        {
+        //            return;
+        //        }
+        //        if (attributes.AnyIsOf(typeof(GroupAttribute), typeof(TestAttribute)))
+        //        {
+        //            var handler = AttributeLogicMapper.GetHandlerFor(attributes[0]);
+        //            handler?.ProcessAttribute(attributes[0], testMethod, testInstance);
+        //            return;
+        //        }
+        //    }
+        //}
 
-            if (attributes.Length == 2)
-            {
-                if (attributes.AnyIsOf(typeof(SkipAttribute), typeof(TestAttribute)))
-                {
-                    return;
-                }
-                if (attributes.AnyIsOf(typeof(GroupAttribute), typeof(TestAttribute)))
-                {
-                    var handler = AttributeLogicMapper.GetHandlerFor(attributes[0]);
-                    handler?.ProcessAttribute(attributes[0], testMethod, testInstance);
-                    return;
-                }
-            }
-        }
-
-        public Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition, object classInstance = null)
+        public Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate) testDefinition, object classInstance = null)
         {
             throw new NotImplementedException();
         }

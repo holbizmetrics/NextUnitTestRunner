@@ -75,6 +75,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NextUnit.InstantTests.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextUnit.VisualStudioExtension", "NextUnit.VisualStudioExtension\NextUnit.VisualStudioExtension.csproj", "{8214ED35-A562-4552-B7AF-35000CE7CADB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{DD8A5263-0F63-4F92-A9B8-86641A027153}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -490,6 +492,7 @@ Global
 		{2A15A767-989F-404C-A927-C054E2D2355B} = {6F8DB15B-8DEF-4419-9ABE-072E89DB984E}
 		{B19F6FCC-09E8-4E95-BF77-742F6F82B5C2} = {6F8DB15B-8DEF-4419-9ABE-072E89DB984E}
 		{00D9716D-6285-439F-A8CE-8584ECC775F1} = {6F8DB15B-8DEF-4419-9ABE-072E89DB984E}
+		{DD8A5263-0F63-4F92-A9B8-86641A027153} = {7042FCC0-1B68-4E85-83B6-83BF0BDCE11C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DE3A08A-5FB8-4455-9850-620399616405}

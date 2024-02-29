@@ -4,12 +4,13 @@ using AutoFixture.NextUnit;
 using AutoFixture;
 using NextUnit.Core.AttributeLogic;
 using System.Reflection;
+using NextUnit.Core.Extensions;
 
 namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
 {
     public class FavorEnumerablesAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var favorEnumerablesAttribute = attribute as FavorEnumerablesAttribute;
             if (favorEnumerablesAttribute != null)
@@ -25,7 +26,7 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
                                 .Select(p => ResolveParameter(fixture, p))
                                 .ToArray();
 
-                testMethod.Invoke(testInstance, parameters);
+                testMethod.Invoke(testInstance, @delegate, parameters);
             }
         }
 

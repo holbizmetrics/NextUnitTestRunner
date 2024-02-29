@@ -297,6 +297,7 @@ namespace NextUnit.Core.Tests.Asserts
         {
             int a = 1;
             int b = 0;
+            Assert.HasProperty("Test", a);
         }
 
         [Test]

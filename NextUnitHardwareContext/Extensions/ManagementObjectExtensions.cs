@@ -18,5 +18,16 @@ namespace NextUnit.HardwareContext.Extensions
             }
             return stringBuilder.ToString();
         }
+
+        public static string ToFormattedString(this ManagementObject obj)
+        {
+            // Example: Extracting a few properties for demonstration purposes
+            string manufacturer = obj["Manufacturer"]?.ToString() ?? "Unknown";
+            string version = obj["Version"]?.ToString() ?? "Unknown";
+            string serialNumber = obj["SerialNumber"]?.ToString() ?? "Unknown";
+
+            // Format the string as needed
+            return $"Manufacturer: {manufacturer}, Version: {version}, Serial Number: {serialNumber}";
+        }
     }
 }

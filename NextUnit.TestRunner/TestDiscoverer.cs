@@ -1,7 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using NextUnit.Core.Extensions;
+﻿using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
 using System.Reflection;
 
@@ -24,6 +21,7 @@ namespace NextUnit.TestRunner
             return testMethodsPerClass;
         }
 
+        [Obsolete]
         public List<MethodInfo> Discover(Type testClass)
         {
             List<MethodInfo> discoveredValidTestMethods = new List<MethodInfo>();
@@ -38,59 +36,6 @@ namespace NextUnit.TestRunner
                 }
             }
             return discoveredValidTestMethods;
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="types"></param>
-        /// <returns></returns>
-        public Type[] DiscoverTests(Type[] types, Dictionary<Type, List<MethodInfo>> classTestMethodsAssociation)
-        {
-            classTestMethodsAssociation.Clear();
-            if (types != null && types.Length == 1)
-            {
-                Type type = types[0];
-                types = type == null ? Assembly.GetExecutingAssembly().GetTypes() : type.Assembly.GetTypes();
-            }
-            Type[] classes = types.Where(t => t.IsClass).ToArray();
-
-            string machineName = Environment.MachineName;
-
-            foreach (Type testClass in classes)
-            {
-                List<MethodInfo> methodInfos = Discover(testClass);
-                if (methodInfos.Count > 0)
-                {
-                    classTestMethodsAssociation.Add(testClass, methodInfos);
-                }
-            }
-
-            return types;
-        }
-
-
-        public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
-        {
-            // Example: Reflectively inspect assemblies and find tests with GroupAttribute
-            foreach (var source in sources)
-            {
-                var assembly = Assembly.LoadFrom(source);
-                foreach (var type in assembly.GetTypes())
-                {
-                    foreach (var method in type.GetMethods())
-                    {
-                        var groupAttribute = method.GetCustomAttribute<GroupAttribute>();
-                        if (groupAttribute != null)
-                        {
-                            var testCase = new TestCase(/* ... */);
-                            testCase.Traits.Add("Group", groupAttribute.GroupName);
-                            discoverySink.SendTestCase(testCase);
-                        }
-                    }
-                }
-            }
-        }
+        }       
     }
 }

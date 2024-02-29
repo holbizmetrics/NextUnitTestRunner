@@ -1,11 +1,12 @@
 ﻿using NextUnit.Core.TestAttributes;
 using System.Reflection;
+using NextUnit.Core.Extensions;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     public class RetryAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             var retryAttribute = attribute as RetryAttribute;
             if (retryAttribute != null)
@@ -17,7 +18,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                 {
                     try
                     {
-                        testMethod.Invoke(testInstance, null);
+                        testMethod.Invoke(testInstance, @delegate, null);
                         testPassed = true; // If no exception is thrown, the test passed
                     }
                     catch (TargetInvocationException ex)

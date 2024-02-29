@@ -6,6 +6,7 @@ namespace NextUnit.Core.Tests.Extensions
 {
     public class AttributeExtensionsTests
     {
+        [Test]
         public void AttributeExtensionsTest()
         {
             CommonTestAttribute[] testAttributes = new CommonTestAttribute[] { new DebugAttribute(), new DebuggerBreakAttribute(), new FuzzingAttribute() };

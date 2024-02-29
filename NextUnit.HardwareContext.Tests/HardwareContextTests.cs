@@ -1,7 +1,9 @@
-﻿using NextUnit.Core.Asserts;
+﻿using Microsoft.Management.Infrastructure;
+using NextUnit.Core.Asserts;
 using NextUnit.Core.TestAttributes;
 using NextUnit.HardwareContext.SystemInformation;
 using System.Security;
+using System.ServiceProcess;
 
 namespace NextUnit.HardwareContext.Tests
 {
@@ -83,14 +85,19 @@ namespace NextUnit.HardwareContext.Tests
         [Group(nameof(SysInfo))]
         public void GetUSBDevicesTest()
         {
-            SysInfo.GetUSBDevices();
+            List<CimInstance> usbDevices = SysInfo.GetUSBDevices();
+            Assert.IsNotNull(usbDevices);
+            Assert.IsNotEmpty(usbDevices);
         }
 
         [Test]
+        [RunInThread(ApartmentState.STA, false, "de-DE")]
         [Group(nameof(SysInfo))]
         public void GetUserAccountsTest()
         {
-            SysInfo.GetUserAccounts();
+            List<CimInstance> userAccounts = SysInfo.GetUserAccounts();
+            Assert.IsNotNull(userAccounts);
+            Assert.IsNotEmpty(userAccounts);
         }
 
         [Test]
@@ -104,7 +111,8 @@ namespace NextUnit.HardwareContext.Tests
         [SecurityCritical]
         public void GetWindowsProductKeyTest()
         {
-            SysInfo.GetWindowsProductKey();
+            string key = SysInfo.GetWindowsProductKey();
+            Assert.IsTrue(!string.IsNullOrEmpty(key));
         }
 
         [Group(nameof(SysInfo))]
@@ -118,7 +126,8 @@ namespace NextUnit.HardwareContext.Tests
         [Group(nameof(SysInfo))]
         public void GetWinRMInformationTest()
         {
-            SysInfo.GetWinRMInformation();
+            ServiceControllerStatus serviceControllerStatus = SysInfo.GetWinRMInformation();
+            Assert.IsNotNull(serviceControllerStatus);
         }
     }
 }

@@ -1,16 +1,11 @@
 ﻿using NextUnit.Core.TestAttributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     public class RunAfterAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, object testInstance)
+        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
         {
             // Logic for handling CommonTestAttribute
             // Logic for handling CommonTestAttribute
