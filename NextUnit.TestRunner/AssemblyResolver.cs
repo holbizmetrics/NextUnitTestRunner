@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyModel;
+using NextUnit.Core;
 
 namespace NextUnit.TestRunner
 {

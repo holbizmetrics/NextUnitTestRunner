@@ -232,7 +232,7 @@ namespace DynamicNamespace
         #region ExecuteUntilTimeoutAttribute Test
         [Test]
         [Group("ExecuteUntilTimeoutAttribute")]
-        //[ExecuteUntilTimeout("1", "1")] //use string instead
+        [ExecuteUntilTimeout("00:00:01", "00:00:01")] //use string instead
         public void ExecuteUntilTimeoutAttributeTest()
         {
         }

@@ -1,5 +1,4 @@
-﻿#define COMBINATOR_TEST
-
+﻿
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -9,9 +8,7 @@ using NextUnit.Core.Combinators;
 using NextUnit.Core;
 using NextUnit.Core.Extensions;
 using NextUnit.Autofixture.AutoMoq.Core;
-using NextUnit.HardwareContext.Extensions;
 using NextUnit.TestRunner.TestRunners.TestRunner5;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using TestResult = NextUnit.Core.TestResult;
 
 namespace NextUnit.TestRunner.TestRunners.NewFolder
@@ -66,6 +63,7 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
         public Dictionary<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> TestMethodDelegates { get; set; } = null;
 
         public IAttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
+        public TestExecutor TestExecutor { get; set; } = new TestExecutor();
 
         public bool UseConstructorDisposeOfTestClass { get; set; } = false;
 
@@ -90,15 +88,18 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
 
         public TestRunner5()
         {
+            InitializeTestExecutor();
         }
 
         public TestRunner5(bool useThreading = true, bool useCombinator = false)
+            : this()
         {
             UseThreading = useThreading;
             UsedCombinator = useCombinator ? new DefaultCombinator() : new AdvancedCombinator();
         }
 
         public TestRunner5(ITestDiscoverer testDiscoverer = null, AttributeLogicMapper attributeLogicMapper = null, bool? useThreading = true, Combinator usedCombinator = null)
+            : this()
         {
             if (testDiscoverer != null) With(testDiscoverer);
             if (attributeLogicMapper != null) With(attributeLogicMapper);
@@ -236,7 +237,7 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             NextUnitTestExecutionContext.TestRunStart = DateTime.Now;
             DiscoverTests(types);
             CreateInstantiatedObjects();
-            TestMethodDelegates = CreateTestDelegates(TestMethodsPerClass);
+            TestMethodDelegates = TestDiscoverer.CreateTestDelegates(TestMethodsPerClass, InstanceCreationBehavior);
 
             // ok this works. At least tried for some methods already.
             // They can be executed like this then:
@@ -275,22 +276,6 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             TestMethodsPerClass = TestDiscoverer.Discover(types);
 
         }
-        /// <summary>
-        /// Discovers creates a delegate list from discovered tests
-        /// This may be part of the testdiscoverer or still stay in the testrunner. Do not know, yet.
-        /// </summary>
-        public Dictionary<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> CreateTestDelegates(IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> testMethodsPerClass)
-        {
-            Dictionary<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> testMethodDelegates = new Dictionary<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)>();
-            foreach (var testDefinition in testMethodsPerClass)
-            {
-                testMethodDelegates.Add(
-                    $"{testDefinition.Method.DeclaringType.FullName}.{testDefinition.Method.Name}",
-                    (testDefinition.Type, testDefinition.Method, testDefinition.Attributes,
-                        testDefinition.Method.CreateTestDelegate(InstanceCreationBehavior.CreateInstance(testDefinition.Type))));
-            }
-            return testMethodDelegates;
-        }
 
         private void CreateInstantiatedObjects()
         {
@@ -315,7 +300,7 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
         /// </summary>
         /// <param name="testDefinition"></param>
         /// <returns></returns>
-        public TestResult ExecuteTest((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate) testDefinition)
+        private TestResult ExecuteTest((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate) testDefinition)
         {
             Type type = testDefinition.type;
             object instanceObject = InstanceCreationBehavior.CreateInstance(type); // this will for sure take a little longer if the test instance object needs to be reinstantiated for every TestMethod run.
@@ -374,17 +359,26 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             return this;
         }
         #endregion Fluent Syntax
+  
+        protected Stopwatch Stopwatch { get; private set; } = null;
 
-      
-
-        public TestResult Execute((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate) test)
+        public void InitializeTestExecutor()
         {
-            object instanceObject = InstanceCreationBehavior.CreateInstance(test.type); // this will for sure take a little longer if the test instance object needs to be reinstantiated for every TestMethod run.
-            Task<TestResult> task = UsedCombinator.ProcessCombinedAttributes(test, instanceObject);
-            return task.Result;
+            TestExecutor
+                .With(this.InstanceCreationBehavior)
+                .With(this.UsedCombinator);
+
+            // Setup default execution pipeline.
+            // What could be done as well to optimize is:
+            // Only if an attribute in all tests is found, for Before/After then initialize the pipeline with Before/After. Otherwise initialize only execute.
+
+            // This structure below even later on would allow us with ease - if it makes sense - to create a multicastdelegate (and caching all of them) with Before/After only where needed.
+            //testExecutor.AddToPipeline(new TestDelegate(BeforeTestRunExecution));
+            TestExecutor.AddToPipeline(new TestDelegate(ExecuteTest));
+            //testExecutor.AddToPipeline(new TestDelegate(AfterTestRunExecution));
         }
 
-        protected Stopwatch Stopwatch { get; private set; } = null;
+        public bool IsTestExecutorInitialized => TestExecutor.Steps != null && TestExecutor.Steps.Length > 0;
 
         /// <summary>
         /// Executes the tests found by the TestDiscoverer.
@@ -395,94 +389,96 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             NextUnitTestExecutionContext.TestResults.Clear();
             NextUnitTestExecutionContext.TestRunStart = DateTime.Now;
 
-            TestExecutor testExecutor = new TestExecutor()
-                .With(this.InstanceCreationBehavior)
-                .With(this.UsedCombinator);
-
-            // Setup default execution pipeline.
-            // What could be done as well to optimize is:
-            // Only if an attribute in all tests is found, for Before/After then initialize the pipeline with Before/After. Otherwise initialize only execute.
-
-            // This structure below even later on would allow us with ease - if it makes sense - to create a multicastdelegate (and caching all of them) with Before/After only where needed.
-            //testExecutor.AddToPipeline(new TestDelegate(BeforeTestRunExecution));
-            testExecutor.AddToPipeline(new TestDelegate(ExecuteTest));
-            //testExecutor.AddToPipeline(new TestDelegate(AfterTestRunExecution));
+            // Initializes the test pipeline with the hooks.
+            if (!IsTestExecutorInitialized) InitializeTestExecutor();
 
             foreach (var definition in TestMethodDelegates)
             {
-                MethodInfo method = definition.Value.methodInfo;
-                Type type = definition.Value.type;
-                IEnumerable<Attribute> attributes = definition.Value.attributes;
+                ExecuteTest(definition);
+            }
+            // Log summary, calculate total run time, etc.
 
-                Exception lastException = null;
-                TestResult testResult = TestResult.Empty;
+            NextUnitTestExecutionContext.TestRunEnd = DateTime.Now;
+        }
 
-                // start the recording of the testResult
-                PrepareTestResult(definition.Value, testResult, type);
-                try
+        public TestResult ExecuteTest(KeyValuePair<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> definition)
+        {
+            Exception lastException = null;
+            TestResult testResult = TestResult.Empty;
+
+            // start the recording of the testResult
+            PrepareTestResult(definition.Value, testResult, definition.Value.type);
+            Stopwatch = Stopwatch.StartNew();
+
+            OnBeforeTestRun(new ExecutionEventArgs(definition.Value.methodInfo));
+
+            try
+            {
+                OnTestExecuting(new ExecutionEventArgs(definition.Value.methodInfo));
+                ExecuteTestPipeline(definition);
+                Pass(testResult);
+            }
+            catch (AggregateException ex)
+            {
+                lastException = ex;
+                Trace.WriteLine(ex);
+            }
+            catch (AssertException ex)
+            {
+                lastException = ex;
+                Trace.WriteLine(ex);
+            }
+            catch (TargetInvocationException ex)
+            {
+                lastException = ex;
+                if (ex.InnerException != null)
                 {
-                    OnBeforeTestRun(new ExecutionEventArgs(method));
-                    OnTestExecuting(new ExecutionEventArgs(method));
-                    Stopwatch = Stopwatch.StartNew();
-                    testExecutor.Execute(definition.Value); // Assuming RunTest handles individual test execution
-                    Pass(testResult);
+                    Trace.WriteLine(ex.InnerException);
                 }
-                catch (AggregateException ex)
+                else
                 {
-                    lastException = ex;
                     Trace.WriteLine(ex);
-                }
-                catch (AssertException ex)
-                {
-                    lastException = ex;
-                    Trace.WriteLine(ex);
-                }
-                catch (TargetInvocationException ex)
-                {
-                    lastException = ex;
-                    if (ex.InnerException != null)
-                    {
-                        Trace.WriteLine(ex.InnerException);
-                    }
-                    else
-                    {
-                        Trace.WriteLine(ex);
-                    }
-                }
-                catch (TargetParameterCountException ex)
-                {
-                    lastException = ex;
-                    Trace.WriteLine(ex);
-                }
-                catch (Exception ex)
-                {
-                    lastException = ex;
-                    Trace.WriteLine(ex);
-                }
-                finally
-                {
-                    //Ends the recording of the testResult
-                    EndTestResult(testResult);
-
-                    // After test actions
-                    // Clean up, log results, etc.
-                    OnAfterTestRun(new ExecutionEventArgs(method, testResult));
-                    if (lastException != null)
-                    {
-                        testResult.StackTrace = lastException?.StackTrace;
-                        Fail(testResult);
-                        OnError(new ExecutionEventArgs(method, testResult, lastException));
-                    }
-
-                    // Unload assemblies if necessary
-                    Default_Unloading(TestRunnerAssemblyLoadContext.Default);
-
-                    //Trace.Assert(lastException == null);
                 }
             }
-            NextUnitTestExecutionContext.TestRunEnd = DateTime.Now;
+            catch (TargetParameterCountException ex)
+            {
+                lastException = ex;
+                Trace.WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+                Trace.WriteLine(ex);
+            }
 
-            // Log summary, calculate total run time, etc.
+            finally
+            {
+                //Ends the recording of the testResult
+                EndTestResult(testResult);
+
+                // After test actions
+                // Clean up, log results, etc.
+                if (lastException != null)
+                {
+                    testResult.StackTrace = lastException?.StackTrace;
+                    Fail(testResult);
+                    OnError(new ExecutionEventArgs(definition.Value.methodInfo, testResult, lastException));
+                }
+                OnAfterTestRun(new ExecutionEventArgs(definition.Value.methodInfo, testResult, lastException));
+
+                // Unload assemblies if necessary
+                Default_Unloading(TestRunnerAssemblyLoadContext.Default);
+
+                NextUnitTestExecutionContext.TestResults.Add(testResult);
+
+                //Trace.Assert(lastException == null);
+            }
+            return testResult;
+        }
+
+        private TestResult ExecuteTestPipeline(KeyValuePair<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> definition)
+        {
+            return TestExecutor.Execute(definition.Value); // Assuming RunTest handles individual test execution
         }
 
         private void Fail(TestResult testResult)
@@ -547,13 +543,13 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
-
     }
 
     public interface ITestRunner5 : ITestRunner4
     {
-        public bool PreferDelegate { get; set; }
+        bool PreferDelegate { get; set; }
+        bool IsTestExecutorInitialized { get; }
+        void InitializeTestExecutor();
+        TestResult ExecuteTest(KeyValuePair<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> definition);
     }
-
 }

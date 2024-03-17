@@ -26,6 +26,5 @@ namespace NextUnit.Core.Tests.Attributes
             Assert.IsNotNull(userAccounts);
             Assert.IsNotEmpty(userAccounts);
         }
-
     }
 }

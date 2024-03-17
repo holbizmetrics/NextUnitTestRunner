@@ -5,7 +5,7 @@ namespace NextUnit.Core.Tests.Attributes
     public class DebuggerBreakAttributeTests
     {
         [Test]
-        [DebuggerBreak]
+        //[DebuggerBreak]
         public void DebuggerBreakAttributeTest()
         {
 

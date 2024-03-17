@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.Loader;
 
-namespace NextUnit.TestRunner
+namespace NextUnit.Core
 {
     /// <summary>
     /// If another context might be needed also managing unmanaged DLLs.

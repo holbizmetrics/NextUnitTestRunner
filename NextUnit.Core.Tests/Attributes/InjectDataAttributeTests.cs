@@ -28,6 +28,11 @@ namespace NextUnit.Core.Tests.Attributes
         [InjectData(1, 2, 3, "Name", false)]
         public void InjectDataAttributeTest(int intParam1, int intParam2, int intParam3, string name, bool @switch)
         {
+            Assert.AreEqual(1, intParam1);
+            Assert.AreEqual(2, intParam2);
+            Assert.AreEqual(3, intParam3);
+            Assert.AreEqual("Name", name);
+            Assert.AreEqual(@switch, @switch);
         }
     }
 }

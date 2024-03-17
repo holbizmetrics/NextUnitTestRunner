@@ -10,11 +10,11 @@ namespace NextUnit.TestRunner.TestRunners.TestRunner5
         public IInstanceCreationBehavior InstanceCreationBehavior { get; set; } = null;
         public ICombinator UsedCombinator { get; set; } = null;
         
-        public TestDelegate TestPipeline;
+        public TestDelegate TestExecutionPipeline;
         public TestResult TestResult { get; set; } = TestResult.Empty;
         public TestExecutor()
         {
-            TestPipeline = testc => { return TestResult; };
+            TestExecutionPipeline = testc => { return TestResult; };
         }
 
         public TestExecutor(IInstanceCreationBehavior instanceCreationBehavior, ICombinator usedCombinator)
@@ -38,17 +38,17 @@ namespace NextUnit.TestRunner.TestRunners.TestRunner5
 
         public void AddToPipeline(TestDelegate newStep)
         {
-            TestPipeline += newStep;
+            TestExecutionPipeline += newStep;
         }
 
         public void RemoveFromPipeline(TestDelegate step)
         {
-            TestPipeline -= step;
+            TestExecutionPipeline -= step;
         }
 
         public TestResult Execute((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate) test)
         {
-            return TestPipeline.Invoke(test);
+            return TestExecutionPipeline.Invoke(test);
         }
 
         /// <summary>
@@ -57,9 +57,9 @@ namespace NextUnit.TestRunner.TestRunners.TestRunner5
         /// <returns></returns>
         public int StepCount()
         {
-            if (TestPipeline != null)
+            if (TestExecutionPipeline != null)
             {
-                return TestPipeline.GetInvocationList().Length;
+                return TestExecutionPipeline.GetInvocationList().Length;
             }
             return 0;
         }
@@ -71,7 +71,7 @@ namespace NextUnit.TestRunner.TestRunners.TestRunner5
         {
             get
             {
-                return TestPipeline?.GetInvocationList().Cast<TestDelegate>().ToArray();
+                return TestExecutionPipeline?.GetInvocationList().Cast<TestDelegate>().ToArray();
             }
         }
     }

@@ -8,6 +8,7 @@ namespace NextUnit.TestRunner
     {
         List<MethodInfo> Discover(Type testClass);
         IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> Discover(params Type[] types);
+        Dictionary<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> CreateTestDelegates(IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> testMethodsPerClass, IInstanceCreationBehavior instanceCreationBehavior);
     }
 
     /// <summary>
@@ -36,6 +37,24 @@ namespace NextUnit.TestRunner
                 }
             }
             return discoveredValidTestMethods;
-        }       
+        }
+
+        /// <summary>
+        /// Discovers creates a delegate list from discovered tests
+        /// This may be part of the testdiscoverer or still stay in the testrunner. Do not know, yet.
+        /// </summary>
+        public Dictionary<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> CreateTestDelegates(IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> testMethodsPerClass, IInstanceCreationBehavior instanceCreationBehavior)
+        {
+            Dictionary<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> testMethodDelegates = new Dictionary<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)>();
+            foreach (var testDefinition in testMethodsPerClass)
+            {
+                testMethodDelegates.Add(
+                    $"{testDefinition.Method.DeclaringType.FullName}.{testDefinition.Method.Name}",
+                    (testDefinition.Type, testDefinition.Method, testDefinition.Attributes,
+                        testDefinition.Method.CreateTestDelegate(instanceCreationBehavior.CreateInstance(testDefinition.Type))));
+            }
+            return testMethodDelegates;
+        }
+
     }
 }

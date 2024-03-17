@@ -18,8 +18,8 @@ using NextUnit.HardwareContext.SystemInformation.SystemInformation.SystemInforma
 using System.Management;
 using Microsoft.Management.Infrastructure;
 using static NextUnit.HardwareContext.Microsoft.Win32.Win32;
-using NextUnit.HardwareContext.Extensions;
 using System.Security;
+using NextUnit.Core;
 
 namespace NextUnit.HardwareContext.SystemInformation
 {
@@ -438,7 +438,7 @@ namespace NextUnit.HardwareContext.SystemInformation
             }
             catch (Exception ex)
             {
-                string exceptionMessage = ex.GetAllMessages();
+                string exceptionMessage = ex.GetAllMessagesIncludingAdditionalProperties();
                 Trace.WriteLine(exceptionMessage);
                 //MessageBox.Show(exceptionMessage);
             }

@@ -4,6 +4,8 @@
     {
         public const string ExecutorURI = "executor://NextUnitTestDiscoverer";
         public const string DiscovererURI = "executor://NextUnitTestDiscoverer";
+        public const string DataCollectorFriendlyName = "NewDataCollector";
+        public const string DataCollectorTypeUri = "my://new/datacollector";
         public const string dll = ".dll";
         public const string exe = ".exe";
         public const string managed = "managed";

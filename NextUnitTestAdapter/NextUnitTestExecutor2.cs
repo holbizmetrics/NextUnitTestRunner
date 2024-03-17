@@ -1,4 +1,5 @@
-﻿#define ADAPTER_TEST
+﻿//#define ADAPTER_TEST
+using NextUnitTestResult = NextUnit.Core.TestResult;
 
 #if ADAPTER_TEST
 using System.Diagnostics;
@@ -40,24 +41,14 @@ namespace NextUnit.TestAdapter
                 // Example: Mark the start of the test
                 frameworkHandle.RecordStart(test);
 
-                try
-                {
-                    // Execute the test and get the result
-                    var result = ExecuteTest(test);
-                    // Example: Record the outcome of the test
-                    frameworkHandle.RecordResult(result);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Error, ex.ToString());
-                    frameworkHandle.RecordEnd(test, TestOutcome.Failed);
-                }
-                catch (Exception ex)
-                {
-                    // Handle any exceptions during test execution
-                    frameworkHandle.RecordEnd(test, TestOutcome.Failed);
-                    //frameworkHandle.RecordException(ex);
-                }
+                // Execute the test and get the result
+                NextUnitTestResult result = ExecuteTest(test);
+
+                TestResult testResult = test.ConvertTestCase(result);
+
+                // Example: Record the outcome of the test
+                frameworkHandle.RecordResult(testResult);
+                frameworkHandle.RecordEnd(test, testResult.Outcome);
             }
         }
 

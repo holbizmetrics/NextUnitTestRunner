@@ -31,6 +31,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                     break;
 
                 attempts++;
+                conditionalRetryAttribute.CurrentAttempt = attempts;
             }
 
             if (!conditionMet)

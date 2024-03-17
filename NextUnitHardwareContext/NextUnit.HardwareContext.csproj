@@ -22,6 +22,10 @@ Since this got no further NextUnit dependencies.</PackageReleaseNotes>
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\NextUnit.Core\NextUnit.Core.csproj" />
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /y &quot;$(TargetDir)..\*.nupkg&quot; &quot;$(SolutionDir)LocalNuGetPackages\&quot;" />
   </Target>

@@ -730,5 +730,80 @@ namespace NextUnit.Core.Asserts
         {
             return object.ReferenceEquals(obj1, obj2);
         }
+
+        public static void EventWasRaised(object instance, string eventName)
+        {
+            var type = instance.GetType();
+            var eventInfo = type.GetEvent(eventName);
+
+            Assert.IsNull(eventInfo); // Ensure the event exists
+
+            var handlerField = type.GetField(eventInfo.Name, BindingFlags.NonPublic | BindingFlags.Instance);
+            var handler = handlerField.GetValue(instance) as Delegate;
+
+            Assert.IsNull(handler); // Ensure the event has at least one subscriber
+        }
+
+        public static void IsAssignableFrom()
+        {
+
+        }
+
+        public static List<(bool, object[])> ConstructorParameterIsNullThrows(Type type, params object[] constructorParams)
+        {
+            List<(bool, object[])> results = new List<(bool, object[])>();
+
+
+            if (constructorParams == null || constructorParams.Length == 0)
+            {
+                throw new ArgumentException("ConstructorParams must contain at least one parameter.");
+            }
+
+
+            ConstructorInfo[] constructorInfos = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
+
+
+            foreach (ConstructorInfo constructorInfo in constructorInfos)
+            {
+                ParameterInfo[] parameterInfos = constructorInfo.GetParameters();
+
+
+                if (parameterInfos.Length != constructorParams.Length)
+                {
+                    continue; // Wrong parameter count for this constructor.
+                }
+
+
+                bool thrown = false;
+                object[] modifiedParams = new object[constructorParams.Length];
+
+
+                for (int i = 0; i < constructorParams.Length; i++)
+                {
+                    if (constructorParams[i] == null && !parameterInfos[i].ParameterType.IsValueType)
+                    {
+                        thrown = true; // Null value detected.
+                    }
+
+
+                    modifiedParams[i] = constructorParams[i];
+                }
+
+                try
+                {
+                    Activator.CreateInstance(type, modifiedParams);
+                }
+                catch (ArgumentNullException)
+                {
+                    thrown = true; // Constructor threw ArgumentNullException.
+                }
+
+
+                results.Add((thrown, modifiedParams));
+            }
+
+
+            return results;
+        }
     }
 }

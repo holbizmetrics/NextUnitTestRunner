@@ -6,7 +6,7 @@ namespace AutoFixture.NextUnit.Tests
     {
         [Test]
         //[FavorLists]
-        public void FavorListsAttributeTest()
+        public void FavorListsAttributeTest([FavorLists] int i)
         {
 
         }

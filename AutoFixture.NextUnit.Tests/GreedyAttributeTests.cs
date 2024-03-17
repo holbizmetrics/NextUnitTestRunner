@@ -6,7 +6,7 @@ namespace AutoFixture.NextUnit.Tests
     {
         [Test]
         //[Greedy]
-        public void GreedyAttributeTest()
+        public void GreedyAttributeTest([Greedy] int test)
         {
 
         }

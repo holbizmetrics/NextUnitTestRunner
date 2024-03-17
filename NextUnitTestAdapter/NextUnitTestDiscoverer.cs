@@ -1,9 +1,8 @@
-﻿#define ADAPTER_TEST
+﻿//#define ADAPTER_TEST
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using NextUnit.AssemblyReader;
 using NextUnit.Core.TestAttributes;
 using NextUnit.TestAdapter;
 using NextUnit.TestRunner;

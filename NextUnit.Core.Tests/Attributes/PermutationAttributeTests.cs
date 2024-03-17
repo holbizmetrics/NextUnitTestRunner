@@ -7,7 +7,7 @@ namespace NextUnit.Core.Tests.Attributes
         [Test]
         [Permutation]
         [Group(nameof(PermutationAttribute))]
-        public void PermutationAttributeTest()
+        public void PermutationAttributeTest(int a, int b)
         {
 
         }

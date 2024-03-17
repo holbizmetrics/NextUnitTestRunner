@@ -119,6 +119,7 @@ namespace NextUnit.TestRunner.TestClasses
 
         }
 
+        [Test]
         [InlineAutoMoqData(3, 4)]
         [InlineAutoMoqData(33, 44)]
         [InlineAutoMoqData(13, 14)]

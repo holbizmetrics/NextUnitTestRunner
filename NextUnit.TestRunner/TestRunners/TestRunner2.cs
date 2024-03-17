@@ -17,6 +17,7 @@ namespace NextUnit.TestRunner.TestRunners
     /// 
     /// As well as this one supports execution in threads rudimentarily.
     /// </summary>
+    [Obsolete("This TestRunner may not work anymore.")]
     public class TestRunner2 : TestRunner, ITestRunner
     {
         public event ExecutionEventHandler BeforeTestRun;

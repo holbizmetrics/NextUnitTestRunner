@@ -1,0 +1,237 @@
+*****************
+* Common Issues *
+*****************
+
+Date: 2023/03/15
+
+General Strategy
+================
+
+Why NextUnit?
+-------------
+1. Why this even exists?
+2. And why is it called NextUnit?
+
+to answer 1.:
+I was thinking recently (not too long ago):
+
+I'd like to know even more about testing that I already do daily in a corporate environment context.
+Thus, I concluded: Why not write my own test framework? So I can see where are some 
+
+- pitfalls I'd be running into,
+- unforeseen hurdles and challenges
+- optimizations
+- discoveries
+- flexibility
+- architecture
+
+and overall for sure as well:
+
+How can we improve what already exists?
+
+AND: I've set the following acceptance criteria for myself:
+
+- Everything has been developed on its own. For now, only I on my own developed the framework.
+- Everything that's missing (not at once), but if something comes up and is being decided to be a valuable addition,
+  then it will be integrated into the framework.
+
+  Example:
+
+  There are already things like 
+  
+  - ncrunch, to automatically (re-)execute tests if you change them.
+  - stryker.net, for automation testing
+  - some frameworks for fuzzing
+  - Verify: Snapsshot testing
+  etc.
+
+BUT: What I was missing was for example: How can I select the 
+a) class of a framework I am writing tests for
+b) the class I am writing tests in for a)
+and just select them in a tool or a mechanism, class, whatever (for now at least)
+and then get: Hey, you're missing a test for property p1, event e2, and method m3 (for example).
+Couldn't find it. At least not that way and neither for free.
+Now I've built in a first version for free.
+
+And to answer 2.: Why is it called "NextUnit"?
+I had been thinking about NextUnit, XUnit, MSTest and some others that may appear hear and there.
+And suddenly that thought just popped up: NextUnit. It contains an x and an n. Like xUnit and Nunit.
+Not to make a mockery of it. No. But to include that those were there, and now this exists as well
+AND at the same time is another one. And I don't really like those YAUTF (YET ANOTHER UNIT TESTING FRAMEWORK) and so on, namings.
+So this is another way of doing this.
+
+And let's see how it progresses.
+
+Testing the Framework
+---------------------
+- This is a dog food approach. If I got this term right.
+  This means: How is this framework tested? Do the tests use another test framework?
+  No. It uses NextUnit as well. Thus, it tests itself, basically.
+
+Features
+--------
+- NextUnit will only run public (static and non-static) methods that also can be async or not in any public class.
+  It will not run any tests that are internal, private or protected per se.
+- 
+
+Differences to other frameworks
+-------------------------------
+
+
+Nuget Package Creation and Usage
+================================
+- Nuget Packages are created locally and can be used, but last time I tested they were not working well.
+  I don't know why, yet. But this will definitely be fixed as soon as I find out. Because I wanna use this as well for my own projects.
+
+
+Console 
+========
+
+dotnet test
+-----------
+This will start building and discovering tests. But it seems like it doesn't execute anything.
+Possibly the TestAdapter or Execution Enginge detection is failing? I'll have to investigate.
+It will show things lik this though already (in the console):
+
+  "Starting test execution, please wait..."
+  "A total of 1 test files matched the specified pattern."
+
+dotnet test --list-tests
+------------------------
+This will already work and definitely list all the tests of NextUnit framework unit tests contained in an assembly.
+
+dotnet test "--logger:trx;LogFilePrefix=results
+-----------------------------------------------
+This will definitely create trx files.
+BUT, they may look like this (either in German, English or another language)
+
+<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="582127c7-ef07-4875-bcae-5cf4ca548554" name="MOH1002@WS101010 2024-03-15 11:57:35" runUser="CORP01\MOH1002" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2024-03-15T11:57:35.7640660+01:00" queuing="2024-03-15T11:57:35.7640665+01:00" start="2024-03-15T11:57:33.4360771+01:00" finish="2024-03-15T11:57:35.7646143+01:00" />
+  <TestSettings name="default" id="3de5abe2-b217-4594-984d-8c0ac8b372f3">
+    <Deployment runDeploymentRoot="MOH1002_WS101010_2024-03-15_11_57_35" />
+  </TestSettings>
+  <TestLists>
+    <TestList name="Ergebnisse nicht in einer Liste" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="Alle geladenen Ergebnisse" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="0" executed="0" passed="0" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <RunInfos>
+      <RunInfo computerName="WS101010" outcome="Warning" timestamp="2024-03-15T11:57:35.5941827+01:00">
+        <Text>In "C:\Users\MOH1002\source\repos\NextUnitTestRunner\AutoFixture.NextUnit.Tests\bin\Debug\net8.0\AutoFixture.NextUnit.Tests.dll" ist kein Test verfügbar. Stellen Sie sicher, dass die Testdiscoverer und -executors registriert und die Versionseinstellungen für Plattform und Framework richtig sind, und wiederholen Sie den Vorgang.</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>
+
+With not doing anything with any tests, yet:
+
+<Counters total="0" executed="0" passed="0" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+
+And tell as well:
+
+<TestList name="Results not in a list" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+
+vstest.console.exe test <testdllname>
+-------------------------------------
+This seems not to work at all. I don't know the reason why, yet. And if it COULD even work like this.
+
+dotnet test --diag:blubnextunittestrunner.log --blame-crash --blame-crash-dump-type full
+----------------------------------------------------------------------------------------
+
+dotnet test --collect:"Code Coverage"    
+-------------------------------------
+This will definitely create a code coverage file. This is already possible. Also using the NextUnit framework luckily.
+BUT: We need to convert the output file that is a binary file to xml or something else. For this we need a tool.
+
+Further Common Issues
+=====================
+
+Test Runner Tests Recursion
+---------------------------
+
+- At the moment if a TestRunner5 Test is executed this may to lead an unknown recursion in some cases.
+  To reproduce: Write a test marked with the [Test] attribute that contains a test calling the TestRunner5:
+
+  [Test]
+  public void TestRunner5Test()
+  {
+	ITestRunner5 testRunner5 = new TestRunner5();
+	testRunner5.Run();
+  }
+
+  public class TestClass
+  {
+	[Test]
+	public void Test()
+	{
+	}
+  }
+
+  this may already enough to make a recursion occur.
+  The test seems not to need to contain anything to make the recursion occur.
+
+- When some attributes may be added that are not related to the NextUnit Test Framework
+  the AttributeLogicHandler logic may not handle that correctly in every case, yet.
+  This will be tackled in one of the next bigger checkins: New combinator that will replace the current DefaultCombinator,
+  that is working but is still quite ugly. But anyway, for now this was good as is.
+
+- At the moment there is no way to sort the test order. A beginning could be use the new DependentOn,
+  but this is only indirect. I'll definitely add now a way to make test order possible.
+
+General Optimization potential
+===============================
+
+Speed Optimizations
+-------------------
+
+- Current attribute logic (how the tests are marked with attributes and what that means) has all to be precached.
+  Thus, the test run only concentrates on executing and nothing else anymore.
+  This should be once more a significant speed up.
+
+Flexibility Optimizations
+-------------------------
+- already started: The TestExecutor had been introduced, thus it's possible to hook into the test execution pipeline (that's what I call it for now.)
+- The combinator (the new one) can be used to execute the attributes in a combined logic, contrary to the DefaultCombinator.
+- Another issue here is: It has to be possible to add before/after attributes correctly. This needs a hook of the current test executor pipeline.
+- If all tests are precached so to speak (whatever that may look like), it's easily possible to combine, change the attribute logic,
+order the tests, report, etc. Thus, this is a must to implement as well.
+
+Creating Test Projects
+======================
+(aka: using the NextUnit framework in your own projects)
+
+- Create a new assembly (normally this should be a DLL).
+- Add the necessary packages/references.
+- 
+
+Limitations:
+============
+
+Static test discovery
+---------------------
+- When this version is checked in it most likely won't discover static tests, yet.
+  Thus, I've alreday written some static unit test methods that can be executed when the static discovery is working.
+  So it will definitely come. As soon as possible.
+
+Some examples
+=============
+
+Using the TestRunner5 (it is not recommended at all to use any of the other ones, since they may not work properly anymore.)
+
+TO consider/future developments
+===============================
+- For - when using threads - limit to a max thread count.
+- Logging to Test Explorer Test Detail Summary
+
+Trouble Shooting
+================
+
+Test Discovery not working correctly
+------------------------------------
+- If you're having problems discovering or running tests, this may be due to a corrupted runner cache inside Visual Studio. 
+  After shutting down all instances of Visual Studio, navigate to: 
+  %TEMP%/VisualStudioTestExplorerExtensions.
+  
+  Only use NextUnit TestRunner NuGet package (NextUnit.TestRunner) or project reference (in case you've downloaded the code).

@@ -1,7 +1,10 @@
 ﻿using NextUnit.Core;
+using NextUnit.Core.Extensions;
 using NextUnit.TestRunner.Extensions;
 using NextUnit.TestRunner;
-
+using System.Diagnostics;
+using NextUnit.Core.Asserts;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 
 namespace NextUnit.Console.TestRunner
 {
@@ -18,6 +21,11 @@ namespace NextUnit.Console.TestRunner
                 ExecutionState.NotStarted => "<White>Not started</White>",
                 ExecutionState.Running => "<Yellow>Running</Yellow>"
             };
+
+            Exception lastException = e.LastException;
+            AssertException[] assertExceptions = lastException.ExtractExceptions<AssertException>();
+            string asserts = assertExceptions.JoinExceptionTexts();
+
             string output = "MethodInfo: " + (e.TestResult.State == ExecutionState.NotStarted ? $"<White>{e.MethodInfo}</White>" : $"<Blue>{e.MethodInfo}</Blue>") +
         $@"
 TestResult: {testResultStateText}
@@ -28,6 +36,39 @@ End: <Green>{e.TestResult.End}</Green>
 Execution Time: <Green>{e.TestResult.ExecutionTime}</Green>
 Workstation: <Green>{e.TestResult.Workstation}</Green>
 ";
+
+            if (!string.IsNullOrEmpty(asserts))
+            {
+                output += 
+$@"
+--------
+Asserts:
+-----------
+
+<Red>{string.Join(Environment.NewLine, assertExceptions.Select(ex => ex.Message))}</Red>
+
+";
+            }
+
+            if (e.TestResult.State == ExecutionState.Failed)
+            {
+                string errorText =
+            $@"<Red>{e.MethodInfo}</Red>
+TestResult: <Green>{e.TestResult}</Green>";
+                if (lastException != null)
+                {
+                    errorText =
+            $@"{errorText}
+
+Exception:
+
+<Red>{e.LastException.GetAllMessagesIncludingAdditionalProperties()}</Red>";
+                };
+                errorText += Environment.NewLine;
+                $"Test execution error: {errorText}".WriteColoredLine();
+                output += errorText + Environment.NewLine + Environment.NewLine;
+            }
+
             output.WriteColoredLine();
             System.Console.WriteLine(@"");
         }
@@ -35,9 +76,9 @@ Workstation: <Green>{e.TestResult.Workstation}</Green>
         public void TestRunner_TestRunFinished(object sender, ExecutionEventArgs e)
         {
             // Show Hardware Snapshots
-            System.Console.WriteLine("------------------");
+            System.Console.WriteLine("------------------------------");
             System.Console.WriteLine($"Finished - Hardware snapshot ({e.MethodInfo?.Name}) :");
-            System.Console.WriteLine("------------------");
+            System.Console.WriteLine("------------------------------");
 
             string output = GetEnvironmentContext();
             output.WriteColoredLine();
@@ -50,9 +91,9 @@ Workstation: <Green>{e.TestResult.Workstation}</Green>
         public void TestRunner_TestRunStarted(object sender, ExecutionEventArgs e)
         {
             // Show Hardware Snapshots
-            System.Console.WriteLine("------------------");
+            System.Console.WriteLine("------------------------------");
             System.Console.WriteLine($"Started - Hardware snapshot: ({e.MethodInfo?.Name})");
-            System.Console.WriteLine("------------------");
+            System.Console.WriteLine("------------------------------");
             string output = GetEnvironmentContext();
             output.WriteColoredLine();
             System.Console.WriteLine("");
@@ -74,20 +115,20 @@ TestResult: <Green>{e.TestResult}</Green>";
 
 Exception:
 
-<Red>{e.LastException}</Red>";
+<Red>{e.LastException.GetAllMessagesIncludingAdditionalProperties()}</Red>";
             };
             errorText += Environment.NewLine;
             $"Test execution error: {errorText}".WriteColoredLine();
         }
 
-
-
         public void TestRunner_TestExecuting(object? sender, ExecutionEventArgs e)
         {
+            $"Executing: {new StackFrame().GetMethod().Name}: {e.MethodInfo}".WriteColoredLine();
         }
 
         public void TestRunner_BeforeTestRun(object? sender, ExecutionEventArgs e)
         {
+            $"Before Test Run: {new StackFrame().GetMethod().Name}: {e.MethodInfo}".WriteColoredLine();
         }
 
         public string GetEnvironmentContext()

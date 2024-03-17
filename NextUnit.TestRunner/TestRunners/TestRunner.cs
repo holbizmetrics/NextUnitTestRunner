@@ -55,6 +55,7 @@ namespace NextUnit.TestRunner.TestRunners
     /// <summary>
     /// This is just a first TestRunner as a proof of concept.
     /// </summary>
+    [Obsolete("This TestRunner may not work anymore.")]
     public class TestRunner : ITestRunner
     {
         public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<TestAttribute> Attributes)> ClassTestMethodsAssociation = null;
@@ -165,12 +166,15 @@ namespace NextUnit.TestRunner.TestRunners
                             }
                             finally
                             {
+                                if (lastException != null)
+                                {
+                                    testResult.StackTrace = lastException?.StackTrace;
+                                }
                                 if (testResult == null)
                                 {
                                     testResult = new TestResult();
                                 }
                                 testResult.End = DateTime.Now;
-                                testResult.StackTrace = lastException?.StackTrace;
                             }
                         }
                     }

@@ -25,6 +25,7 @@ namespace NextUnit.Core.AttributeLogic
                 { typeof(CustomExtendableAttribute), new CustomExtendableAttributeLogicHandler() },
                 { typeof(ConditionalRetryAttribute), new ConditionalRetryAttributeLogicHandler() },
                 { typeof(ConditionAttribute), new ConditionAttributeLogicHandler()},
+                { typeof(DependentOnAttribute), new DependentOnAttributeLogicHandler() },
                 { typeof(DependencyInjectionAttribute), new DependencyInjectionAttributeLogicHandler() },
                 { typeof(ExecuteUntilTimeoutAttribute), new ExecuteUntilTimeoutAttributeLogicHandler() },
                 //{ typeof(ExtendedTestAttribute), new ExtendedTestAttributeLogicHandler } //Is this even needed?
@@ -74,9 +75,9 @@ namespace NextUnit.Core.AttributeLogic
             }
             else
             {
-                if (attributes.Any(x=>x is SkipAttribute))
+                if (attributes.Any(x => x is SkipAttribute))
                 {
-                    attributeLogicHandler = _mapping.TryGetValue(typeof(SkipAttribute), out var handler) ? handler: null;
+                    attributeLogicHandler = _mapping.TryGetValue(typeof(SkipAttribute), out var handler) ? handler : null;
                     return attributeLogicHandler;
                 }
                 foreach (Attribute attribute in attributes)

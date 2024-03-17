@@ -6,7 +6,7 @@ using NextUnit.Core.Extensions;
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     /// <summary>
-    /// This will repeat a test until the timeout is rfeached.
+    /// This will repeat a test until the timeout is reached.
     /// </summary>
     public class ExecuteUntilTimeoutAttributeLogicHandler : IAttributeLogicHandler
     {

@@ -1,11 +1,8 @@
-﻿#define COMBINATOR_TEST
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Loader;
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Asserts;
-using System.ComponentModel;
 using NextUnit.Core.Combinators;
 using NextUnit.Core;
 using NextUnit.Autofixture.AutoMoq.Core;
@@ -57,6 +54,7 @@ namespace NextUnit.TestRunner.TestRunners
     /// If not, this will happen sequentially.
     /// 
     /// </summary>
+    [Obsolete("This TestRunner may not work anymore.")]
     public class TestRunner4 : TestRunner, ITestRunner4, IDisposable
     {
         public event ExecutionEventHandler BeforeTestRun;

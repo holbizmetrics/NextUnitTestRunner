@@ -36,6 +36,68 @@ namespace NextUnit.Core.Accessors
             _targetType = target.GetType();
         }
 
+        /// <summary>
+        /// Also enable for types that may be not accessible otherwise.
+        /// </summary>
+        /// <param name="restrictedType"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public AccessWrapper(string restrictedType)
+        {
+            bool noTypeGiven = string.IsNullOrEmpty(restrictedType);
+            if (noTypeGiven)
+            {
+                throw new ArgumentNullException(nameof(restrictedType));
+            }
+            _targetType = Type.GetType(restrictedType);
+            if (_targetType == null)
+            {
+                throw new ArgumentNullException(restrictedType);
+            }
+        }
+
+        /// <summary>
+        /// Also enable to get type from another assembly that has to be runtime loaded.
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <param name="restrictedType"></param>
+        public AccessWrapper(Assembly assembly, string restrictedType)
+        {
+            Assembly loadedAssembly = TestRunnerAssemblyLoadContext.Default.LoadFromAssemblyName(assembly.GetName());
+            _targetType = loadedAssembly.GetType(restrictedType, throwOnError: true);
+        }
+
+        /// <summary>
+        /// Get also the type from an assembly directory that will be loaded into the context.
+        /// </summary>
+        /// <param name="assemblyFullQualifiedPath"></param>
+        /// <param name="restrictedType"></param>
+        /// <param name="searchForType">if true this will search for the type everywhere in the assembly.</param>
+        public AccessWrapper(string assemblyFullQualifiedPath, string restrictedType, bool searchForType = false, bool takeFirstTypeIfSeveralAreFound = true)
+        {
+            var assembly = Assembly.LoadFrom(assemblyFullQualifiedPath); // use assembly load context here if possible.
+
+            if (searchForType)
+            {
+                IEnumerable<Type> types = assembly.GetTypes().Where(x => x.FullName.Contains(restrictedType));
+                if (!takeFirstTypeIfSeveralAreFound)
+                {
+                    if (types.Count() > 1)
+                    {
+                        throw new ArgumentException($"Found several types matching: {string.Join("", types)}");
+                    }
+                }
+                else
+                {
+                    _targetType = types.FirstOrDefault();
+                    if (_targetType == null) throw new ArgumentNullException(nameof(restrictedType));
+                }
+            }
+            else
+            {
+                _targetType = assembly.GetType(restrictedType, throwOnError: true);
+            }
+        }
+
         public object InvokeMethod(string methodName, params object[] parameters)
         {
             MethodInfo method = _targetType.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);

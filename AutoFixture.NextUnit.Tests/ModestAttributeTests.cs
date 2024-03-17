@@ -6,7 +6,7 @@ namespace AutoFixture.NextUnit.Tests
     {
         [Test]
         //[Modest]
-        public void ModestAttributeTest()
+        public void ModestAttributeTest([Modest] int i)
         {
 
         }

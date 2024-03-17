@@ -3,6 +3,7 @@
 
 using NextUnit.Autofixture.AutoMoq.Core;
 using NextUnit.Console.TestRunner;
+using NextUnit.Core.Asserts;
 using NextUnit.Core.TestAttributes;
 using NextUnit.TestRunner;
 using NextUnit.TestRunner.Extensions;
@@ -23,7 +24,7 @@ testRunner.BeforeTestRun += eventHandlings.TestRunner_BeforeTestRun;
 testRunner.TestExecuting += eventHandlings.TestRunner_TestExecuting;
 testRunner.TestRunStarted += eventHandlings.TestRunner_TestRunStarted;
 testRunner.TestRunFinished += eventHandlings.TestRunner_TestRunFinished;
-testRunner.ErrorEventHandler += eventHandlings.TestRunner_ErrorEventHandler;
+//testRunner.ErrorEventHandler += eventHandlings.TestRunner_ErrorEventHandler;
 
 #if DIAGNOSE_RUN
 if (!Trace.Listeners.Contains(new ConsoleTraceListener()))
@@ -99,10 +100,6 @@ while (true)
     Console.Clear();
 }
 
-
-
-
-
 static ITestRunner3 InitializeTestRunner()
 {
     // Your existing initialization logic here
@@ -118,6 +115,7 @@ void RunAllTestsSequentially(ITestRunner3 testRunner)
 
     //Running tests in sequential manner.
     testRunner.UseThreading = false;
+
     foreach (string testDLL in testDLLs)
     {
         Console.WriteLine("--------------------------------------------------------------");
@@ -200,4 +198,18 @@ public class TestMarkedPropertiesAttribute : Attribute
 {
     [NextUnitValue]
     public int PropertyToTestIfItIsMarked { get; set; }
+}
+
+
+public class TestConstructorParametersAssert
+{   
+    public TestConstructorParametersAssert(int param1, bool param2)
+    {
+
+    }
+
+    public TestConstructorParametersAssert(TestConstructorParametersAssert param1, TestConstructorParametersAssert param2)
+    {
+
+    }
 }

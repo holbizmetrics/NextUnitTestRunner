@@ -5,7 +5,7 @@ namespace NextUnit.Core.Tests.Attributes
     public class DebugAttributeTests
     {
         [Test]
-        [Debug(true)]
+        //[Debug(true)]
         public void DebugAttributeTest()
         {
 

@@ -1,7 +1,7 @@
 ﻿//using System.Data.Entity.Validation;
 using System.Text;
 
-namespace NextUnit.HardwareContext.Extensions
+namespace NextUnit.Core
 {
     /// <summary>
     /// Example of usage:

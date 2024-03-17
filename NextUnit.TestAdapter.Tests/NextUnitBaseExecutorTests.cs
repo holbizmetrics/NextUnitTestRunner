@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NextUnit.Core.Accessors;
 using NextUnit.Core.Asserts;
 using NextUnit.Core.TestAttributes;
+using NextUnitTestResult = NextUnit.Core.TestResult;
 
 namespace NextUnit.TestAdapter.Tests
 {
@@ -23,7 +24,6 @@ namespace NextUnit.TestAdapter.Tests
             bool isDataCollectionEnabled = false;
             Assert.AreEqual(isDataCollectionEnabled, nextUnitBaseExecutor.IsDataCollectionEnabled);
         }
-
 
         [Test]
         public void InIsolationTest()
@@ -71,10 +71,9 @@ namespace NextUnit.TestAdapter.Tests
 
     public class NexUnitBaseExecutorInheritedTest : NextUnitBaseExecutor
     {
-        protected override TestResult ExecuteTest(TestCase testCase)
+        protected override NextUnitTestResult ExecuteTest(TestCase testCase)
         {
             return base.ExecuteTest(testCase);
         }
     }
-
 }

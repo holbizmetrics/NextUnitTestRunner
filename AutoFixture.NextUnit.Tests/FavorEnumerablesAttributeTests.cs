@@ -5,7 +5,7 @@ namespace AutoFixture.NextUnit.Tests
     public class FavorEnumerablesAttributeTests
     {
         [Test]
-        public void FavorEnumerablesAttributeTest()
+        public void FavorEnumerablesAttributeTest([FavorEnumerables] int i)
         {
 
         }

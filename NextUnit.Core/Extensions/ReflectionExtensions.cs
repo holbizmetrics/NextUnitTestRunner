@@ -5,7 +5,6 @@ using System.Collections;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
 namespace NextUnit.Core.Extensions
@@ -18,7 +17,6 @@ namespace NextUnit.Core.Extensions
         public delegate Task AsyncTestMethodDelegateWithParams(params object[] parameters);
 
         private static DelegateTypeFactory DelegateTypeFactoryCache = null;
-
 
         public static bool PreferDelegate { get; set; } = true;
 
@@ -38,6 +36,11 @@ namespace NextUnit.Core.Extensions
             {
                 return @delegate.DynamicInvoke(parameters);
             }
+        }
+
+        public static bool IsOfType<T>(this object objectToCheck)
+        {
+            return (objectToCheck is T);
         }
 
         public static Delegate CreateTestDelegate(this MethodInfo method, object instance = null)

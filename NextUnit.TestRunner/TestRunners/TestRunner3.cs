@@ -29,6 +29,7 @@ namespace NextUnit.TestRunner.TestRunners
     /// If not, this will happen sequentially.
     /// 
     /// </summary>
+    [Obsolete("This TestRunner may not work anymore.")]
     public class TestRunner3 : TestRunner, ITestRunner3, IDisposable
     {
         public event ExecutionEventHandler BeforeTestRun;

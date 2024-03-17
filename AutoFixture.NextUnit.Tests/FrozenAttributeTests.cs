@@ -6,7 +6,7 @@ namespace AutoFixture.NextUnit.Tests
     {
         [Test]
         //[Frozen]
-        public void FrozenAttributeTest()
+        public void FrozenAttributeTest([Frozen] int frozen)
         {
 
         }

@@ -2,12 +2,13 @@
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Engine.ClientProtocol;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NextUnit.Core.TestAttributes;
 
 namespace NextUnit.TestAdapter.Tests
 {
     public class FrameworkHandleTests
     {
-        [TestMethod]
+        [Test]
         public void EnableShutdownAfterTestRunShoudBeFalseByDefault()
         {
             var tec = GetTestExecutionContext();
@@ -16,7 +17,7 @@ namespace NextUnit.TestAdapter.Tests
             //Assert.IsFalse(frameworkHandle.EnableShutdownAfterTestRun);
         }
 
-        [TestMethod]
+        [Test]
         public void EnableShutdownAfterTestRunShoudBeSetAppropriately()
         {
             var tec = GetTestExecutionContext();
@@ -27,7 +28,7 @@ namespace NextUnit.TestAdapter.Tests
             //Assert.IsTrue(frameworkHandle.EnableShutdownAfterTestRun);
         }
 
-        [TestMethod]
+        [Test]
         public void LaunchProcessWithDebuggerAttachedShouldThrowIfObjectIsDisposed()
         {
             var tec = GetTestExecutionContext();
@@ -38,7 +39,7 @@ namespace NextUnit.TestAdapter.Tests
         }
 
         // TODO: Enable method once we fix the "IsDebug" in TestExecutionContext
-        // [TestMethod]
+        // [Test]
         public void LaunchProcessWithDebuggerAttachedShouldThrowIfNotInDebugContext()
         {
             var tec = GetTestExecutionContext();
@@ -58,7 +59,7 @@ namespace NextUnit.TestAdapter.Tests
             Assert.IsTrue(isExceptionThrown);
         }
 
-        [TestMethod]
+        [Test]
         public void LaunchProcessWithDebuggerAttachedShouldCallRunEventsHandler()
         {
             var tec = GetTestExecutionContext();

@@ -61,7 +61,7 @@ namespace NextUnit.Core.Tests.Extensions
         public void HasAsyncMethodAttributes_GivenMethodWithoutAsyncAttributes_ReturnsFalse_Test()
         {
             // Arrange
-            MethodInfo methodInfo = typeof(ReflectionExtensionsTests).GetMethod(nameof(ReflectionExtensionsTests.MethodWithAttributesTest));
+            MethodInfo methodInfo = typeof(ReflectionExtensionsTests).GetMethod(nameof(ReflectionExtensionsTests.MethodWithAttributesTest_AdditionalNonNextUnitAttributes));
 
             // Act
             bool result = ReflectionExtensions.HasAsyncMethodAttributes(methodInfo);
@@ -74,7 +74,7 @@ namespace NextUnit.Core.Tests.Extensions
         public void HasAsyncMethodAttributes_GivenMethodWithAsyncAttributes_ReturnsTrue_Test()
         {
             // Arrange
-            MethodInfo methodInfo = typeof(ReflectionExtensionsTests).GetMethod(nameof(ReflectionExtensionsTests.MethodWithAttributesTest));
+            MethodInfo methodInfo = typeof(ReflectionExtensionsTests).GetMethod(nameof(ReflectionExtensionsTests.MethodWithAttributesTest_AdditionalNonNextUnitAttributes));
 
             // Act
             bool result = ReflectionExtensions.HasAsyncMethodAttributes(methodInfo);
@@ -83,9 +83,9 @@ namespace NextUnit.Core.Tests.Extensions
             Assert.IsTrue(result);
         }
 
-        //[NullableContext(0)]
+        [AsyncStateMachine(typeof(void))]
         [Test]
-        public void MethodWithAttributesTest()
+        public void MethodWithAttributesTest_AdditionalNonNextUnitAttributes()
         {
 
         }

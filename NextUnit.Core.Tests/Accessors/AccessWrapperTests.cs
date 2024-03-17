@@ -50,6 +50,15 @@ namespace NextUnit.Core.Tests.Accessors
             Assert.AreEqual(internalNames, accessWrapper.GetPropertyOrField(internalNames, index));
         }
 
+        [Test]
+        public void AccessWrapperInvokeMethodTest()
+        {
+            AccessWrapperTestClass accessWrapperTestClassInstance = new AccessWrapperTestClass();
+
+            AccessWrapper accessWrapper = new AccessWrapper(accessWrapperTestClassInstance);
+            Assert.IsTrue(accessWrapper.AsDynamic().Test());
+        }
+
         public class AccessWrapperTestClass
         {
             public string PublicName { get; set; } = string.Empty;
@@ -65,6 +74,15 @@ namespace NextUnit.Core.Tests.Accessors
                 PublicNames.AddRange(new string[] { "Smith", "Jones", "Miller", "Haskell", "Beautenon", "Hasgard", "Romired", "Lagarde" });
                 PrivateNames.AddRange(new string[] { "Brown", "Wilson", "Willams", "Robbins", "Brown", "Black", "Martinez", "Davis"});
                 InternalNames.AddRange(new string[] { "Sue", "John", "Miley", "Sabrina", "Sandra", "Alex", "Ang", "Melany", "Stephanie"});
+            }
+
+            /// <summary>
+            /// To see if we can call the method.
+            /// </summary>
+            /// <returns></returns>
+            public bool Test()
+            {
+                return true;
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using NextUnit.Core.TestAttributes;
+﻿using NextUnit.Core.Asserts;
+using NextUnit.Core.TestAttributes;
 using System.Diagnostics;
 
 namespace NextUnit.Core.Tests.Attributes
@@ -18,6 +19,8 @@ namespace NextUnit.Core.Tests.Attributes
         {
             _externalServiceState++;
             Trace.WriteLine($"Attempt {_externalServiceState}: Testing interaction with the external service");
+            Assert.IsTrue(_externalServiceState > 0);
+            Assert.IsTrue( IsServiceInDesiredState() );
         }
 
         [Test]
@@ -25,7 +28,8 @@ namespace NextUnit.Core.Tests.Attributes
         [ConditionalRetry(nameof(IsServiceInDesiredState), 1)]
         public void ConditionalRetryAttributeTest()
         {
-
+            Assert.IsTrue(_externalServiceState > 0);
+            Assert.IsTrue(IsServiceInDesiredState());
         }
     }
 }

@@ -6,8 +6,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
-using NextUnitTestAdapter;
-
+using NextUnitTestResult = NextUnit.Core.TestResult;
 namespace NextUnit.TestAdapter
 {
     /// <summary>
@@ -23,6 +22,7 @@ namespace NextUnit.TestAdapter
         {
 #if ADAPTER_TEST
             Debugger.Launch();
+            Debugger.Break();
 #endif
         }
 
@@ -40,6 +40,8 @@ namespace NextUnit.TestAdapter
             Debugger.Break();
 #endif
             var settings = runContext?.RunSettings?.SettingsXml;
+
+            Exception lastException = null;
             frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Informational, "RunTests");
             foreach (TestCase test in tests)
             {
@@ -49,7 +51,9 @@ namespace NextUnit.TestAdapter
                 try
                 {
                     // Execute the test and get the result
-                    Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult result = ExecuteTest(test);
+                    NextUnitTestResult nextUnitTestResult = ExecuteTest(test);
+
+                    TestResult result = test.ConvertTestCase(nextUnitTestResult);
 
                     // Example: Record the outcome of the test
                     frameworkHandle.RecordResult(result);
@@ -57,14 +61,15 @@ namespace NextUnit.TestAdapter
                 }
                 catch (FileLoadException ex)
                 {
-
+                    lastException = ex;
                 }
                 catch(TargetParameterCountException ex)
                 {
-
+                    lastException = ex;
                 }
                 catch (Exception ex)
                 {
+                    lastException = ex;
                     var stackTrace = new StackTrace(ex, true);
                     var frame = stackTrace.GetFrame(0);
                     var fileName = frame.GetFileName();
@@ -74,6 +79,14 @@ namespace NextUnit.TestAdapter
                     test.CodeFilePath = fileName;
                     // Handle any exceptions during test execution
                     frameworkHandle.RecordEnd(test, TestOutcome.Failed);
+                }
+                finally
+                {
+                    if (lastException != null)
+                    {
+                        frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Error, lastException.ToString());
+                        frameworkHandle.RecordEnd(test, TestOutcome.Failed);
+                    }
                 }
             }
         }
@@ -90,7 +103,7 @@ namespace NextUnit.TestAdapter
             Debugger.Launch();
 #endif
             var settings = runContext.RunSettings.SettingsXml;
-            frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Error, "RunTests");
+            frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Informational, "RunTests");
         }
     }
 }

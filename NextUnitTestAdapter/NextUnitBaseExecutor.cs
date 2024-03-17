@@ -1,21 +1,18 @@
-﻿#if ADAPTER_TEST
-using System.Diagnostics;
-#endif
+﻿//#define ADAPTER_TEST
 
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
-using NextUnit.TestRunner.TestRunners;
-using System.Diagnostics;
 using System.Reflection;
 
 using NextUnitTestResult = NextUnit.Core.TestResult;
-using TestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
+using NextUnit.TestRunner.TestRunners.NewFolder;
 namespace NextUnit.TestAdapter
 {
     [ExtensionUri(Definitions.DiscovererURI)]
     public abstract class NextUnitBaseExecutor : IRunContext
     {
-        protected ITestRunner4 TestRunner { get; set; } = new TestRunner4();
+        protected ITestRunner5 TestRunner { get; set; } = new TestRunner5();
         public Type[] Types { get; set; } = null;
 
         #region IRunContext Interface
@@ -43,10 +40,11 @@ namespace NextUnit.TestAdapter
         /// </summary>
         /// <param name="testCase"></param>
         /// <returns></returns>
-        protected virtual TestResult ExecuteTest(TestCase testCase)
+        protected virtual NextUnitTestResult ExecuteTest(TestCase testCase)
         {
 #if ADAPTER_TEST
             Debugger.Launch();
+            Debugger.Break();
 #endif
             List<string> files = new StackTrace().GetFrames()?.Select((StackFrame x) => x.GetMethod()?.DeclaringType?.Assembly.CodeBase).Distinct().ToList();
 
@@ -62,15 +60,16 @@ namespace NextUnit.TestAdapter
                     if (TestRunner.InstanceCreationBehavior.OnlyInitializeAtStartBehavior) TestRunner.InstanceCreationBehavior.CreateInstance(definitionType);
                 }
             }
+            Dictionary<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> classTestMethods = TestRunner.TestDiscoverer.CreateTestDelegates(classTestMethodsAssociation, TestRunner.InstanceCreationBehavior);
 
             string fullNameToMatch = $"{testCase.FullyQualifiedName}";
-            IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> methodFoundByFullName =
-                classTestMethodsAssociation
-                .Where(x => $"{x.Type.Namespace}.{x.Type.Name}.{x.Method.Name}" == fullNameToMatch);
+            IEnumerable<KeyValuePair<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)>> methodFoundByFullName =
+                classTestMethods.Where(x => $"{x.Value.type.Namespace}.{x.Value.type.Name}.{x.Value.methodInfo.Name}" == fullNameToMatch);
 
             var methodToExecute = methodFoundByFullName.First(); // After ensuring there's at least one match.
+
             NextUnitTestResult nextUnitTestResult = TestRunner.ExecuteTest(methodToExecute);
-            return testCase.ConvertTestCase(nextUnitTestResult);
+            return nextUnitTestResult;
         }
 
         /// <summary>
