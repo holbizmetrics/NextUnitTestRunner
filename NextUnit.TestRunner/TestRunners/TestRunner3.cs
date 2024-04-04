@@ -8,6 +8,7 @@ using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.Asserts;
 using NextUnit.Core;
+using NextUnit.TestEnvironment;
 
 namespace NextUnit.TestRunner.TestRunners
 {

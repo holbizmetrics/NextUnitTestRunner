@@ -1,0 +1,38 @@
+﻿<Window x:Class="NextUnit.TestExplorerUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NextUnit.TestExplorerUI"
+        xmlns:testExplorer="clr-namespace:NextUnit.TestExplorer;assembly=NextUnit.TestExplorer"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Row="0" Grid.Column="0" Content="Discover Tests" Command="{Binding DiscoverTestsCommand}"/>
+        <Button Grid.Row ="0" Grid.Column="1" Content="Run Tests" Command="{Binding RunTestsCommand}"/>
+        <TextBox Grid.Row="1" x:Name="textBoxTestExecution" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding TestExecutionText}" TextChanged="TextBox_TextChanged" AcceptsReturn="True" AcceptsTab="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+        <TreeView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Namespaces}">
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type local:TestNamespace}" ItemsSource="{Binding Classes}">
+                    <TextBlock Text="{Binding Name}"/>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type local:TestClass}" ItemsSource="{Binding Methods}">
+                    <TextBlock Text="{Binding Name}"/>
+                </HierarchicalDataTemplate>
+                <DataTemplate DataType="{x:Type local:TestMethod}">
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </TreeView.Resources>
+            
+        </TreeView>
+    </Grid>
+</Window>

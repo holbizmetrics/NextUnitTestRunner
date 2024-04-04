@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using NextUnit.Core.Extensions;
 
 namespace NextUnit.Core.AttributeLogic.LogicHandlers
@@ -21,14 +22,14 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
             // Generate all possible combinations of parameter values
             foreach (var combination in GenerateParameterCombinations(allParameterValues, 0))
             {
-                try
-                {
+                //try
+                //{
                     testMethod.Invoke(testInstance, @delegate, combination.ToArray());
-                }
-                catch (Exception ex)
-                {
+                //}
+                //catch (Exception ex)
+                //{
                     // Handle exceptions or record failures as needed
-                }
+                //}
             }
         }
 
@@ -61,9 +62,29 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                 {
                     return new object[] { 0, 1, -1, _random.Next(), int.MaxValue, int.MinValue };
                 }
+                else if (parameterType == typeof(double))
+                {
+                    return new object[] { 0d, 1d, -1d, _random.Next(), double.MaxValue, double.MinValue };
+                }
+                else if (parameterType == typeof(float))
+                {
+                    return new object[] { 0f, 1f, -1f, _random.Next(), float.MaxValue, float.MinValue };
+                }
+                else if (parameterType == typeof(decimal))
+                {
+                    return new object[] { 0m, 1m, -1m, _random.Next(), decimal.MaxValue, decimal.MinValue };
+                }
+                else if (parameterType == typeof(bool))
+                {
+                    return new object[] { true, false, true, false, false, false, true };
+                }
                 else if (parameterType == typeof(string))
                 {
                     return new object[] { string.Empty, null, "test", Guid.NewGuid().ToString() };
+                }
+                else if (parameterType == typeof(TimeSpan))
+                {
+                    return new object[] { TimeSpan.FromSeconds(7), TimeSpan.FromMilliseconds(-1000), TimeSpan.FromHours(536), TimeSpan.FromHours(-3980), TimeSpan.Zero, TimeSpan.MinValue ,TimeSpan.MaxValue };
                 }
                 // Extend to other types as needed
                 else if (parameterType.IsValueType || parameterType == typeof(object))

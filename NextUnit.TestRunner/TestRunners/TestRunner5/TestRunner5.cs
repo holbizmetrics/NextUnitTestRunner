@@ -10,6 +10,10 @@ using NextUnit.Core.Extensions;
 using NextUnit.Autofixture.AutoMoq.Core;
 using NextUnit.TestRunner.TestRunners.TestRunner5;
 using TestResult = NextUnit.Core.TestResult;
+using NextUnit.Core.TestAttributes;
+using NextUnit.TestRunner.Output;
+using NextUnit.Core.Output;
+using NextUnit.TestEnvironment;
 
 namespace NextUnit.TestRunner.TestRunners.NewFolder
 {
@@ -58,8 +62,10 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
     /// If not, this will happen sequentially.
     /// 
     /// </summary>
+    ///
     public partial class TestRunner5 : TestRunner4, ITestRunner5, IDisposable
     {
+        public ITestOutput TestOutput { get; set; } = new TestContextOutput();
         public Dictionary<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> TestMethodDelegates { get; set; } = null;
 
         public IAttributeLogicMapper AttributeLogicMapper { get; set; } = new AttributeLogicMapper();
@@ -111,6 +117,11 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
         {
             get { return ReflectionExtensions.PreferDelegate; }
             set { ReflectionExtensions.PreferDelegate = value; }
+        }
+
+        public override void Run(Type type = null)
+        {
+            Run(new Type[] { type });
         }
 
         /// <summary>
@@ -224,7 +235,6 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             return null;
         }
 
-
         /// <summary>
         /// 
         /// </summary>
@@ -236,6 +246,8 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
 
             NextUnitTestExecutionContext.TestRunStart = DateTime.Now;
             DiscoverTests(types);
+            // TODO: make this work to make the execution of tests way faster.
+            ExecuteCachedAttributeLogic();
             CreateInstantiatedObjects();
             TestMethodDelegates = TestDiscoverer.CreateTestDelegates(TestMethodsPerClass, InstanceCreationBehavior);
 
@@ -274,7 +286,20 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             //This will already discover all the tests for all types.
             //So this could, respectively SHOULD also be used by the TestDiscoverer now.
             TestMethodsPerClass = TestDiscoverer.Discover(types);
+        }
 
+        /// <summary>
+        /// Cache the logic.
+        /// </summary>
+        private void ExecuteCachedAttributeLogic()
+        {
+            IEnumerable<CommonTestAttribute> attributes = null;
+            foreach (var testDefinition in TestMethodsPerClass)
+            {
+                attributes = testDefinition.Method.RetrieveAttributes<CommonTestAttribute>();
+
+                bool isAsync = testDefinition.Method.HasAsyncMethodAttributes();    // when it is async we could add it to a special collection, etc.
+            }
         }
 
         private void CreateInstantiatedObjects()
@@ -547,9 +572,18 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
 
     public interface ITestRunner5 : ITestRunner4
     {
+        ITestOutput TestOutput { get; set; }
         bool PreferDelegate { get; set; }
         bool IsTestExecutorInitialized { get; }
         void InitializeTestExecutor();
         TestResult ExecuteTest(KeyValuePair<string, (Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate)> definition);
+
+        #region Fluent Syntax
+        TestRunner5 With(ITestDiscoverer testDiscoverer);
+        TestRunner5 With(IInstanceCreationBehavior instanceCreationBehavior);
+        TestRunner5 WithUseCombinator(Combinator usedCombinator);
+        TestRunner5 With(AttributeLogicMapper attributeLogicMapper);
+        TestRunner5 WithUseThreading(bool useThreading);
+        #endregion Fluent Syntax
     }
 }

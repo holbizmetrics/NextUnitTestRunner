@@ -1,6 +1,7 @@
 ﻿using NextUnit.Autofixture.AutoMoq.Core;
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Combinators;
+using NextUnit.TestRunner.TestRunners.NewFolder;
 
 namespace NextUnit.TestRunner.TestRunners
 {
@@ -35,10 +36,57 @@ namespace NextUnit.TestRunner.TestRunners
         public TestRunnerSettings()
         {
         }
-        public static TestRunnerSettings CreateTestRunnerSettings(ITestRunner4 testRunner4)
+
+        public static TestRunnerSettings CreateTestRunnerSettings(ITestRunner5 testRunner5)
         {
             TestRunnerSettings testRunnerSettings = new CurrentTestRunnerSettings();
+            testRunnerSettings.UseThreading = testRunner5.UseThreading;
+            testRunnerSettings.Combinator = testRunner5.Combinator;
+            testRunnerSettings.AttributeLogicMapper = testRunner5.AttributeLogicMapper;
+            testRunnerSettings.TestDiscoverer = testRunner5.TestDiscoverer;
+            testRunnerSettings.PreferDelegates = testRunner5.PreferDelegate;
+            testRunnerSettings.InstanceCreationBehavior = testRunner5.InstanceCreationBehavior;
+            testRunnerSettings.TestDiscoverer = testRunnerSettings.TestDiscoverer;
             return testRunnerSettings;
+        }
+
+        public static TestRunnerSettings Empty()
+        {
+            TestRunnerSettings testRunnerSettings = new CurrentTestRunnerSettings();
+            testRunnerSettings.UseThreading = false;
+            testRunnerSettings.TestDiscoverer = null;
+            testRunnerSettings.PreferDelegates = false;
+            testRunnerSettings.InstanceCreationBehavior = null;
+            testRunnerSettings.AttributeLogicMapper = null;
+            testRunnerSettings.Combinator = null;
+            return testRunnerSettings;
+        }
+
+        public void ApplyTo(ITestRunner5 testRunner5)
+        {
+            if (this.Combinator != null)
+            {
+                testRunner5.Combinator = this.Combinator;
+            }
+
+            testRunner5.UseThreading = this.UseThreading;
+
+            if (this.AttributeLogicMapper != null)
+            {
+                testRunner5.AttributeLogicMapper = this.AttributeLogicMapper;
+            }
+
+            if (this.InstanceCreationBehavior != null)
+            {
+                testRunner5.InstanceCreationBehavior = this.InstanceCreationBehavior;
+            }
+
+            testRunner5.PreferDelegate = this.PreferDelegates;
+
+            if (this.TestDiscoverer != null)
+            {
+                testRunner5.TestDiscoverer = this.TestDiscoverer;
+            }
         }
     }
 

@@ -50,9 +50,10 @@ namespace NextUnit.Core.Combinators
                 executionAttributes.Clear();
                 executionAttributes.Add(testDefinition.attributes.First(attr => attr is TestAttribute));
             }
+            // why does this else even exists when it's empty? Because we shouldn't come here. This is still good for debugging reasons.
             else
             {
-
+                // we shouldn't get here.
             }
 
             if (executionAttributes.Count() == 0)
@@ -60,7 +61,6 @@ namespace NextUnit.Core.Combinators
                 throw new ExecutionEngineException("No execution attributes found!");
             }
             executionAttributes.Remove(new AsyncStateMachineAttribute(typeof(void)));
-                
 
             StackFrame stackFrame = new StackFrame();
             List<string> files = new StackTrace().GetFrames()?.Select((StackFrame x) => x.GetMethod()?.DeclaringType?.Assembly.CodeBase).Distinct().ToList();
@@ -144,7 +144,6 @@ namespace NextUnit.Core.Combinators
                     string nameSpace = attribute.GetType().Namespace;
                 }
             }
-
             return testResult;
         }
     }

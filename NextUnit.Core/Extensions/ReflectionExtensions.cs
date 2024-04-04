@@ -9,6 +9,9 @@ using System.Runtime.CompilerServices;
 
 namespace NextUnit.Core.Extensions
 {
+    /// <summary>
+    /// Helpful extensions for the use with reflection related things.
+    /// </summary>
     public static class ReflectionExtensions
     {
         public delegate void TestMethodDelegate();
@@ -105,23 +108,69 @@ namespace NextUnit.Core.Extensions
             }
         }
 
+        /// <summary>
+        /// Checks if a method should be async.
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <returns></returns>
         public static bool IsAsyncMethod(this MethodInfo methodInfo)
         {
             return typeof(Task).IsAssignableFrom(methodInfo.ReturnType);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <returns></returns>
         public static bool HasAsyncMethodAttributes(this MethodInfo methodInfo)
         {
             return HasSpecificCustomAttributes(methodInfo, typeof(NullableContextAttribute), typeof(AsyncStateMachineAttribute), typeof(DebuggerStepThroughAttribute));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <param name="attributeTypes"></param>
+        /// <returns></returns>
         public static bool HasSpecificCustomAttributes(this MethodInfo methodInfo, params Type[] attributeTypes)
         {
             var customAttributes = methodInfo.GetCustomAttributes().ToList();
             return attributeTypes.Any(attributeType => customAttributes.Any(attribute => attributeType.IsInstanceOfType(attribute)));
         }
 
+        /// <summary>
+        /// Get all attributes of a certain type.
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <param name="attributeTypes"></param>
+        /// <returns></returns>
+        public static IEnumerable<Attribute> RetrieveAttributes(this MethodInfo methodInfo, params Type[] attributeTypes)
+        {
+            var customAttributes = methodInfo.GetCustomAttributes();
+            return customAttributes.Where(attribute => attributeTypes.Any(attributeType => attributeType.IsInstanceOfType(attribute)));
+        }
 
+        /// <summary>
+        /// Get all attributes of a certain type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="methodInfo"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> RetrieveAttributes<T>(this MethodInfo methodInfo) where T : Attribute
+        {
+            var customAttributes = methodInfo.GetCustomAttributes();
+            return customAttributes.Where(attribute => attribute is T).Cast<T>();
+        }
+
+        /// <summary>
+        /// Gets several methods at once.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="methodNames"></param>
+        /// <param name="bindingFlags"></param>
+        /// <returns></returns>
         public static MethodInfo[] GetMethods(this Type type, string[] methodNames, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
         {
             List<MethodInfo> list = new List<MethodInfo>();
@@ -304,7 +353,7 @@ namespace NextUnit.Core.Extensions
         /// </summary>
         /// <param name="method"></param>
         /// <returns></returns>
-        public static List<ITestContext> Test(MethodInfo method)
+        public static IEnumerable<ITestContext> Test(MethodInfo method)
         {
             var testContextAttributes = method.GetCustomAttributes()
                 .Where(attr => attr is ITestContext)
@@ -562,6 +611,12 @@ namespace NextUnit.Core.Extensions
                 .Select(x => (x.Type, x.Method, x.Attributes));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="types"></param>
+        /// <returns></returns>
         public static IEnumerable<(Type Type, MethodInfo Method, IEnumerable<T> Attributes)> GetMethodsWithAttributesAsIEnumerableGeneric2<T>(params Type[] types) where T : Attribute
         {
             return types
@@ -576,6 +631,11 @@ namespace NextUnit.Core.Extensions
                 .Select(x => (x.Type, x.Method, x.Attributes));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
         public static IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> GetMethodsWithAttributesAsIEnumerable(params Type[] types)
         {
             return types
@@ -590,6 +650,12 @@ namespace NextUnit.Core.Extensions
                 .Select(x => (x.Type, x.Method, x.Attributes));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="methodsWithAttributes"></param>
+        /// <param name="methodName"></param>
+        /// <returns></returns>
         public static IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> FindMethodByName(
             IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> methodsWithAttributes,
                 string methodName)
@@ -598,11 +664,21 @@ namespace NextUnit.Core.Extensions
                 .Where(x => x.Method.Name == methodName);
         }
 
+        /// <summary>
+        /// Determines if a class is static.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsStaticClass(this Type type)
         {
             return type.IsAbstract && type.IsSealed;
         }
 
+        /// <summary>
+        /// Forms a parameterinfo.
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         public static string FormatParameter(this ParameterInfo parameter)
         {
             Type type = parameter.ParameterType;
@@ -627,6 +703,11 @@ namespace NextUnit.Core.Extensions
             return $"{typeName} {parameter.Name}";
         }
 
+        /// <summary>
+        /// Formats a type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static string FormatType(this Type type)
         {
             // Handle array types
@@ -698,6 +779,12 @@ namespace NextUnit.Core.Extensions
             return outermostExpression.Method;
         }
 
+        /// <summary>
+        /// Use this to check if properties are equal of two objects. The objects have not to be equal, neither they have to have the same identity.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectToTest"></param>
+        /// <exception cref="AssertException"></exception>
         public static void TestProperties<T>(this T objectToTest)
         {
             var properties = objectToTest.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -726,6 +813,11 @@ namespace NextUnit.Core.Extensions
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyType"></param>
+        /// <returns></returns>
         private static object GetTestValue(Type propertyType)
         {
             // Handle common types with predefined test values
@@ -739,6 +831,7 @@ namespace NextUnit.Core.Extensions
             return null; // Return null if no suitable test value is found
         }
 
+        //TODO: it may make sense to move this to the PDB/Assemblyreader csproj.
         /// <summary>
         /// 
         /// </summary>

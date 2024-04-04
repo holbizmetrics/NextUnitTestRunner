@@ -1,11 +1,13 @@
-﻿namespace AutoFixture.NextUnit
+﻿using NextUnit.Core.TestAttributes;
+
+namespace AutoFixture.NextUnit
 {
     /// <summary>
     /// Marks a method as a method whose arguments will be auto-generated using
     /// AutoFixture during a test run.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class AutoDataAttribute : Attribute
+    public class AutoDataAttribute : CommonTestAttribute
     {
         private readonly Lazy<IFixture> fixtureLazy;
 

@@ -6,7 +6,10 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace NextUnit.Compiler
-{
+{ 
+    /// <summary>
+    /// This will contain functions to be able to run compiled tests, i.e. only the source code has to be compilable.
+    /// </summary>
     public class Compiler
     {
         [field: CompilerGenerated, DebuggerBrowsable(0)]

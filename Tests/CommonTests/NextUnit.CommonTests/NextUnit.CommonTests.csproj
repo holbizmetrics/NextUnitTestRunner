@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <ProjectReference Include="..\..\..\AutoFixture.NextUnit\AutoFixture.NextUnit.csproj" />
+	  <ProjectReference Include="..\..\..\NextUnit.Autofixture.AutoMoq.Core\NextUnit.Autofixture.AutoMoq.Core.csproj" />
+	  <ProjectReference Include="..\..\..\NextUnit.Core\NextUnit.Core.csproj" />
+	  <ProjectReference Include="..\..\..\NextUnit.TestAdapter\NextUnit.TestAdapter.csproj" />
+  </ItemGroup>
+
+</Project>

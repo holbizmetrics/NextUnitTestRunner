@@ -5,6 +5,7 @@ using NextUnit.Core.Asserts;
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.TestAttributes;
+using NextUnit.TestEnvironment;
 
 namespace NextUnit.TestRunner.TestRunners
 {
@@ -84,7 +85,7 @@ namespace NextUnit.TestRunner.TestRunners
             Type[] types = type == null ? Assembly.GetExecutingAssembly().GetTypes() : type.Assembly.GetTypes();
             Type[] classes = types.Where(t => t.IsClass && !t.IsAbstract).ToArray();
 
-            string machineName = Environment.MachineName;
+            string machineName = System.Environment.MachineName;
 
             // Show Hardware Snapshots
             Trace.WriteLine("------------------");

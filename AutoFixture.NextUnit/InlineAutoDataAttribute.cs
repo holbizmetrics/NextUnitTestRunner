@@ -1,4 +1,5 @@
 ﻿using AutoFixture.Kernel;
+using NextUnit.Core.TestAttributes;
 using System.Reflection;
 
 namespace AutoFixture.NextUnit
@@ -9,7 +10,7 @@ namespace AutoFixture.NextUnit
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     [CLSCompliant(false)]
-    public class InlineAutoDataAttribute : Attribute//, ITestBuilder
+    public class InlineAutoDataAttribute : CommonTestAttribute//, ITestBuilder
     {
         private readonly object[] existingParameterValues;
 

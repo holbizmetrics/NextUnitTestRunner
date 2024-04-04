@@ -5,6 +5,7 @@ using System.Runtime.Loader;
 using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Asserts;
 using NextUnit.Core;
+using NextUnit.TestEnvironment;
 
 namespace NextUnit.TestRunner.TestRunners
 {

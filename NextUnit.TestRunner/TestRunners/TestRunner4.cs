@@ -6,6 +6,7 @@ using NextUnit.Core.Asserts;
 using NextUnit.Core.Combinators;
 using NextUnit.Core;
 using NextUnit.Autofixture.AutoMoq.Core;
+using NextUnit.TestEnvironment;
 
 namespace NextUnit.TestRunner.TestRunners
 {
@@ -83,12 +84,12 @@ namespace NextUnit.TestRunner.TestRunners
         /// e.g.  
         ///
         /// </summary>
-        public Combinator UsedCombinator { get; set; } = new DefaultCombinator { AttributeLogicMapper = new AutofixtureAutomoqAttributeAttributeLogicMapper() };
+        public ICombinator UsedCombinator { get; set; } = new DefaultCombinator { AttributeLogicMapper = new AutofixtureAutomoqAttributeAttributeLogicMapper() };
         public bool UseThreading { get; set; } = true;
 
         private bool disposedValue;
         public IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> TestMethodsPerClass { get; protected set; }
-        public Combinator Combinator { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public ICombinator Combinator { get ; set ; }
         public bool UseCombinator { get => false; set => value = false; } //this flag can't be used here anymore because we need to use a combinator now anyway. Relict of refactoring for now.
 
         public IInstanceCreationBehavior InstanceCreationBehavior { get; set; } = new RecreateObjectInstanceForEachTest();
@@ -498,7 +499,7 @@ namespace NextUnit.TestRunner.TestRunners
 
     public interface ITestRunner4 : ITestRunner3
     {
-        Combinator Combinator { get; set; }
+        ICombinator Combinator { get; set; }
         IInstanceCreationBehavior InstanceCreationBehavior { get; set; }
         TestResult ExecuteTest((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes) testDefinition);
     }

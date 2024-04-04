@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using NextUnit.Core.TestAttributes;
+using System.Globalization;
 using System.Reflection;
 
 namespace AutoFixture.NextUnit
@@ -7,7 +8,7 @@ namespace AutoFixture.NextUnit
     /// Defines inline data for a unit test marked with AutoFixture.AutoDataAttribute.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-    public class InlineDataAttribute : Attribute
+    public class InlineDataAttribute : CommonTestAttribute
     {
         /// <summary>
         /// Gets or sets the custom display name for the test.

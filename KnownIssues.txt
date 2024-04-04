@@ -145,6 +145,54 @@ dotnet test --collect:"Code Coverage"
 This will definitely create a code coverage file. This is already possible. Also using the NextUnit framework luckily.
 BUT: We need to convert the output file that is a binary file to xml or something else. For this we need a tool.
 
+dotnet watch test
+-----------------
+The .NET Core SDK includes a file system watcher utility that automatically executes a command when a file in a watched folder is modified. This utility can be used to automatically execute all tests when a file is modified.
+
+To use the file system watcher, simply execute the following command in your preferred shell while being in the folder of your test suite project.
+
+Running all tests
+
+dotnet test
+
+Running a single test file
+
+dotnet test --filter "MyClassName"
+
+Run a set of test files
+
+dotnet test --filter "MyClassName1|MyClassName2"
+
+Run the test with the title
+
+dotnet test --filter "Name~TestMethod1"
+
+Running Tests on specific browsers
+
+dotnet test -- Playwright.BrowserName=webkit
+
+Running Tests on multiple browsers
+
+To run your test on multiple browsers or configurations, you need to invoke the dotnet test command multiple times. There you can then either specify the BROWSER environment variable or set the Playwright.BrowserName via the runsettings file:
+
+dotnet test --settings:chromium.runsettings
+dotnet test --settings:firefox.runsettings
+dotnet test --settings:webkit.runsettings
+
+Character escaping
+To use an exclamation mark (!) in a filter expression, you have to escape it in some Linux or macOS shells by putting a backslash in front of it (\!). For example, the following filter skips all tests in a namespace that contains IntegrationTests:
+
+.NET CLI
+
+Copy
+dotnet test --filter FullyQualifiedName\!~IntegrationTests
+For FullyQualifiedName values that include a comma for generic type parameters, escape the comma with %2C. For example:
+
+.NET CLI
+
+Copy
+dotnet test --filter "FullyQualifiedName=MyNamespace.MyTestsClass<ParameterType1%2CParameterType2>.MyTestMetho
+
 Further Common Issues
 =====================
 

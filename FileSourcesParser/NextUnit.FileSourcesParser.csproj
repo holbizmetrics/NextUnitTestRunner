@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NextUnit.Core\NextUnit.Core.csproj" />
-    <ProjectReference Include="..\NextUnitTestAdapter\NextUnit.TestAdapter.csproj" />
+    <ProjectReference Include="..\NextUnit.TestAdapter\NextUnit.TestAdapter.csproj" />
   </ItemGroup>
 
 </Project>

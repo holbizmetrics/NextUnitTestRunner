@@ -3,7 +3,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public class LogTestExecutionAttribute : CommonTestAttribute, ITestContext
+    public class LogTestExecutionAttribute : CommonTestAttribute, ItestRun
     {
         public LogTestExecutionAttribute()
         {
@@ -22,7 +22,6 @@
         {
 
         }
-
         public void BeforeTestRun()
         {
             throw new NotImplementedException();
@@ -34,11 +33,15 @@
         }
     }
 
+    public interface ItestRun: ITestContext
+    {
+        void BeforeTestRun();
+        void AfterTestRun();
+    }
+
     public interface ITestContext
     {
         void BeforeTestExecution();
         void AfterTestExecution();
-        void BeforeTestRun();
-        void AfterTestRun();
     }
 }

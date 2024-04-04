@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using NextUnit.Core.TestAttributes;
+using System.Reflection;
 
 namespace AutoFixture.NextUnit
 {
@@ -6,7 +7,7 @@ namespace AutoFixture.NextUnit
     /// Provides an AutoFixture.NextUnit.Customize Attribute.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = true)]
-    public abstract class CustomizeAttribute : Attribute, IParameterCustomizationSource
+    public abstract class CustomizeAttribute : CommonTestAttribute, IParameterCustomizationSource
     {
         public abstract ICustomization GetCustomization(ParameterInfo parameter);
     }
