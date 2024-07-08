@@ -438,7 +438,7 @@ namespace NextUnit.TestRunner.TestRunners
                             if (!unallowedTypes.Contains(attribute.GetType()) && attribute.GetType().Namespace.Contains("NextUnit."))
                             {
                                 var handler = AttributeLogicMapper.GetHandlerFor(attribute);
-                                handler?.ProcessAttribute(attribute, method, null, classObject);
+                                handler?.ProcessAttribute(attribute, method.CreateTestDelegate(), classObject);
                                 if (handler != null)
                                 {
                                     testResult.State = ExecutionState.Passed;

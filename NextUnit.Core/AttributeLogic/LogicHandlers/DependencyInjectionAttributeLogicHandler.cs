@@ -8,7 +8,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class DependencyInjectionAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             var dependencyInjectionAttribute = attribute as DependencyInjectionAttribute;
             if (dependencyInjectionAttribute != null)
@@ -19,8 +19,8 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                 if (createObjectWhereInterfaceExistsIn != null)
                 {
                     var parameters = new object[] { createObjectWhereInterfaceExistsIn };
-                    testMethod.Invoke(testInstance, @delegate, parameters);
-                }
+					Invoker.Invoke(@delegate, testInstance, parameters); //testMethod.Invoke(testInstance, @delegate, parameters);
+				}
             }
         }
     }

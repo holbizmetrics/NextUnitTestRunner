@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using NextUnit.Core.Asserts;
+using NextUnit.Core.InvokingMechanism;
 using NextUnit.Core.TestAttributes;
 using System.Collections;
 using System.Diagnostics;
@@ -26,20 +27,31 @@ namespace NextUnit.Core.Extensions
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="methodInfo"></param>
-        /// <param name="instance"></param>
-        /// <param name="delegate"></param>
-        public static object Invoke(this MethodInfo methodInfo, object instance, Delegate @delegate = null, object[] parameters = null)
+        /// <param name="invoker"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public static object Invoker(this IInvoker invoker, params object[] parameters)
         {
-            if (@delegate == null || !PreferDelegate)
-            {
-                return methodInfo.Invoke(instance, parameters);
-            }
-            else
-            {
-                return @delegate.DynamicInvoke(parameters);
-            }
+            return invoker.Invoker(parameters);
         }
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="methodInfo"></param>
+        ///// <param name="instance"></param>
+        ///// <param name="delegate"></param>
+        //public static object Invoke(this MethodInfo methodInfo, object instance, Delegate @delegate = null, object[] parameters = null)
+        //{
+        //    if (@delegate == null || !PreferDelegate)
+        //    {
+        //        return methodInfo.Invoke(instance, parameters);
+        //    }
+        //    else
+        //    {
+        //        return @delegate.DynamicInvoke(parameters);
+        //    }
+        //}
 
         public static bool IsOfType<T>(this object objectToCheck)
         {
@@ -813,12 +825,25 @@ namespace NextUnit.Core.Extensions
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="propertyType"></param>
-        /// <returns></returns>
-        private static object GetTestValue(Type propertyType)
+		public static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)
+		{
+			if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+			try
+			{
+				return assembly.GetTypes();
+			}
+			catch (ReflectionTypeLoadException e)
+			{
+				return e.Types.Where(t => t != null);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="propertyType"></param>
+		/// <returns></returns>
+		private static object GetTestValue(Type propertyType)
         {
             // Handle common types with predefined test values
             if (propertyType == typeof(int) || propertyType == typeof(int?)) return 123;

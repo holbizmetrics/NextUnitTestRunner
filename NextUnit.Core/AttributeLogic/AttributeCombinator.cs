@@ -87,10 +87,10 @@ namespace NextUnit.Core.AttributeLogic
             //CombinableAttribute combinableAttribute = CombinableAttribute.Combine(AttributeTypes);
         }
 
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             var handler = AttributeLogicMapper.GetHandlerFor(attributes[0]);
-            handler?.ProcessAttribute(attributes[0], testMethod, @delegate, testInstance);
+            handler?.ProcessAttribute(attributes[0], @delegate, testInstance);
             return;
         }
 

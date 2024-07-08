@@ -1,26 +1,21 @@
 ﻿//#define DIAGNOSE_RUN
 // See https://aka.ms/new-console-template for more information
 
+//Trace.Listeners.Add(new ConsoleTraceListener());
 using NextUnit.Autofixture.AutoMoq.Core;
 using NextUnit.Console.TestRunner;
-using NextUnit.Core.TestAttributes;
+using NextUnit.Console.TestRunner.Actions;
+using NextUnit.Console.TestRunner.EventDisplays;
+using NextUnit.Core.Extensions;
 using NextUnit.TestRunner;
-using NextUnit.TestRunner.Extensions;
 using NextUnit.TestRunner.TestRunners.NewFolder;
 
-//Trace.Listeners.Add(new ConsoleTraceListener());
+ITestRunner5 testRunner = new TestRunner5()
+    .With(new TestDiscoverer())
+    .With(new AutofixtureAutomoqAttributeAttributeLogicMapper()); //.With(new DefaultCombinator());
 
-EventHandlings eventHandlings = new EventHandlings();
-
-ITestRunner5 testRunner = new TestRunner5().With(new TestDiscoverer()).With(new AutofixtureAutomoqAttributeAttributeLogicMapper());
-testRunner.UseCombinator = false;
-testRunner.AttributeLogicMapper = new AutofixtureAutomoqAttributeAttributeLogicMapper();
-//testRunner.AfterTestRun += eventHandlings.TestRunner_AfterTestRun;
-//testRunner.BeforeTestRun += eventHandlings.TestRunner_BeforeTestRun;
-testRunner.TestExecuting += eventHandlings.TestRunner_TestExecuting;
-//testRunner.TestRunStarted += eventHandlings.TestRunner_TestRunStarted;
-//testRunner.TestRunFinished += eventHandlings.TestRunner_TestRunFinished;
-testRunner.ErrorEventHandler += eventHandlings.TestRunner_ErrorEventHandler;
+EventHandlings eventHandlings = new EventHandlingsSparseOutput();
+eventHandlings.Initialize(testRunner);
 
 #if DIAGNOSE_RUN
 if (!Trace.Listeners.Contains(new ConsoleTraceListener()))
@@ -29,9 +24,7 @@ if (!Trace.Listeners.Contains(new ConsoleTraceListener()))
 }
 #endif
 
-string[] assemblyPaths = NextUnit.Core.Extensions.ReflectionExtensions.GetAllAssembliesFromSolutionTopLevelDirectory(@"..\..\..\");
-var testDLLs = assemblyPaths.Where(x => x.Contains("NextUnit.") && x.EndsWith(".Tests.dll") && !x.Contains(@"obj\"));
-
+IEnumerable<string> testDLLs = Helper.TestDLLs;
 if (testDLLs == null)
 {
     "<Red>No tests found. Program exits.</Red>".WriteColoredLine();
@@ -40,6 +33,7 @@ if (testDLLs == null)
 while (true)
 {
     "<Green>Select an action:</Green>".WriteColoredLine();
+    Console.WriteLine();
     Console.WriteLine("1. Run all detected tests sequentially.");
     Console.WriteLine("2. Select a test assembly to run (of the detected tests).");
     Console.WriteLine("3. Enter a test assembly path to run.");
@@ -48,147 +42,77 @@ while (true)
     Console.WriteLine("6. Run the Test Runner for a all detected tests x times.");
     Console.WriteLine("7. Run the Test Runner for a selected types x times.");
     Console.WriteLine("8. Exit.");
+    Console.WriteLine();
+    Console.WriteLine("A. Use sparse testing output");
+	Console.WriteLine("B. Use exhaustive testing output");
+    Console.WriteLine();
+	Console.Write("Enter your choice (1-8, A or B): ");
 
-    Console.Write("Enter your choice (1-5): ");
     var choice = Console.ReadLine();
+
+    ITestRunner5ConsoleAction testRunner5ConsoleAction = null;
 
     switch (choice)
     {
         case "1":
-            RunAllTestsSequentially(testRunner);
+            testRunner5ConsoleAction = new RunAllTestsSequentially();
             break;
 
         case "2":
-            SelectAndRunTestAssembly(testRunner);
+			testRunner5ConsoleAction = new SelectAndRunAssembly();
             break;
 
         case "3":
-            EnterAndRunTestAssembly(testRunner);
+            testRunner5ConsoleAction = new EnterAndRunTestAssembly();
             break;
 
         case "4":
-            RunForSelectedType(testRunner);
+            testRunner5ConsoleAction = new RunForSelectedType();
             return;
 
         case "5":
-            RunAllTestsSequentiallyXTimes(testRunner);
+            testRunner5ConsoleAction = new RunAllTestsSequentiallyXTimes();
             return;
 
         case "6":
-            //RunForSelectedAssemblyXTimes(testRunner);
+            //testRunner5ConsoleAction = new RunForSelectedAssemblyXTimes();
             return;
 
         case "7":
             Console.WriteLine("Exit.");
             return;
 
+        case "A":
+            eventHandlings = new EventHandlingsSparseOutput();
+			eventHandlings.Deinitialize();
+			eventHandlings.Initialize(testRunner);
+            Console.WriteLine($"Eventhandling \"{eventHandlings.Name}\" is set.");
+			break;
+
+        case "B":
+            eventHandlings = new EventHandlingsExhaustiveOutput();
+            eventHandlings.Deinitialize();
+            eventHandlings.Initialize(testRunner);
+            Console.WriteLine($"Eventhandling \"{eventHandlings.Name}\" is set.");
+			break;
+
         default:
             Console.WriteLine("Invalid choice. Please try again.");
             break;
     }
 
-    Console.WriteLine("Press any key to continue...");
+	testRunner5ConsoleAction?.Run(testRunner);
+
+
+	Console.WriteLine("Press any key to continue...");
     Console.ReadKey();
     Console.Clear();
 }
 
 static ITestRunner5 InitializeTestRunner()
 {
-    // Your existing initialization logic here
-    ITestRunner5 testRunner = new TestRunner5(); // Simplified for example
-                                                 // Further initialization...
-    return testRunner;
-}
-
-void RunAllTestsSequentially(ITestRunner5 testRunner)
-{
-    // Your logic to run all tests sequentially
-    Console.WriteLine("Running all tests sequentially...");
-
-    //Running tests in sequential manner.
-    testRunner.UseThreading = false;
-
-    foreach (string testDLL in testDLLs)
-    {
-        Console.WriteLine("--------------------------------------------------------------");
-        $"Now running tests for <CYAN>{Path.GetFileName(testDLL)}</CYAN>".WriteColoredLine();
-        Console.WriteLine("--------------------------------------------------------------");
-        testRunner.Run(testDLL);
-        testRunner.Dispose();
-    }
-}
-
-void SelectAndRunTestAssembly(ITestRunner5 testRunner)
-{
-    // Your logic for the user to select a test assembly to run
-    "<Green>Select a test assembly to run:</Green>".WriteColoredLine();
-    // Implementation...
-
-    // Example of listing assemblies and selecting one to run
-    int i = 0;
-    foreach (string testDll in testDLLs)
-    {
-        Console.WriteLine($"{++i}. {testDll}");
-    }
-    // Wait for user input and run the selected assembly
-    var number = Console.ReadLine();
-    bool gotANumber = int.TryParse(number, out i);
-    if (!gotANumber) return;
-    testRunner.Run(testDLLs.Skip(i-1).First());
-}
-
-void EnterAndRunTestAssembly(ITestRunner5 testRunner)
-{
-    // Your logic for the user to enter a test assembly path to run
-    "<Green>Enter the path of the test assembly to run:</Green>".WriteColoredLine();
-    var path = Console.ReadLine();
-    // Validate and run the entered path
-    if (File.Exists(path))
-    {
-        Console.WriteLine($"Running tests in {path}...");
-        testRunner.Run(path);
-    }
-    else
-    {
-        Console.WriteLine("File not found.");
-    }
-}
-
-void RunForSelectedType(ITestRunner5 testRunner)
-{
-    Console.WriteLine("This won't work on your system, yet.");
-}
-
-void RunAllTestsSequentiallyXTimes(ITestRunner5 testRunner)
-{
-    // Your logic for the user to enter a test assembly path to run
-    "<Green>Enter the iterations of the test assemblies to run:</Green>".WriteColoredLine();
-    var count = Console.ReadLine();
-
-    int maxIterations = 0;
-    bool gotANumber = int.TryParse(count, out maxIterations);
-    for (int i = 0;i< maxIterations;i++)
-    {
-        RunAllTestsSequentially(testRunner);
-    }
-}
-
-public class TestMarkedPropertiesAttribute : Attribute
-{
-    [NextUnitValue]
-    public int PropertyToTestIfItIsMarked { get; set; }
-}
-
-
-public class TestConstructorParametersAssert
-{   
-    public TestConstructorParametersAssert(int param1, bool param2)
-    {
-
-    }
-
-    public TestConstructorParametersAssert(TestConstructorParametersAssert param1, TestConstructorParametersAssert param2)
-    {
-
-    }
+	// Your existing initialization logic here
+	ITestRunner5 testRunner = new TestRunner5(); // Simplified for example
+												 // Further initialization...
+	return testRunner;
 }

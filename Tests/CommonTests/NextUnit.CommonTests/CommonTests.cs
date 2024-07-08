@@ -245,7 +245,18 @@ namespace DynamicNamespace
         [InjectData(1, 2, 3, "Name", false)]
         public void InjectDataAttributeTest(int intParam1, int intParam2, int intParam3, string name, bool @switch)
         {
-            TestParameters(new StackFrame(), Assert.IsNotNull);
+            Assert.AreEqual(1, intParam1);
+			Assert.AreEqual(2, intParam2);
+			Assert.AreEqual(3, intParam3);
+			Assert.AreEqual("Name", name);
+			Assert.IsFalse(@switch);
+		}
+
+		[Test]
+		[Group(nameof(InjectDataAttribute))]
+		public void TestInjectDataAttribute()
+		{
+			TestParameters(new StackFrame(), Assert.IsNotNull);
         }
 
         public delegate void IsNotNull(object o, string message);
@@ -282,7 +293,7 @@ namespace DynamicNamespace
         [Test]
         [Group(nameof(RandomAttribute))]
         [Random(1, 2)]
-        public void TestRandomAttributeOnce()
+        public void TestRandomAttributeOnce(int randomValue)
         {
 
         }
@@ -292,14 +303,14 @@ namespace DynamicNamespace
         [Random(1, 2)]
         [Random(5, 2, 1)]
         [Random(1, 1, 1)]
-        public void TestSeveralRandomAttributesEachOnlyExecutedOnce()
+        public void TestSeveralRandomAttributesEachOnlyExecutedOnce(int randomValue)
         {
 
         }
 
         [Test]
         [Group(nameof(RandomAttribute))]
-        public void TestSeveralRandomAttributesEachSeveralTimes()
+        public void TestSeveralRandomAttributesEachSeveralTimes(int randomValue)
         {
 
         }
@@ -310,7 +321,7 @@ namespace DynamicNamespace
         [Test]
         [Group(nameof(RandomAttribute))]
         [Random(1, 3, 2)]
-        public void TestSeveralRandomLegalAttributesMixed()
+        public void TestSeveralRandomLegalAttributesMixed(int randomValue)
         {
 
         }
@@ -323,7 +334,7 @@ namespace DynamicNamespace
         [Random(0, 0, 0)]   //it wouldn't make sense to execute 0 times. As well as max = min.
         [Random(0, 0, -1)]  //it wouldn't make sense to execute -1 times. As well as max = min.
         [Random(1, 5, -1)]   //it wouldn't make sense to execute -1 times. Though the intervals are ok.
-        public void TestSeveralRandomAttributesMixedInvalid()
+        public void TestSeveralRandomAttributesMixedInvalid(int randomValue)
         {
 
         }
@@ -390,16 +401,16 @@ namespace DynamicNamespace
         [Test]
         [Group("SeveralAttributesApplied")]
         [RunAfter("")]
-        [InjectDataAttribute]
-        public void RunAfterInjectDataAttributesTest()
+        [InjectDataAttribute(1)]
+        public void RunAfterInjectDataAttributesTest(int injectedValue)
         {
         }
 
         [Test]
         [Group("SeveralAttributesApplied")]
         [RunBefore("")]
-        [InjectDataAttribute]
-        public void RunBeforeInjectDataAttributesTest()
+        [InjectDataAttribute(7)]
+        public void RunBeforeInjectDataAttributesTest(int injectedValue)
         {
         }
 
@@ -407,8 +418,8 @@ namespace DynamicNamespace
         [Group("SeveralAttributesApplied")]
         [RunBefore("")]
         [RunAfter("")]
-        [InjectData]
-        public void RunBeforeRunAfterInjectDataAttributesTest()
+        [InjectData(7)]
+        public void RunBeforeRunAfterInjectDataAttributesTest(int injectedValue)
         {
 
         }

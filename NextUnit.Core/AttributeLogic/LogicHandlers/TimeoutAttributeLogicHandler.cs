@@ -6,7 +6,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     public class TimeoutAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             var timeoutAttribute = attribute as TimeoutAttribute;
             if (timeoutAttribute != null)
@@ -17,7 +17,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                 {
                     try
                     {
-                        testMethod.Invoke(testInstance, @delegate, null);
+                        Invoker.Invoke(@delegate, testInstance, null); //testMethod.Invoke(testInstance, @delegate, null);
                     }
                     catch (TargetInvocationException ex)
                     {

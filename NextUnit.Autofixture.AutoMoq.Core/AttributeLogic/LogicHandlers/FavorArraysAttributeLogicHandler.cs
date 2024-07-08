@@ -5,22 +5,23 @@ using AutoFixture;
 using NextUnit.Core.AttributeLogic;
 using System.Reflection;
 using NextUnit.Core.Extensions;
+using NextUnit.Core;
 
 namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
 {
     public class FavorArraysAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             var favorArraysAttribute = attribute as FavorArraysAttribute;
             if (favorArraysAttribute == null) return;
 
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
             fixture.Customize(new ConstructorCustomization(
-                testMethod.DeclaringType,
+                @delegate.GetMethodInfo().DeclaringType,
                 new ArrayFavoringConstructorQuery()));
 
-            var parameters = testMethod.GetParameters();
+            var parameters = @delegate.GetMethodInfo().GetParameters();
             var arguments = new object[parameters.Length];
 
             for (int i = 0; i < parameters.Length; i++)
@@ -28,7 +29,7 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
                 arguments[i] = ResolveParameter(fixture, parameters[i]);
             }
 
-            testMethod.Invoke(testInstance, @delegate, arguments);
+            Invoker.Invoke(@delegate, testInstance, arguments); // testMethod.Invoke(testInstance, @delegate, arguments);
         }
 
         private object ResolveParameter(IFixture fixture, ParameterInfo parameterInfo)

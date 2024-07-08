@@ -15,7 +15,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
         /// <param name="testMethod"></param>
         /// <param name="delegate"></param>
         /// <param name="testInstance"></param>
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             CommonDebugAttribute debug = attribute as CommonDebugAttribute;
             if (debug.GetType() == typeof(DebugAttribute))

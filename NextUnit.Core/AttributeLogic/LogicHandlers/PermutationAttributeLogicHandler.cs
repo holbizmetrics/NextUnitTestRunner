@@ -5,13 +5,13 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     public class PermutationAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
-            var parameterInfos = testMethod.GetParameters();
+            var parameterInfos = @delegate.GetMethodInfo().GetParameters();
             if (parameterInfos.Length == 0)
             {
                 // Invoke the method directly if it has no parameters
-                testMethod.Invoke(testInstance, @delegate, null);
+                Invoker.Invoke(@delegate, testInstance, null); //testMethod.Invoke(testInstance, @delegate, null);
                 return;
             }
 
@@ -24,8 +24,8 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
 
             foreach (var parameterSet in allParameterCombinations)
             {
-                testMethod.Invoke(testInstance, @delegate, parameterSet.ToArray());
-            }
+				Invoker.Invoke(@delegate, testInstance, parameterSet.ToArray()); //testMethod.Invoke(testInstance, @delegate, parameterSet.ToArray());
+			}
         }
 
         private IEnumerable<IEnumerable<object>> GenerateParameterCombinations(ParameterInfo[] parameterInfos)

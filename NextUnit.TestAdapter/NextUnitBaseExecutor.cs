@@ -1,4 +1,4 @@
-﻿//#define ADAPTER_TEST
+﻿#define ADAPTER_TEST
 
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -20,15 +20,15 @@ namespace NextUnit.TestAdapter
 
         public virtual bool InIsolation => true;
 
-        public virtual bool IsDataCollectionEnabled => throw new NotImplementedException();
+        public virtual bool IsDataCollectionEnabled => true;
 
         public virtual bool IsBeingDebugged => Debugger.IsAttached;
 
-        public virtual string? TestRunDirectory => throw new NotImplementedException();
+        public virtual string? TestRunDirectory => HardwareContext.SystemInformation.SystemInformation.SystemInformation.KnownFolders.PublicPictures;
 
         public virtual string? SolutionDirectory => throw new NotImplementedException();
 
-        public virtual IRunSettings? RunSettings => throw new NotImplementedException();
+        public virtual IRunSettings? RunSettings => new TestAdapterTestRunSettings("DefaultTestRunSettings");
 
         #endregion IRunContext Interface
         public NextUnitBaseExecutor()

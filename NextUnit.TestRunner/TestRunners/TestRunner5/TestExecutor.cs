@@ -74,5 +74,23 @@ namespace NextUnit.TestRunner.TestRunners.TestRunner5
                 return TestExecutionPipeline?.GetInvocationList().Cast<TestDelegate>().ToArray();
             }
         }
-    }
+
+        public TestExecutor StartWith(TestDelegate newStep)
+        {
+			TestExecutionPipeline = newStep;
+            return this;
+		}
+
+        public TestExecutor Then(TestDelegate newStep)
+		{
+			AddToPipeline(newStep);
+			return this;
+		}
+
+        public TestExecutor WaitFor(TestDelegate newStep)
+		{
+			AddToPipeline(newStep);
+			return this;
+		}
+	}
 }

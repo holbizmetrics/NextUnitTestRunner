@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
-using NextUnit.TestRunner.Extensions;
+﻿using NextUnit.Core.Extensions;
+using System.Diagnostics;
+
 namespace NexUnit.TestDataGenerator
 {
     public class ColoredConsoleTraceListener : TraceListener

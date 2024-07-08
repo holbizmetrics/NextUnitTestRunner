@@ -8,7 +8,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class TimeoutRetryAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             var timeoutRetryAttribute = attribute as TimeoutRetryAttribute;
             if (timeoutRetryAttribute != null)
@@ -24,8 +24,8 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                     {
                         try
                         {
-                            testMethod.Invoke(testInstance, @delegate, null);
-                            testPassed = true;
+							Invoker.Invoke(@delegate, testInstance, null); //testMethod.Invoke(testInstance, @delegate, null);
+							testPassed = true;
                         }
                         catch (TargetInvocationException ex)
                         {

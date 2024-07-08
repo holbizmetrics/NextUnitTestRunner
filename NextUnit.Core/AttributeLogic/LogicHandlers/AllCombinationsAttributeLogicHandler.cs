@@ -8,9 +8,9 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class AllCombinationsAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
-            var parameterInfos = testMethod.GetParameters();
+            var parameterInfos = @delegate.GetMethodInfo().GetParameters();
             var allParameterValues = parameterInfos.Select(pi => GetValuesForParameter(pi)).ToList();
 
             // Generate all combinations of these parameter values
@@ -19,8 +19,8 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
             // Invoke the test method with each combination of parameter values
             foreach (var combination in allCombinations)
             {
-                testMethod.Invoke(testInstance, @delegate, combination.ToArray());
-            }
+				Invoker.Invoke(@delegate, testInstance, combination.ToArray()); //testMethod.Invoke(testInstance, @delegate, combination.ToArray());
+			}
         }
 
         private IEnumerable<IEnumerable<object>> GenerateAllCombinations(List<IEnumerable<object>> allParameterValues, int currentIndex)

@@ -5,6 +5,7 @@ using AutoFixture;
 using NextUnit.Core.AttributeLogic;
 using System.Reflection;
 using NextUnit.Core.Extensions;
+using NextUnit.Core;
 
 namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
 {
@@ -13,18 +14,18 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class FrozenAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             var frozenAttribute = attribute as FrozenAttribute;
             if (frozenAttribute != null)
             {
                 var fixture = new Fixture().Customize(new AutoMoqCustomization());
-                fixture.Customize(frozenAttribute.GetCustomization(testMethod.GetParameters().First()));
+                fixture.Customize(frozenAttribute.GetCustomization(@delegate.GetMethodInfo().GetParameters().First()));
 
-                var parameters = testMethod.GetParameters()
+                var parameters = @delegate.GetMethodInfo().GetParameters()
                                 .Select(p => ResolveParameter(fixture, p))
                                 .ToArray();
-                testMethod.Invoke(testInstance, @delegate, parameters);
+                Invoker.Invoke(@delegate, testInstance, parameters); //testMethod.Invoke(testInstance, @delegate, parameters);
             }
         }
 

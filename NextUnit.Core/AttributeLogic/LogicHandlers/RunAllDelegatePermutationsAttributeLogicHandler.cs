@@ -7,7 +7,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     public class RunAllDelegatePermutationsLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             RunAllDelegatePermutationsAttribute runAllDelegateCombinations = attribute as RunAllDelegatePermutationsAttribute;
             Action[] testMethods = GetDelegatesFromActionDelegateNames(runAllDelegateCombinations.Actions, testInstance).ToArray();

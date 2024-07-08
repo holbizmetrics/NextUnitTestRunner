@@ -1,17 +1,32 @@
 ﻿using NextUnit.Core;
 using NextUnit.Core.Extensions;
-using NextUnit.TestRunner.Extensions;
 using NextUnit.TestRunner;
 using System.Diagnostics;
 using NextUnit.Core.Asserts;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using NextUnit.TestEnvironment;
+using NextUnit.TestRunner.TestRunners.NewFolder;
 
-namespace NextUnit.Console.TestRunner
+namespace NextUnit.Console.TestRunner.EventDisplays
 {
-    public class EventHandlings
+	public class EventHandlingsExhaustiveOutput : EventHandlings, IDisposable
     {
-        public void TestRunner_AfterTestRun(object? sender, ExecutionEventArgs e)
+        private ITestRunner5 _testRunner = null;
+		private bool disposedValue;
+
+		public override string Name => "Exhaustive Output";
+		public override void Initialize(ITestRunner5 testRunner5)
+        {
+			_testRunner = testRunner5;
+			base.Initialize(_testRunner);
+			_testRunner.AfterTestRun += this.TestRunner_AfterTestRun;
+			_testRunner.BeforeTestRun += this.TestRunner_BeforeTestRun;
+			_testRunner.TestExecuting += this.TestRunner_TestExecuting;
+			_testRunner.TestRunStarted += this.TestRunner_TestRunStarted;
+			_testRunner.TestRunFinished += this.TestRunner_TestRunFinished;
+			_testRunner.ErrorEventHandler += this.TestRunner_ErrorEventHandler;
+		}
+
+		public void TestRunner_AfterTestRun(object? sender, ExecutionEventArgs e)
         {
             string testResultStateText = e.TestResult.State switch
             {
@@ -157,5 +172,31 @@ TestRunEnd: <Green>{NextUnitTestExecutionContext.TestRunEnd}</Green>
 TestRunTime: <Green>{NextUnitTestExecutionContext.TestRunTime}</Green>";
             return output;
         }
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					Deinitialize();
     }
+				disposedValue = true;
+			}
+		}
+		public override void Deinitialize()
+		{
+			if (_testRunner == null) return;
+			_testRunner.AfterTestRun -= this.TestRunner_AfterTestRun;
+			_testRunner.BeforeTestRun -= this.TestRunner_BeforeTestRun;
+			_testRunner.TestExecuting -= this.TestRunner_TestExecuting;
+			_testRunner.TestRunStarted -= this.TestRunner_TestRunStarted;
+			_testRunner.TestRunFinished -= this.TestRunner_TestRunFinished;
+			_testRunner.ErrorEventHandler -= this.TestRunner_ErrorEventHandler;
+		}
+		public void Dispose()
+		{
+			Dispose(disposing: true);
+			GC.SuppressFinalize(this);
+		}
+	}
 }

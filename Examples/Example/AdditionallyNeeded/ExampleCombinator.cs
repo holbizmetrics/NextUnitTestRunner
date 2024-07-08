@@ -4,11 +4,12 @@ using System.Reflection;
 
 namespace Blub.AdditionallyNeeded
 {
-    public class BlubCombinator : Combinator
+    public class ExampleCombinator : Combinator
     {
+        private DefaultCombinator combinator = new DefaultCombinator();
         public override Task<TestResult> ProcessCombinedAttributes((Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes, Delegate @delegate) testDefinition, object classInstance = null)
         {
-            throw new NotImplementedException();
+            return combinator.ProcessCombinedAttributes(testDefinition, classInstance);
         }
     }
 }

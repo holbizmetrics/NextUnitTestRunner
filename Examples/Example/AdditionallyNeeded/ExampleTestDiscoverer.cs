@@ -1,10 +1,9 @@
-﻿using NextUnit.Core.Extensions;
-using NextUnit.TestRunner;
+﻿using NextUnit.TestRunner;
 using System.Reflection;
 
 namespace Blub.AdditionallyNeeded
 {
-    public class BlubTestDiscoverer : TestDiscoverer
+    public class ExampleTestDiscoverer : TestDiscoverer
     {
         public override IEnumerable<(Type Type, MethodInfo Method, IEnumerable<Attribute> Attributes)> Discover(params Type[] types)
         {

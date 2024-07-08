@@ -6,6 +6,7 @@ using NextUnit.Core.AttributeLogic;
 using NextUnit.Core.Asserts;
 using NextUnit.Core;
 using NextUnit.TestEnvironment;
+using NextUnit.Core.Extensions;
 
 namespace NextUnit.TestRunner.TestRunners
 {
@@ -180,7 +181,7 @@ namespace NextUnit.TestRunner.TestRunners
                             var handler = attributeLogicMapper.GetHandlerFor(attribute);
                             
                             //TODO: I guess we can throw away TestRunner2 when TestRunner5 is working.
-                            handler?.ProcessAttribute(attribute, method, null, this);
+                            handler?.ProcessAttribute(attribute, method.CreateTestDelegate(), this);
 
                             //This has now to be accomplished with the help of the handler?.ProcessAttribute
                             //parameters = MethodAttributeInterpreter.Interpret(attribute as CommonTestAttribute);

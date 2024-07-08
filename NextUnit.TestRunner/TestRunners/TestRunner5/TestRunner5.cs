@@ -87,7 +87,7 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
         /// e.g.  
         ///
         /// </summary>
-        public Combinator UsedCombinator { get; set; } = new DefaultCombinator { AttributeLogicMapper = new AutofixtureAutomoqAttributeAttributeLogicMapper() };
+        public ICombinator UsedCombinator { get; set; } = new DefaultCombinator { AttributeLogicMapper = new AutofixtureAutomoqAttributeAttributeLogicMapper() };
         public bool UseThreading { get; set; } = true;
 
         private bool disposedValue;
@@ -110,7 +110,7 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             if (testDiscoverer != null) With(testDiscoverer);
             if (attributeLogicMapper != null) With(attributeLogicMapper);
             if (useThreading != null) WithUseThreading(useThreading.HasValue ? useThreading.Value : UseThreading);
-            if (usedCombinator != null) WithUseCombinator(usedCombinator);
+            if (usedCombinator != null) With(usedCombinator);
         }
 
         public bool PreferDelegate
@@ -236,6 +236,16 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
         }
 
         /// <summary>
+        /// Type safe call to run for class type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        public void Run<T>(T t) where T : Type
+        {
+            Run(new Type[] { t });
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="type"></param>
@@ -244,12 +254,7 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             //Will be fired when the complete test run has started (for the moment also valid for: per assembly).
             OnTestRunStarted(new ExecutionEventArgs());
 
-            NextUnitTestExecutionContext.TestRunStart = DateTime.Now;
-            DiscoverTests(types);
-            // TODO: make this work to make the execution of tests way faster.
-            ExecuteCachedAttributeLogic();
-            CreateInstantiatedObjects();
-            TestMethodDelegates = TestDiscoverer.CreateTestDelegates(TestMethodsPerClass, InstanceCreationBehavior);
+            Initialize(types);
 
             // ok this works. At least tried for some methods already.
             // They can be executed like this then:
@@ -281,7 +286,17 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             OnTestRunFinished(new ExecutionEventArgs());
         }
 
-        private void DiscoverTests(Type[] types)
+        private void Initialize(params Type[] types)
+        {
+			NextUnitTestExecutionContext.TestRunStart = DateTime.Now;
+			DiscoverTests(types);
+			// TODO: make this work to make the execution of tests way faster.
+			ExecuteCachedAttributeLogic();
+			CreateInstantiatedObjects();
+			TestMethodDelegates = TestDiscoverer.CreateTestDelegates(TestMethodsPerClass, InstanceCreationBehavior);
+		}
+
+		private void DiscoverTests(Type[] types)
         {
             //This will already discover all the tests for all types.
             //So this could, respectively SHOULD also be used by the TestDiscoverer now.
@@ -366,13 +381,13 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             return this;
         }
 
-        public TestRunner5 WithUseCombinator(Combinator usedCombinator)
+        public TestRunner5 With(ICombinator usedCombinator)
         {
             UsedCombinator = usedCombinator;
             return this;
         }
 
-        public TestRunner5 With(AttributeLogicMapper attributeLogicMapper)
+        public TestRunner5 With(IAttributeLogicMapper attributeLogicMapper)
         {
             AttributeLogicMapper = attributeLogicMapper;
             return this;
@@ -398,9 +413,9 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
             // Only if an attribute in all tests is found, for Before/After then initialize the pipeline with Before/After. Otherwise initialize only execute.
 
             // This structure below even later on would allow us with ease - if it makes sense - to create a multicastdelegate (and caching all of them) with Before/After only where needed.
-            //testExecutor.AddToPipeline(new TestDelegate(BeforeTestRunExecution));
+            TestExecutor.AddToPipeline(new TestDelegate(BeforeTestRunExecution));
             TestExecutor.AddToPipeline(new TestDelegate(ExecuteTest));
-            //testExecutor.AddToPipeline(new TestDelegate(AfterTestRunExecution));
+            TestExecutor.AddToPipeline(new TestDelegate(AfterTestRunExecution));
         }
 
         public bool IsTestExecutorInitialized => TestExecutor.Steps != null && TestExecutor.Steps.Length > 0;
@@ -581,8 +596,8 @@ namespace NextUnit.TestRunner.TestRunners.NewFolder
         #region Fluent Syntax
         TestRunner5 With(ITestDiscoverer testDiscoverer);
         TestRunner5 With(IInstanceCreationBehavior instanceCreationBehavior);
-        TestRunner5 WithUseCombinator(Combinator usedCombinator);
-        TestRunner5 With(AttributeLogicMapper attributeLogicMapper);
+        TestRunner5 With(ICombinator usedCombinator);
+        TestRunner5 With(IAttributeLogicMapper attributeLogicMapper);
         TestRunner5 WithUseThreading(bool useThreading);
         #endregion Fluent Syntax
     }

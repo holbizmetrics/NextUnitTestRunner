@@ -7,9 +7,9 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
 {
     public class CustomizeAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
-            foreach (var parameter in testMethod.GetParameters())
+            foreach (var parameter in @delegate.GetMethodInfo().GetParameters())
             {
                 var customizeAttribute = parameter.GetCustomAttributes()
                     .OfType<CustomizeAttribute>()
@@ -35,6 +35,5 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
 
             // You need to decide how to store and use this generated parameter value
         }
-
     }
 }

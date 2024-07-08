@@ -40,6 +40,11 @@ namespace NextUnit.TestAdapter
             frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Informational, "RunTests");
         }
 
+        private void Tests(IEnumerable<string> sources, IRunContext? runContext, IFrameworkHandle? frameworkHandle)
+        {
+            //Tests(tests, runContext, frameworkHandle);
+        }
+
         private void Tests(IEnumerable<TestCase>? tests, IRunContext? runContext, IFrameworkHandle? frameworkHandle)
         {
             foreach (var test in tests)
@@ -52,7 +57,7 @@ namespace NextUnit.TestAdapter
                 string stackTrace = result.StackTrace;
                 if (!string.IsNullOrEmpty(stackTrace))
                 {
-                    frameworkHandle.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Error, stackTrace);
+                    frameworkHandle?.SendMessage(Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging.TestMessageLevel.Error, stackTrace);
                 }
 
                 TestResult testResult = test.ConvertTestCase(result);
@@ -81,7 +86,7 @@ namespace NextUnit.TestAdapter
                 frameworkHandle2.AttachDebuggerToProcess(process.Id);
             }
 
-            //Tests(sources, runContext, frameworkHandle);
+            Tests(sources, runContext, frameworkHandle);
         }
 
         /// <summary>
@@ -92,10 +97,10 @@ namespace NextUnit.TestAdapter
         /// <returns></returns>
         public bool ShouldAttachToTestHost(IEnumerable<string>? sources, IRunContext runContext)
         {
-#if ADAPTER_TEST
+//#if ADAPTER_TEST
             Debugger.Launch();
-#endif
-            Tests(null, runContext, null);
+//#endif
+            Tests(sources, runContext, null);
             return false;
         }
 

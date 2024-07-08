@@ -6,10 +6,10 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     public class FuzzingAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             var testDataGenerator = new TestDataGenerator();
-            var parameterInfos = testMethod.GetParameters();
+            var parameterInfos = @delegate.GetMethodInfo().GetParameters();
             var allParameterValues = new List<IEnumerable<object>>();
 
             // Generate test data for each parameter
@@ -22,14 +22,15 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
             // Generate all possible combinations of parameter values
             foreach (var combination in GenerateParameterCombinations(allParameterValues, 0))
             {
-                //try
-                //{
-                    testMethod.Invoke(testInstance, @delegate, combination.ToArray());
-                //}
-                //catch (Exception ex)
-                //{
+                try
+                {
+                    Invoker.Invoke(@delegate, testInstance, combination.ToArray()); //testMethod.Invoke(testInstance, @delegate, combination.ToArray());
+
+				}
+                catch (Exception ex)
+                {
                     // Handle exceptions or record failures as needed
-                //}
+                }
             }
         }
 

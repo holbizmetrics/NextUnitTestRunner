@@ -22,4 +22,8 @@
     <ProjectReference Include="..\NextUnit.TestEnvironment\NextUnit.TestEnvironment.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
 </Project>

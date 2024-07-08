@@ -2,13 +2,13 @@
 
 namespace Blub.AdditionallyNeeded
 {
-    public class BlubInstanceCreationBehavior : IInstanceCreationBehavior
+    public class ExampleInstanceCreationBehavior : IInstanceCreationBehavior
     {
         public bool OnlyInitializeAtStartBehavior => false;
 
         public object CreateInstance(Type type)
         {
-            throw new NotImplementedException();
+            return Activator.CreateInstance(type);
         }
     }
 }

@@ -84,7 +84,7 @@ namespace NextUnit.Core.AttributeLogic
                 {
                     Type attributeType = attribute.GetType();
                     attributeLogicHandler = _mapping.TryGetValue(attributeType, out var handler) ? handler : null;
-                    handler?.ProcessAttribute(attribute, definition.methodInfo, definition.@delegate, classObject);
+                    handler?.ProcessAttribute(attribute, definition.@delegate, classObject);
                 }
             }
             return null;

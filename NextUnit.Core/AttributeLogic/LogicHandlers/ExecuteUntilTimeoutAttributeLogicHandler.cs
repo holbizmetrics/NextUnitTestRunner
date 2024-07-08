@@ -10,7 +10,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class ExecuteUntilTimeoutAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             var executeUntilTimeoutAttribute = attribute as ExecuteUntilTimeoutAttribute;
             if (executeUntilTimeoutAttribute != null)
@@ -18,7 +18,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                 var stopwatch = Stopwatch.StartNew();
                 while (stopwatch.Elapsed < executeUntilTimeoutAttribute.Timeout)
                 {
-                    testMethod.Invoke(testInstance, @delegate, null);
+                    Invoker.Invoke(@delegate, testInstance, null); //testMethod.Invoke(testInstance, @delegate, null);
                     Thread.Sleep(executeUntilTimeoutAttribute.Interval);
                 }
                 stopwatch.Stop();

@@ -10,7 +10,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class DontRunDuringAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             // Logic for handling CommonTestAttribute
             // Logic for handling CommonTestAttribute
@@ -20,8 +20,8 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
             DontRunDuringAttribute dontRunDuringAttribute = attribute as DontRunDuringAttribute;
             if (now < dontRunDuringAttribute.Begin || now > dontRunDuringAttribute.End)
             {
-                testMethod.Invoke(testInstance, @delegate, null);
-            }
+				Invoker.Invoke(@delegate, testInstance, null); //testMethod.Invoke(testInstance, @delegate, null);
+			}
             else
             {
                 throw new ExecutionEngineException("DontRunDuringAttribute Exception");

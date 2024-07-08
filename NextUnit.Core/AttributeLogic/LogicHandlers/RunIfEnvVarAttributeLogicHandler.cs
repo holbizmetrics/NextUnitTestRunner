@@ -6,7 +6,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
 {
     public class RunIfEnvVarAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             RunIfEnvVarAttribute runIfEnvVarAttribute = attribute as RunIfEnvVarAttribute;
             var envValue = Environment.GetEnvironmentVariable(runIfEnvVarAttribute.VariableName);

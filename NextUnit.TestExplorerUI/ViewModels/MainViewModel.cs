@@ -3,21 +3,19 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using NextUnit.TestAdapter;
 using NextUnit.TestExplorer;
-using NextUnitTestAdapter;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
+using Microsoft.Win32;
 
 namespace NextUnit.TestExplorerUI
 {
-    public partial class MainViewModel : ObservableObject
+	public partial class MainViewModel : ObservableObject
     {
         private DiscoverySink discoverySink = new DiscoverySink();
         private FrameworkHandle frameworkHandle = new FrameworkHandle();
+		private IMessageLogger logger = new MessageLogger();
 
-        [ObservableProperty]
+		[ObservableProperty]
         public string testExecutionText = string.Empty;
 
         public MainViewModel()
@@ -36,7 +34,12 @@ namespace NextUnit.TestExplorerUI
 
         private void FrameworkHandle_TestCaseRecordStarting(object sender, RecordStartEventArgs e)
         {
-            AddText($"Starting Test: {e.TestCase.DisplayName}");
+            string text = 
+$@"---------------------------------------
+Starting Test: {e.TestCase.DisplayName}
+---------------------------------------
+";
+            AddText(text);
         }
 
         private void FrameworkHandle_TestCaseRecordEnding(object sender, RecordEndEventArgs e)
@@ -79,16 +82,31 @@ namespace NextUnit.TestExplorerUI
         [RelayCommand]
         public void DiscoverTests()
         {
-            //OpenFileDialog openFileDialog = new OpenFileDialog();
-            //if (openFileDialog.ShowDialog() != true) return;
-            //IEnumerable<string> sources = openFileDialog.FileNames;
-            IEnumerable<string> sources = new string[] { @"C:\Users\MOH1002\source\repos\NextUnit\Tests\FrameworkTests\NextUnit.Core.Tests\bin\Debug\net8.0\NextUnit.Core.Tests.dll" };
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() != true) return;
+            IEnumerable<string> sources = openFileDialog.FileNames;
+            //IEnumerable<string> sources = new string[] { @"C:\Users\MOH1002\source\repos\NextUnit\Tests\FrameworkTests\NextUnit.Core.Tests\bin\Debug\net8.0\NextUnit.Core.Tests.dll" };
             IDiscoveryContext discoveryContext = new DiscoveryContext();
-            IMessageLogger logger = new MessageLogger();
-            NextUnitTestDiscoverer nextUnitTestDiscoverer = new NextUnitTestDiscoverer();
-            nextUnitTestDiscoverer.DiscoverTests(sources, discoveryContext, logger, discoverySink);
 
-            HierarchicalSorter hierarchicalSorter = new HierarchicalSorter(Namespaces);
+            TestAdapterProvider testAdapterProvider = new TestAdapterProvider();
+			ITestDiscoverer discoverer = testAdapterProvider.GetTestDiscoverer(sources.First());
+
+            try
+            {
+                discoverer.DiscoverTests(sources, discoveryContext, logger, discoverySink);
+            }
+            catch(BadImageFormatException ex)
+            {
+                logger.SendMessage(TestMessageLevel.Error, ex.Message);
+                return;
+            }
+            catch (Exception ex)
+            {
+                return;
+            }
+
+
+			HierarchicalSorter hierarchicalSorter = new HierarchicalSorter(Namespaces);
             foreach (var testCase in discoverySink.testCases)
             {
                 var nameSpaceName = GetNamespace(testCase.FullyQualifiedName);
@@ -148,6 +166,18 @@ namespace NextUnit.TestExplorerUI
                 nextUnitTestExecutor.RunTests(discoverySink.testCases, runContext, frameworkHandle);
             });
             thread.Start();
+        }
+
+        [RelayCommand]
+        public void ExpandAll()
+        {
+            //treeViewTests.ExpandAll();
+        }
+
+        [RelayCommand]
+        public void CollapseAll()
+        {
+            //treeViewTests.CollapseAll();
         }
     }
 }

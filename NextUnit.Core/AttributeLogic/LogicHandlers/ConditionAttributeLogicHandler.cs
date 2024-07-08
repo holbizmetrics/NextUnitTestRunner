@@ -10,7 +10,7 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
     /// </summary>
     public class ConditionAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             var conditionAttribute = attribute as ConditionAttribute;
             if (conditionAttribute != null)
@@ -19,11 +19,11 @@ namespace NextUnit.Core.AttributeLogic.LogicHandlers
                 Type returnType = conditionMethod.ReturnType;
                 if (returnType != typeof(bool))
                 {
-                    throw new ExecutionEngineException($"{testMethod}: ConditionAttribute condition method has wrong return type. Should be bool but was {returnType}");
+                    throw new ExecutionEngineException($"{@delegate.GetMethodInfo()}: ConditionAttribute condition method has wrong return type. Should be bool but was {returnType}");
                 }
                 if (conditionMethod != null && (bool)conditionMethod.Invoke(testInstance, null))
                 {
-                    testMethod.Invoke(testInstance, @delegate, null);
+                    Invoker.Invoke(@delegate, testInstance, null); //testMethod.Invoke(testInstance, @delegate, null);
                 }
                 else
                 {

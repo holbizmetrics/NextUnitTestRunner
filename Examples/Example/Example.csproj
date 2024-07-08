@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NextUnit.Core\NextUnit.Core.csproj" />
-    <ProjectReference Include="..\NextUnit.TestRunner\NextUnit.TestRunner.csproj" />
+    <ProjectReference Include="..\..\NextUnit.Core\NextUnit.Core.csproj" />
+    <ProjectReference Include="..\..\NextUnit.TestRunner\NextUnit.TestRunner.csproj" />
   </ItemGroup>
 
 </Project>

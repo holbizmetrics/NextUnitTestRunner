@@ -93,8 +93,8 @@ namespace NextUnit.Core.Combinators
                 //end the TestResult preparation.
                 if (methodInfo.IsAsyncMethod())
                 {
-                    var task = (Task)methodInfo.Invoke(classInstance, testDefinition.@delegate, null); // Assuming no parameters for simplicity
-                    await task.ConfigureAwait(false);
+					var task = (Task)Invoker.Invoke(testDefinition.@delegate, classInstance, null); //var task = (Task)methodInfo.Invoke(classInstance, testDefinition.@delegate, null); // Assuming no parameters for simplicity
+					await task.ConfigureAwait(false);
 
 
                     // Handle the result of the async test execution
@@ -104,7 +104,7 @@ namespace NextUnit.Core.Combinators
                 {
                     //var handler = AttributeLogicMapper.GetHandlerFor(attribute);
                     //handler?.ProcessAttribute(attribute, methodInfo, classInstance);
-                    methodInfo.Invoke(classInstance, testDefinition.@delegate, null);
+                    Invoker.Invoke(testDefinition.@delegate, classInstance, null); //methodInfo.Invoke(classInstance, testDefinition.@delegate, null);
                 }
                 testResult.State = ExecutionState.Passed;
                 return testResult;
@@ -129,7 +129,7 @@ namespace NextUnit.Core.Combinators
                     testResult.State = ExecutionState.Running;
 
                     var handler = AttributeLogicMapper.GetHandlerFor(attribute);
-                    handler?.ProcessAttribute(attribute, testDefinition.methodInfo, testDefinition.@delegate, classInstance);
+                    handler?.ProcessAttribute(attribute, testDefinition.@delegate, classInstance);
 
                     //end the TestResult preparation.
                     testResult.State = ExecutionState.Passed;

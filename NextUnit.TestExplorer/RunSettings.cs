@@ -4,7 +4,7 @@ namespace NextUnit.TestExplorer
 {
     public class RunSettings : IRunSettings
     {
-        public string? SettingsXml => throw new NotImplementedException();
+        public string? SettingsXml => string.Empty; //throw new NotImplementedException();
 
         public ISettingsProvider? GetSettings(string? settingsName)
         {

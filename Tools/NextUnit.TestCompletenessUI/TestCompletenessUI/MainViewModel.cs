@@ -4,7 +4,7 @@ using Microsoft.Win32;
 using NextUnit.TestMethodCompletionDetector.NewFolder1;
 using System.IO;
 
-namespace NextUnit.TestMethodCompletionDetector
+namespace NextUnit.TestCompletenessUI
 {
     public partial class MainViewModel : ObservableObject
     {

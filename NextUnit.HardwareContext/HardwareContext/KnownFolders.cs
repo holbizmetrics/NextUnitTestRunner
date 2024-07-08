@@ -16,20 +16,21 @@ namespace NextUnitHardwareContext.SystemInformation.SystemInformation
 */
 namespace NextUnit.HardwareContext.SystemInformation.SystemInformation.SystemInformation
 {
-    /// <summary>
-    /// Class containing methods to retrieve specific file system paths.
-    /// </summary>
-    public static class KnownFolders
-    {
-        // ---- FIELDS -------------------------------------------------------------------------------------------------
+	/// <summary>
+	/// Class containing methods to retrieve specific file system paths.
+	/// </summary>
+	public static class KnownFolders
+	{
+		// ---- FIELDS -------------------------------------------------------------------------------------------------
 
-        #region private static string[] _knownFolderGuids = new string[]
-        private static string[] _knownFolderGuids = new string[]
-        {
-            "{008CA0B1-55B4-4C56-B8A8-4DE4B299D3BE}", // AccountPictures
+		#region private static string[] _knownFolderGuids = new string[]
+		private static string[] _knownFolderGuids = new string[]
+		{
+			"{31C0DD25-9439-4F12-BF41-7FF4EDA38722}", // 3D Objects
+			"{008CA0B1-55B4-4C56-B8A8-4DE4B299D3BE}", // AccountPictures
             "{724EF170-A42D-4FEF-9F26-B60E846FBA4F}", // AdminTools
             "{A3918781-E5F2-4890-B3D9-A7E54332328C}", // ApplicationShortcuts
-            "{AB5FB87B-7CE2-4F83-915D-550846C9537B}", // CameraRool
+            "{AB5FB87B-7CE2-4F83-915D-550846C9537B}", // CameraRoll
             "{9E52AB10-F80D-49DF-ACB8-4330F5687855}", // CDBurning
             "{D0384E7D-BAC3-4797-8F14-CBA229B392B5}", // CommonAdminTools
             "{C1BAE2D0-10DF-4334-BEDD-7AA20B227A9D}", // CommonOemLinks
@@ -121,806 +122,839 @@ namespace NextUnit.HardwareContext.SystemInformation.SystemInformation.SystemInf
             "{491E922F-5643-4AF4-A7EB-4E7A138D8174}", // VideosLibrary
             "{F38BF404-1D43-42F2-9305-67DE0B28FC23}"  // Windows
         };
-        #endregion
+		#endregion
 
-        // ---- METHODS (PUBLIC) ---------------------------------------------------------------------------------------
+		// ---- METHODS (PUBLIC) ---------------------------------------------------------------------------------------
 
-        /// <summary>
-        /// Gets the current path to the specified known folder as currently configured. This does not require the
-        /// folder to be existent.
-        /// </summary>
-        /// <param name="knownFolder">The known folder which current path will be returned.</param>
-        /// <returns>The default path of the known folder.</returns>
-        /// <exception cref="ExternalException">Thrown if the path could not be retrieved.</exception>
-        public static string GetPath(KnownFolder knownFolder)
-        {
-            return GetPath(knownFolder, false);
-        }
+		/// <summary>
+		/// Gets the current path to the specified known folder as currently configured. This does not require the
+		/// folder to be existent.
+		/// </summary>
+		/// <param name="knownFolder">The known folder which current path will be returned.</param>
+		/// <returns>The default path of the known folder.</returns>
+		/// <exception cref="ExternalException">Thrown if the path could not be retrieved.</exception>
+		public static string GetPath(KnownFolder knownFolder)
+		{
+			return GetPath(knownFolder, false);
+		}
 
-        /// <summary>
-        /// Gets the current path to the specified known folder as currently configured. This does not require the
-        /// folder to be existent.
-        /// </summary>
-        /// <param name="knownFolder">The known folder which current path will be returned.</param>
-        /// <param name="defaultUser">Specifies if the paths of the default user (user profile template) will be used.
-        /// This requires administrative rights.</param>
-        /// <returns>The default path of the known folder.</returns>
-        /// <exception cref="ExternalException">Thrown if the path could not be retrieved.</exception>
-        public static string GetPath(KnownFolder knownFolder, bool defaultUser)
-        {
-            return GetPath(knownFolder, KnownFolderFlags.DontVerify, defaultUser);
-        }
+		public static IEnumerable<string> GetAllKnownFolderPaths()
+		{
+			List<string> strings = new List<string>();
+			foreach(KnownFolder knownFolder in Enum.GetValues(typeof(KnownFolder)))
+			{
+				try
+				{
+					strings.Add(GetPath(knownFolder));
+				}
+				catch(Exception ex)
+				{ 
+					// some paths may be not able to obtained
+					// dependend on:
+					// 1. OS
+					// 2. If we run as admin or not.
+				}
 
-        /// <summary>
-        /// Gets the default path to the specified known folder. This does not require the folder to be existent.
-        /// </summary>
-        /// <param name="knownFolder">The known folder which default path will be returned.</param>
-        /// <returns>The current (and possibly redirected) path of the known folder.</returns>
-        /// <exception cref="ExternalException">Thrown if the path could not be retrieved.</exception>
-        public static string GetDefaultPath(KnownFolder knownFolder)
-        {
-            return GetDefaultPath(knownFolder, false);
-        }
+			}
+			return strings;
+		}
 
-        /// <summary>
-        /// Gets the default path to the specified known folder. This does not require the folder to be existent.
-        /// </summary>
-        /// <param name="knownFolder">The known folder which default path will be returned.</param>
-        /// <param name="defaultUser">Specifies if the paths of the default user (user profile template) will be used.
-        /// This requires administrative rights.</param>
-        /// <returns>The current (and possibly redirected) path of the known folder.</returns>
-        /// <exception cref="ExternalException">Thrown if the path could not be retrieved.</exception>
-        public static string GetDefaultPath(KnownFolder knownFolder, bool defaultUser)
-        {
-            return GetPath(knownFolder, KnownFolderFlags.DefaultPath | KnownFolderFlags.DontVerify, defaultUser);
-        }
+		/// <summary>
+		/// Gets the current path to the specified known folder as currently configured. This does not require the
+		/// folder to be existent.
+		/// </summary>
+		/// <param name="knownFolder">The known folder which current path will be returned.</param>
+		/// <param name="defaultUser">Specifies if the paths of the default user (user profile template) will be used.
+		/// This requires administrative rights.</param>
+		/// <returns>The default path of the known folder.</returns>
+		/// <exception cref="ExternalException">Thrown if the path could not be retrieved.</exception>
+		public static string GetPath(KnownFolder knownFolder, bool defaultUser)
+		{
+			return GetPath(knownFolder, KnownFolderFlags.DontVerify, defaultUser);
+		}
 
-        /// <summary>
-        /// Creates and initializes the known folder.
-        /// </summary>
-        /// <param name="knownFolder">The known folder which will be initialized.</param>
-        /// <exception cref="ExternalException">Thrown if the known folder could not be initialized.</exception>
-        public static void Initialize(KnownFolder knownFolder)
-        {
-            Initialize(knownFolder, false);
-        }
+		/// <summary>
+		/// Gets the default path to the specified known folder. This does not require the folder to be existent.
+		/// </summary>
+		/// <param name="knownFolder">The known folder which default path will be returned.</param>
+		/// <returns>The current (and possibly redirected) path of the known folder.</returns>
+		/// <exception cref="ExternalException">Thrown if the path could not be retrieved.</exception>
+		public static string GetDefaultPath(KnownFolder knownFolder)
+		{
+			return GetDefaultPath(knownFolder, false);
+		}
 
-        /// <summary>
-        /// Creates and initializes the known folder.
-        /// </summary>
-        /// <param name="knownFolder">The known folder which will be initialized.</param>
-        /// <param name="defaultUser">Specifies if the paths of the default user (user profile
-        ///     template) will be used. This requires administrative rights.</param>
-        /// <exception cref="ExternalException">Thrown if the known folder could not be initialized.</exception>
-        public static void Initialize(KnownFolder knownFolder, bool defaultUser)
-        {
-            GetPath(knownFolder, KnownFolderFlags.Create | KnownFolderFlags.Init, defaultUser);
-        }
+		/// <summary>
+		/// Gets the default path to the specified known folder. This does not require the folder to be existent.
+		/// </summary>
+		/// <param name="knownFolder">The known folder which default path will be returned.</param>
+		/// <param name="defaultUser">Specifies if the paths of the default user (user profile template) will be used.
+		/// This requires administrative rights.</param>
+		/// <returns>The current (and possibly redirected) path of the known folder.</returns>
+		/// <exception cref="ExternalException">Thrown if the path could not be retrieved.</exception>
+		public static string GetDefaultPath(KnownFolder knownFolder, bool defaultUser)
+		{
+			return GetPath(knownFolder, KnownFolderFlags.DefaultPath | KnownFolderFlags.DontVerify, defaultUser);
+		}
 
-        // ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
+		/// <summary>
+		/// Creates and initializes the known folder.
+		/// </summary>
+		/// <param name="knownFolder">The known folder which will be initialized.</param>
+		/// <exception cref="ExternalException">Thrown if the known folder could not be initialized.</exception>
+		public static void Initialize(KnownFolder knownFolder)
+		{
+			Initialize(knownFolder, false);
+		}
 
-        private static string GetPath(KnownFolder knownFolder, KnownFolderFlags flags, bool defaultUser)
-        {
-            int result = SHGetKnownFolderPath(new Guid(_knownFolderGuids[(int)knownFolder]), (uint)flags,
-                new IntPtr(defaultUser ? -1 : 0), out IntPtr outPath);
-            if (result >= 0)
-            {
-                string path = Marshal.PtrToStringUni(outPath);
-                Marshal.FreeCoTaskMem(outPath);
-                return path;
-            }
-            else
-            {
-                throw new ExternalException(
-                    "Unable to retrieve the known folder path. It may not be available on this system.", result);
-            }
-        }
+		/// <summary>
+		/// Creates and initializes the known folder.
+		/// </summary>
+		/// <param name="knownFolder">The known folder which will be initialized.</param>
+		/// <param name="defaultUser">Specifies if the paths of the default user (user profile
+		///     template) will be used. This requires administrative rights.</param>
+		/// <exception cref="ExternalException">Thrown if the known folder could not be initialized.</exception>
+		public static void Initialize(KnownFolder knownFolder, bool defaultUser)
+		{
+			GetPath(knownFolder, KnownFolderFlags.Create | KnownFolderFlags.Init, defaultUser);
+		}
 
-        public static string ProgramData
-        {
-            get { return KnownFolders.GetPath(KnownFolder.ProgramData); }
-        }
+		// ---- METHODS (PRIVATE) --------------------------------------------------------------------------------------
 
-        public static string PublicPictures
-        {
-            get { return KnownFolders.GetPath(KnownFolder.PublicPictures); }
-        }
+		private static string GetPath(KnownFolder knownFolder, KnownFolderFlags flags, bool defaultUser)
+		{
+			int result = SHGetKnownFolderPath(new Guid(_knownFolderGuids[(int)knownFolder]), (uint)flags,
+				new IntPtr(defaultUser ? -1 : 0), out IntPtr outPath);
+			if (result >= 0)
+			{
+				string path = Marshal.PtrToStringUni(outPath);
+				Marshal.FreeCoTaskMem(outPath);
+				return path;
+			}
+			else
+			{
+				throw new ExternalException(
+					"Unable to retrieve the known folder path. It may not be available on this system.", result);
+			}
+		}
 
-        public static string Pictures
-        {
-            get { return KnownFolders.GetPath(KnownFolder.Pictures); }
-        }
+		public static string ThreeDObjects
+		{
+			get { return KnownFolders.GetPath(KnownFolder.ThreeDObjects); }
+		}
 
-        public static string Public
-        {
-            get { return KnownFolders.GetPath(KnownFolder.Public); }
-        }
+		public static string ProgramData
+		{
+			get { return KnownFolders.GetPath(KnownFolder.ProgramData); }
+		}
 
-        public static string AccountPictures
-        {
-            get { return KnownFolders.GetPath(KnownFolder.AccountPictures); }
-        }
+		public static string PublicPictures
+		{
+			get { return KnownFolders.GetPath(KnownFolder.PublicPictures); }
+		}
 
-        public static string PublicMusic
-        {
-            get { return KnownFolders.GetPath(KnownFolder.PublicMusic); }
-        }
+		public static string Pictures
+		{
+			get { return KnownFolders.GetPath(KnownFolder.Pictures); }
+		}
 
-        public static string AdminTools
-        {
-            get { return KnownFolders.GetPath(KnownFolder.AdminTools); }
-        }
+		public static string Public
+		{
+			get { return KnownFolders.GetPath(KnownFolder.Public); }
+		}
 
-        public static string ApplicationShortcuts
-        {
-            get { return KnownFolders.GetPath(KnownFolder.ApplicationShortcuts); }
-        }
+		public static string AccountPictures
+		{
+			get { return KnownFolders.GetPath(KnownFolder.AccountPictures); }
+		}
 
-        public static string CameraRoll
-        {
-            get { return KnownFolders.GetPath(KnownFolder.CameraRoll); }
-        }
+		public static string PublicMusic
+		{
+			get { return KnownFolders.GetPath(KnownFolder.PublicMusic); }
+		}
 
-        public static string CDBurning
-        {
-            get { return KnownFolders.GetPath(KnownFolder.CDBurning); }
-        }
+		public static string AdminTools
+		{
+			get { return KnownFolders.GetPath(KnownFolder.AdminTools); }
+		}
 
-        public static string CommonAdminTools
-        {
-            get { return KnownFolders.GetPath(KnownFolder.CommonAdminTools); }
-        }
+		public static string ApplicationShortcuts
+		{
+			get { return KnownFolders.GetPath(KnownFolder.ApplicationShortcuts); }
+		}
 
-        public static string CommonOemLinks
-        {
-            get { return KnownFolders.GetPath(KnownFolder.CommonOemLinks); }
-        }
+		public static string CameraRoll
+		{
+			get { return KnownFolders.GetPath(KnownFolder.CameraRoll); }
+		}
 
-        public static string CommonPrograms
-        {
-            get { return KnownFolders.GetPath(KnownFolder.CommonPrograms); }
-        }
-        public static string CommonStartMenu
-        {
-            get { return KnownFolders.GetPath(KnownFolder.CommonStartMenu); }
-        }
+		public static string CDBurning
+		{
+			get { return KnownFolders.GetPath(KnownFolder.CDBurning); }
+		}
 
-        public static string CommonTemplates
-        {
-            get { return KnownFolders.GetPath(KnownFolder.CommonTemplates); }
-        }
+		public static string CommonAdminTools
+		{
+			get { return KnownFolders.GetPath(KnownFolder.CommonAdminTools); }
+		}
 
-        public static string Contacts
-        {
-            get { return KnownFolders.GetPath(KnownFolder.Contacts); }
-        }
+		public static string CommonOemLinks
+		{
+			get { return KnownFolders.GetPath(KnownFolder.CommonOemLinks); }
+		}
 
-        /// <summary>
-        /// Retrieves the full path of a known folder identified by the folder's KnownFolderID.
-        /// </summary>
-        /// <param name="rfid">A KnownFolderID that identifies the folder.</param>
-        /// <param name="dwFlags">Flags that specify special retrieval options. This value can be 0; otherwise, one or
-        /// more of the KnownFolderFlag values.</param>
-        /// <param name="hToken">An access token that represents a particular user. If this parameter is NULL, which is
-        /// the most common usage, the function requests the known folder for the current user. Assigning a value of -1
-        /// indicates the Default User. The default user profile is duplicated when any new user account is created.
-        /// Note that access to the Default User folders requires administrator privileges.</param>
-        /// <param name="ppszPath">When this method returns, contains the address of a string that specifies the path of
-        /// the known folder. The returned path does not include a trailing backslash.</param>
-        /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
-        [DllImport("Shell32.dll")]
+		public static string CommonPrograms
+		{
+			get { return KnownFolders.GetPath(KnownFolder.CommonPrograms); }
+		}
+		public static string CommonStartMenu
+		{
+			get { return KnownFolders.GetPath(KnownFolder.CommonStartMenu); }
+		}
+
+		public static string CommonTemplates
+		{
+			get { return KnownFolders.GetPath(KnownFolder.CommonTemplates); }
+		}
+
+		public static string Contacts
+		{
+			get { return KnownFolders.GetPath(KnownFolder.Contacts); }
+		}
+
+		public static string Temp
+		{
+			get { return Path.GetTempPath(); }
+		}
+
+		/// <summary>
+		/// Retrieves the full path of a known folder identified by the folder's KnownFolderID.
+		/// </summary>
+		/// <param name="rfid">A KnownFolderID that identifies the folder.</param>
+		/// <param name="dwFlags">Flags that specify special retrieval options. This value can be 0; otherwise, one or
+		/// more of the KnownFolderFlag values.</param>
+		/// <param name="hToken">An access token that represents a particular user. If this parameter is NULL, which is
+		/// the most common usage, the function requests the known folder for the current user. Assigning a value of -1
+		/// indicates the Default User. The default user profile is duplicated when any new user account is created.
+		/// Note that access to the Default User folders requires administrator privileges.</param>
+		/// <param name="ppszPath">When this method returns, contains the address of a string that specifies the path of
+		/// the known folder. The returned path does not include a trailing backslash.</param>
+		/// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
+		[DllImport("Shell32.dll")]
 #if NET5_0_OR_GREATER
-        public static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags,
-            nint hToken, out nint ppszPath);
+		public static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags,
+			nint hToken, out nint ppszPath);
 #elif NET40_OR_GREATER
         public static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags,
         IntPtr hToken, out IntPtr ppszPath);
 #endif
-        // ---- CLASSES, STRUCTS & ENUMS -------------------------------------------------------------------------------
-
-        [Flags]
-        private enum KnownFolderFlags : uint
-        {
-            SimpleIDList = 0x00000100,
-            NotParentRelative = 0x00000200,
-            DefaultPath = 0x00000400,
-            Init = 0x00000800,
-            NoAlias = 0x00001000,
-            DontUnexpand = 0x00002000,
-            DontVerify = 0x00004000,
-            Create = 0x00008000,
-            NoAppcontainerRedirection = 0x00010000,
-            AliasOnly = 0x80000000
-        }
-    }
-
-    /// <summary>
-    /// Standard folders registered with the system. These folders are installed with Windows Vista and later operating
-    /// systems, and a computer will have only folders appropriate to it installed.
-    /// </summary>
-    public enum KnownFolder
-    {
-        /// <summary>
-        /// The per-user Account Pictures folder. Introduced in Windows 8.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\AccountPictures&quot;.
-        /// </summary>
-        AccountPictures,
-
-        /// <summary>
-        /// The per-user Administrative Tools folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Start Menu\Programs\Administrative Tools&quot;.
-        /// </summary>
-        AdminTools,
-
-        /// <summary>
-        /// The per-user Application Shortcuts folder. Introduced in Windows 8.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\Application Shortcuts&quot;.
-        /// </summary>
-        ApplicationShortcuts,
-
-        /// <summary>
-        /// The per-user Camera Roll folder. Introduced in Windows 8.1.
-        /// Defaults to &quot;.%USERPROFILE%\Pictures\Camera Roll&quot;.
-        /// </summary>
-        CameraRoll,
-
-        /// <summary>
-        /// The per-user Temporary Burn Folder.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\Burn\Burn&quot;.
-        /// </summary>
-        CDBurning,
-
-        /// <summary>
-        /// The common Administrative Tools folder.
-        /// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Administrative Tools&quot;.
-        /// </summary>
-        CommonAdminTools,
-
-        /// <summary>
-        /// The common OEM Links folder.
-        /// Defaults to &quot;%ALLUSERSPROFILE%\OEM Links&quot;.
-        /// </summary>
-        CommonOemLinks,
-
-        /// <summary>
-        /// The common Programs folder.
-        /// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs&quot;.
-        /// </summary>
-        CommonPrograms,
-
-        /// <summary>
-        /// The common Start Menu folder.
-        /// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu&quot;.
-        /// </summary>
-        CommonStartMenu,
-
-        /// <summary>
-        /// The common Startup folder.
-        /// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\StartUp&quot;.
-        /// </summary>
-        CommonStartup,
-
-        /// <summary>
-        /// The common Templates folder.
-        /// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Templates&quot;.
-        /// </summary>
-        CommonTemplates,
-
-        /// <summary>
-        /// The per-user Contacts folder. Introduced in Windows Vista.
-        /// Defaults to &quot;%USERPROFILE%\Contacts&quot;.
-        /// </summary>
-        Contacts,
-
-        /// <summary>
-        /// The per-user Cookies folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Cookies&quot;.
-        /// </summary>
-        Cookies,
-
-        /// <summary>
-        /// The per-user Desktop folder.
-        /// Defaults to &quot;%USERPROFILE%\Desktop&quot;.
-        /// </summary>
-        Desktop,
-
-        /// <summary>
-        /// The common DeviceMetadataStore folder. Introduced in Windows 7.
-        /// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\DeviceMetadataStore&quot;.
-        /// </summary>
-        DeviceMetadataStore,
-
-        /// <summary>
-        /// The per-user Documents folder.
-        /// Defaults to &quot;%USERPROFILE%\Documents&quot;.
-        /// </summary>
-        Documents,
-
-        /// <summary>
-        /// The per-user Documents library. Introduced in Windows 7.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Libraries\Documents.library-ms&quot;.
-        /// </summary>
-        DocumentsLibrary,
-
-        /// <summary>
-        /// The per-user Downloads folder.
-        /// Defaults to &quot;%USERPROFILE%\Downloads&quot;.
-        /// </summary>
-        Downloads,
-
-        /// <summary>
-        /// The per-user Favorites folder.
-        /// Defaults to &quot;%USERPROFILE%\Favorites&quot;.
-        /// </summary>
-        Favorites,
-
-        /// <summary>
-        /// The fixed Fonts folder.
-        /// Points to &quot;%WINDIR%\Fonts&quot;.
-        /// </summary>
-        Fonts,
-
-        /// <summary>
-        /// The per-user GameExplorer folder. Introduced in Windows Vista.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\GameExplorer&quot;.
-        /// </summary>
-        GameTasks,
-
-        /// <summary>
-        /// The per-user History folder.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\History&quot;.
-        /// </summary>
-        History,
-
-        /// <summary>
-        /// The per-user ImplicitAppShortcuts folder. Introduced in Windows 7.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\ImplicitAppShortcuts&quot;.
-        /// </summary>
-        ImplicitAppShortcuts,
-
-        /// <summary>
-        /// The per-user Temporary Internet Files folder.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\Temporary Internet Files&quot;.
-        /// </summary>
-        InternetCache,
-
-        /// <summary>
-        /// The per-user Libraries folder. Introduced in Windows 7.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Libraries&quot;.
-        /// </summary>
-        Libraries,
-
-        /// <summary>
-        /// The per-user Links folder.
-        /// Defaults to &quot;%USERPROFILE%\Links&quot;.
-        /// </summary>
-        Links,
-
-        /// <summary>
-        /// The per-user Local folder.
-        /// Defaults to &quot;%LOCALAPPDATA%&quot; (&quot;%USERPROFILE%\AppData\Local&quot;)&quot;.
-        /// </summary>
-        LocalAppData,
-
-        /// <summary>
-        /// The per-user LocalLow folder.
-        /// Defaults to &quot;%USERPROFILE%\AppData\LocalLow&quot;.
-        /// </summary>
-        LocalAppDataLow,
-
-        /// <summary>
-        /// The fixed LocalizedResourcesDir folder.
-        /// Points to &quot;%WINDIR%\resources\0409&quot; (code page).
-        /// </summary>
-        LocalizedResourcesDir,
-
-        /// <summary>
-        /// The per-user Music folder.
-        /// Defaults to &quot;%USERPROFILE%\Music&quot;.
-        /// </summary>
-        Music,
-
-        /// <summary>
-        /// The per-user Music library. Introduced in Windows 7.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Libraries\Music.library-ms&quot;.
-        /// </summary>
-        MusicLibrary,
-
-        /// <summary>
-        /// The per-user Network Shortcuts folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Network Shortcuts&quot;.
-        /// </summary>
-        NetHood,
-
-        /// <summary>
-        /// The per-user Original Images folder. Introduced in Windows Vista.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows Photo Gallery\Original Images&quot;.
-        /// </summary>
-        OriginalImages,
-
-        /// <summary>
-        /// The per-user Slide Shows folder. Introduced in Windows Vista.
-        /// Defaults to &quot;%USERPROFILE%\Pictures\Slide Shows&quot;.
-        /// </summary>
-        PhotoAlbums,
-
-        /// <summary>
-        /// The per-user Pictures library. Introduced in Windows 7.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Libraries\Pictures.library-ms&quot;.
-        /// </summary>
-        PicturesLibrary,
-
-        /// <summary>
-        /// The per-user Pictures folder.
-        /// Defaults to &quot;%USERPROFILE%\Pictures&quot;.
-        /// </summary>
-        Pictures,
-
-        /// <summary>
-        /// The per-user Playlists folder.
-        /// Defaults to &quot;%USERPROFILE%\Music\Playlists&quot;.
-        /// </summary>
-        Playlists,
-
-        /// <summary>
-        /// The per-user Printer Shortcuts folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Printer Shortcuts&quot;.
-        /// </summary>
-        PrintHood,
-
-        /// <summary>
-        /// The fixed user profile folder.
-        /// Defaults to &quot;%USERPROFILE%&quot; (&quot;%SYSTEMDRIVE%\USERS\%USERNAME%&quot;)&quot;.
-        /// </summary>
-        Profile,
-
-        /// <summary>
-        /// The fixed ProgramData folder.
-        /// Points to &quot;%ALLUSERSPROFILE%&quot; (&quot;%PROGRAMDATA%&quot;,
-        /// &quot;%SYSTEMDRIVE%\ProgramData&quot;).
-        /// </summary>
-        ProgramData,
-
-        /// <summary>
-        /// The fixed Program Files folder.
-        /// This is the same as the ProgramFilesX86 known folder in 32-bit applications or the ProgramFilesX64 known
-        /// folder in 64-bit applications.
-        /// Points to %SYSTEMDRIVE%\Program Files on a 32-bit operating system or in 64-bit applications on a 64-bit
-        /// operating system and to %SYSTEMDRIVE%\Program Files (x86) in 32-bit applications on a 64-bit operating
-        /// system.
-        /// </summary>
-        ProgramFiles,
-
-        /// <summary>
-        /// The fixed Program Files folder (64-bit forced).
-        /// This known folder is unsupported in 32-bit applications.
-        /// Points to %SYSTEMDRIVE%\Program Files.
-        /// </summary>
-        ProgramFilesX64,
-
-        /// <summary>
-        /// The fixed Program Files folder (32-bit forced).
-        /// This is the same as the ProgramFiles known folder in 32-bit applications.
-        /// Points to &quot;%SYSTEMDRIVE%\Program Files&quot; on a 32-bit operating system and to 
-        /// &quot;%SYSTEMDRIVE%\Program Files (x86)&quot; on a 64-bit operating system.
-        /// </summary>
-        ProgramFilesX86,
-
-        /// <summary>
-        /// The fixed Common Files folder.
-        /// This is the same as the ProgramFilesCommonX86 known folder in 32-bit applications or the
-        /// ProgramFilesCommonX64 known folder in 64-bit applications.
-        /// Points to&quot; %PROGRAMFILES%\Common Files&quot; on a 32-bit operating system or in 64-bit applications on
-        /// a 64-bit operating system and to &quot;%PROGRAMFILES(X86)%\Common Files&quot; in 32-bit applications on a
-        /// 64-bit operating system.
-        /// </summary>
-        ProgramFilesCommon,
-
-        /// <summary>
-        /// The fixed Common Files folder (64-bit forced).
-        /// This known folder is unsupported in 32-bit applications.
-        /// Points to &quot;%PROGRAMFILES%\Common Files&quot;.
-        /// </summary>
-        ProgramFilesCommonX64,
-
-        /// <summary>
-        /// The fixed Common Files folder (32-bit forced).
-        /// This is the same as the ProgramFilesCommon known folder in 32-bit applications.
-        /// Points to &quot;%PROGRAMFILES%\Common Files&quot; on a 32-bit operating system and to
-        /// &quot;%PROGRAMFILES(X86)%\Common Files&quot; on a 64-bit operating system.
-        /// </summary>
-        ProgramFilesCommonX86,
-
-        /// <summary>
-        /// The per-user Programs folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Start Menu\Programs&quot;.
-        /// </summary>
-        Programs,
-
-        /// <summary>
-        /// The fixed Public folder. Introduced in Windows Vista.
-        /// Defaults to &quot;%PUBLIC%&quot; (&quot;%SYSTEMDRIVE%\Users\Public)&quot;.
-        /// </summary>
-        Public,
-
-        /// <summary>
-        /// The common Public Desktop folder.
-        /// Defaults to &quot;%PUBLIC%\Desktop&quot;.
-        /// </summary>
-        PublicDesktop,
-
-        /// <summary>
-        /// The common Public Documents folder.
-        /// Defaults to &quot;%PUBLIC%\Documents&quot;.
-        /// </summary>
-        PublicDocuments,
-
-        /// <summary>
-        /// The common Public Downloads folder. Introduced in Windows Vista.
-        /// Defaults to &quot;%PUBLIC%\Downloads&quot;.
-        /// </summary>
-        PublicDownloads,
-
-        /// <summary>
-        /// The common GameExplorer folder. Introduced in Windows Vista.
-        /// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\GameExplorer&quot;.
-        /// </summary>
-        PublicGameTasks,
-
-        /// <summary>
-        /// The common Libraries folder. Introduced in Windows 7.
-        /// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Libraries&quot;.
-        /// </summary>
-        PublicLibraries,
-
-        /// <summary>
-        /// The common Public Music folder.
-        /// Defaults to &quot;%PUBLIC%\Music&quot;.
-        /// </summary>
-        PublicMusic,
-
-        /// <summary>
-        /// The common Public Pictures folder.
-        /// Defaults to &quot;%PUBLIC%\Pictures&quot;.
-        /// </summary>
-        PublicPictures,
-
-        /// <summary>
-        /// The common Ringtones folder. Introduced in Windows 7.
-        /// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Ringtones&quot;.
-        /// </summary>
-        PublicRingtones,
-
-        /// <summary>
-        /// The common Public Account Pictures folder. Introduced in Windows 8.
-        /// Defaults to &quot;%PUBLIC%\AccountPictures&quot;.
-        /// </summary>
-        PublicUserTiles,
-
-        /// <summary>
-        /// The common Public Videos folder.
-        /// Defaults to &quot;%PUBLIC%\Videos&quot;.
-        /// </summary>
-        PublicVideos,
-
-        /// <summary>
-        /// The per-user Quick Launch folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Internet Explorer\Quick Launch&quot;.
-        /// </summary>
-        QuickLaunch,
-
-        /// <summary>
-        /// The per-user Recent Items folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Recent&quot;.
-        /// </summary>
-        Recent,
-
-        /// <summary>
-        /// The common Recorded TV library. Introduced in Windows 7.
-        /// Defaults to &quot;%PUBLIC%\RecordedTV.library-ms&quot;.
-        /// </summary>
-        RecordedTVLibrary,
-
-        /// <summary>
-        /// The fixed Resources folder.
-        /// Points to &quot;%WINDIR%\Resources&quot;.
-        /// </summary>
-        ResourceDir,
-
-        /// <summary>
-        /// The per-user Ringtones folder. Introduced in Windows 7.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\Ringtones&quot;.
-        /// </summary>
-        Ringtones,
-
-        /// <summary>
-        /// The per-user Roaming folder.
-        /// Defaults to &quot;%APPDATA%&quot; (&quot;%USERPROFILE%\AppData\Roaming&quot;).
-        /// </summary>
-        RoamingAppData,
-
-        /// <summary>
-        /// The per-user RoamedTileImages folder. Introduced in Windows 8.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\RoamedTileImages&quot;.
-        /// </summary>
-        RoamedTileImages,
-
-        /// <summary>
-        /// The per-user RoamingTiles folder. Introduced in Windows 8.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\RoamingTiles&quot;.
-        /// </summary>
-        RoamingTiles,
-
-        /// <summary>
-        /// The common Sample Music folder.
-        /// Defaults to &quot;%PUBLIC%\Music\Sample Music&quot;.
-        /// </summary>
-        SampleMusic,
-
-        /// <summary>
-        /// The common Sample Pictures folder.
-        /// Defaults to &quot;%PUBLIC%\Pictures\Sample Pictures&quot;.
-        /// </summary>
-        SamplePictures,
-
-        /// <summary>
-        /// The common Sample Playlists folder. Introduced in Windows Vista.
-        /// Defaults to &quot;%PUBLIC%\Music\Sample Playlists&quot;.
-        /// </summary>
-        SamplePlaylists,
-
-        /// <summary>
-        /// The common Sample Videos folder.
-        /// Defaults to &quot;%PUBLIC%\Videos\Sample Videos&quot;.
-        /// </summary>
-        SampleVideos,
-
-        /// <summary>
-        /// The per-user Saved Games folder. Introduced in Windows Vista.
-        /// Defaults to &quot;%USERPROFILE%\Saved Games&quot;.
-        /// </summary>
-        SavedGames,
-
-        /// <summary>
-        /// The per-user Searches folder.
-        /// Defaults to &quot;%USERPROFILE%\Searches&quot;.
-        /// </summary>
-        SavedSearches,
-
-        /// <summary>
-        /// The per-user Screenshots folder. Introduced in Windows 8.
-        /// Defaults to &quot;%USERPROFILE%\Pictures\Screenshots&quot;.
-        /// </summary>
-        Screenshots,
-
-        /// <summary>
-        /// The per-user History folder. Introduced in Windows 8.1.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\ConnectedSearch\History&quot;.
-        /// </summary>
-        SearchHistory,
-
-        /// <summary>
-        /// The per-user Templates folder. Introduced in Windows 8.1.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\ConnectedSearch\Templates&quot;.
-        /// </summary>
-        SearchTemplates,
-
-        /// <summary>
-        /// The per-user SendTo folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\SendTo&quot;.
-        /// </summary>
-        SendTo,
-
-        /// <summary>
-        /// The common Gadgets folder. Introduced in Windows 7.
-        /// Defaults to &quot;%ProgramFiles%\Windows Sidebar\Gadgets&quot;.
-        /// </summary>
-        SidebarDefaultParts,
-
-        /// <summary>
-        /// The per-user Gadgets folder. Introduced in Windows 7.
-        /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows Sidebar\Gadgets&quot;.
-        /// </summary>
-        SidebarParts,
-
-        /// <summary>
-        /// The per-user OneDrive folder. Introduced in Windows 8.1.
-        /// Defaults to &quot;%USERPROFILE%\OneDrive&quot;.
-        /// </summary>
-        SkyDrive,
-
-        /// <summary>
-        /// The per-user OneDrive Camera Roll folder. Introduced in Windows 8.1.
-        /// Defaults to &quot;%USERPROFILE%\OneDrive\Pictures\Camera Roll&quot;.
-        /// </summary>
-        SkyDriveCameraRoll,
-
-        /// <summary>
-        /// The per-user OneDrive Documents folder. Introduced in Windows 8.1.
-        /// Defaults to &quot;%USERPROFILE%\OneDrive\Documents&quot;.
-        /// </summary>
-        SkyDriveDocuments,
-
-        /// <summary>
-        /// The per-user OneDrive Pictures folder. Introduced in Windows 8.1.
-        /// Defaults to &quot;%USERPROFILE%\OneDrive\Pictures&quot;.
-        /// </summary>
-        SkyDrivePictures,
-
-        /// <summary>
-        /// The per-user Start Menu folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Start Menu&quot;.
-        /// </summary>
-        StartMenu,
-
-        /// <summary>
-        /// The per-user Startup folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Start Menu\Programs\StartUp&quot;.
-        /// </summary>
-        Startup,
-
-        /// <summary>
-        /// The fixed System32 folder.
-        /// This is the same as the SystemX86 known folder in 32-bit applications.
-        /// Points to &quot;%WINDIR%\system32&quot; on 32-bit operating systems or in 64-bit applications on a 64-bit
-        /// operating system and to &quot;%WINDIR%\syswow64&quot; in 32-bit applications on a 64-bit operating system.
-        /// </summary>
-        System,
-
-        /// <summary>
-        /// The fixed System32 folder (32-bit forced).
-        /// This is the same as the System known folder in 32-bit applications.
-        /// Points to &quot;%WINDIR%\syswow64&quot; in 64-bit applications or in 32-bit applications on a 64-bit
-        /// operating system and to &quot;%WINDIR%\system32&quot; on 32-bit operating systems.
-        /// </summary>
-        SystemX86,
-
-        /// <summary>
-        /// The per-user Templates folder.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Templates&quot;.
-        /// </summary>
-        Templates,
-
-        /// <summary>
-        /// The per-user User Pinned folder. Introduced in Windows 7.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned&quot;.
-        /// </summary>
-        UserPinned,
-
-        /// <summary>
-        /// The fixed Users folder. Introduced in Windows Vista.
-        /// Points to &quot;%SYSTEMDRIVE%\Users&quot;.
-        /// </summary>
-        UserProfiles,
-
-        /// <summary>
-        /// The per-user Programs folder. Introduced in Windows 7.
-        /// Defaults to &quot;%LOCALAPPDATA%\Programs.&quot;.
-        /// </summary>
-        UserProgramFiles,
-
-        /// <summary>
-        /// The per-user common Programs folder. INtroduced in Windows 7.
-        /// Defaults to &quot;%LOCALAPPDATA%\Programs\Common&quot;.
-        /// </summary>
-        UserProgramFilesCommon,
-
-        /// <summary>
-        /// The per-user Videos folder.
-        /// Defaults to &quot;%USERPROFILE%\Videos&quot;.
-        /// </summary>
-        Videos,
-
-        /// <summary>
-        /// The per-user Videos library. Introduced in Windows 7.
-        /// Defaults to &quot;%APPDATA%\Microsoft\Windows\Libraries\Videos.library-ms&quot;.
-        /// </summary>
-        VideosLibrary,
-
-        /// <summary>
-        /// The fixed Windows folder.
-        /// Points to &quot;%WINDIR%&quot;.
-        /// </summary>
-        Windows
-    }
+		// ---- CLASSES, STRUCTS & ENUMS -------------------------------------------------------------------------------
+
+		[Flags]
+		private enum KnownFolderFlags : uint
+		{
+			SimpleIDList = 0x00000100,
+			NotParentRelative = 0x00000200,
+			DefaultPath = 0x00000400,
+			Init = 0x00000800,
+			NoAlias = 0x00001000,
+			DontUnexpand = 0x00002000,
+			DontVerify = 0x00004000,
+			Create = 0x00008000,
+			NoAppcontainerRedirection = 0x00010000,
+			AliasOnly = 0x80000000
+		}
+	}
+
+	/// <summary>
+	/// Standard folders registered with the system. These folders are installed with Windows Vista and later operating
+	/// systems, and a computer will have only folders appropriate to it installed.
+	/// </summary>
+	public enum KnownFolder
+	{
+		ThreeDObjects,
+
+		/// <summary>
+		/// The per-user Account Pictures folder. Introduced in Windows 8.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\AccountPictures&quot;.
+		/// </summary>
+		AccountPictures,
+
+		/// <summary>
+		/// The per-user Administrative Tools folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Start Menu\Programs\Administrative Tools&quot;.
+		/// </summary>
+		AdminTools,
+
+		/// <summary>
+		/// The per-user Application Shortcuts folder. Introduced in Windows 8.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\Application Shortcuts&quot;.
+		/// </summary>
+		ApplicationShortcuts,
+
+		/// <summary>
+		/// The per-user Camera Roll folder. Introduced in Windows 8.1.
+		/// Defaults to &quot;.%USERPROFILE%\Pictures\Camera Roll&quot;.
+		/// </summary>
+		CameraRoll,
+
+		/// <summary>
+		/// The per-user Temporary Burn Folder.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\Burn\Burn&quot;.
+		/// </summary>
+		CDBurning,
+
+		/// <summary>
+		/// The common Administrative Tools folder.
+		/// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Administrative Tools&quot;.
+		/// </summary>
+		CommonAdminTools,
+
+		/// <summary>
+		/// The common OEM Links folder.
+		/// Defaults to &quot;%ALLUSERSPROFILE%\OEM Links&quot;.
+		/// </summary>
+		CommonOemLinks,
+
+		/// <summary>
+		/// The common Programs folder.
+		/// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs&quot;.
+		/// </summary>
+		CommonPrograms,
+
+		/// <summary>
+		/// The common Start Menu folder.
+		/// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu&quot;.
+		/// </summary>
+		CommonStartMenu,
+
+		/// <summary>
+		/// The common Startup folder.
+		/// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\StartUp&quot;.
+		/// </summary>
+		CommonStartup,
+
+		/// <summary>
+		/// The common Templates folder.
+		/// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Templates&quot;.
+		/// </summary>
+		CommonTemplates,
+
+		/// <summary>
+		/// The per-user Contacts folder. Introduced in Windows Vista.
+		/// Defaults to &quot;%USERPROFILE%\Contacts&quot;.
+		/// </summary>
+		Contacts,
+
+		/// <summary>
+		/// The per-user Cookies folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Cookies&quot;.
+		/// </summary>
+		Cookies,
+
+		/// <summary>
+		/// The per-user Desktop folder.
+		/// Defaults to &quot;%USERPROFILE%\Desktop&quot;.
+		/// </summary>
+		Desktop,
+
+		/// <summary>
+		/// The common DeviceMetadataStore folder. Introduced in Windows 7.
+		/// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\DeviceMetadataStore&quot;.
+		/// </summary>
+		DeviceMetadataStore,
+
+		/// <summary>
+		/// The per-user Documents folder.
+		/// Defaults to &quot;%USERPROFILE%\Documents&quot;.
+		/// </summary>
+		Documents,
+
+		/// <summary>
+		/// The per-user Documents library. Introduced in Windows 7.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Libraries\Documents.library-ms&quot;.
+		/// </summary>
+		DocumentsLibrary,
+
+		/// <summary>
+		/// The per-user Downloads folder.
+		/// Defaults to &quot;%USERPROFILE%\Downloads&quot;.
+		/// </summary>
+		Downloads,
+
+		/// <summary>
+		/// The per-user Favorites folder.
+		/// Defaults to &quot;%USERPROFILE%\Favorites&quot;.
+		/// </summary>
+		Favorites,
+
+		/// <summary>
+		/// The fixed Fonts folder.
+		/// Points to &quot;%WINDIR%\Fonts&quot;.
+		/// </summary>
+		Fonts,
+
+		/// <summary>
+		/// The per-user GameExplorer folder. Introduced in Windows Vista.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\GameExplorer&quot;.
+		/// </summary>
+		GameTasks,
+
+		/// <summary>
+		/// The per-user History folder.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\History&quot;.
+		/// </summary>
+		History,
+
+		/// <summary>
+		/// The per-user ImplicitAppShortcuts folder. Introduced in Windows 7.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\ImplicitAppShortcuts&quot;.
+		/// </summary>
+		ImplicitAppShortcuts,
+
+		/// <summary>
+		/// The per-user Temporary Internet Files folder.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\Temporary Internet Files&quot;.
+		/// </summary>
+		InternetCache,
+
+		/// <summary>
+		/// The per-user Libraries folder. Introduced in Windows 7.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Libraries&quot;.
+		/// </summary>
+		Libraries,
+
+		/// <summary>
+		/// The per-user Links folder.
+		/// Defaults to &quot;%USERPROFILE%\Links&quot;.
+		/// </summary>
+		Links,
+
+		/// <summary>
+		/// The per-user Local folder.
+		/// Defaults to &quot;%LOCALAPPDATA%&quot; (&quot;%USERPROFILE%\AppData\Local&quot;)&quot;.
+		/// </summary>
+		LocalAppData,
+
+		/// <summary>
+		/// The per-user LocalLow folder.
+		/// Defaults to &quot;%USERPROFILE%\AppData\LocalLow&quot;.
+		/// </summary>
+		LocalAppDataLow,
+
+		/// <summary>
+		/// The fixed LocalizedResourcesDir folder.
+		/// Points to &quot;%WINDIR%\resources\0409&quot; (code page).
+		/// </summary>
+		LocalizedResourcesDir,
+
+		/// <summary>
+		/// The per-user Music folder.
+		/// Defaults to &quot;%USERPROFILE%\Music&quot;.
+		/// </summary>
+		Music,
+
+		/// <summary>
+		/// The per-user Music library. Introduced in Windows 7.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Libraries\Music.library-ms&quot;.
+		/// </summary>
+		MusicLibrary,
+
+		/// <summary>
+		/// The per-user Network Shortcuts folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Network Shortcuts&quot;.
+		/// </summary>
+		NetHood,
+
+		/// <summary>
+		/// The per-user Original Images folder. Introduced in Windows Vista.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows Photo Gallery\Original Images&quot;.
+		/// </summary>
+		OriginalImages,
+
+		/// <summary>
+		/// The per-user Slide Shows folder. Introduced in Windows Vista.
+		/// Defaults to &quot;%USERPROFILE%\Pictures\Slide Shows&quot;.
+		/// </summary>
+		PhotoAlbums,
+
+		/// <summary>
+		/// The per-user Pictures library. Introduced in Windows 7.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Libraries\Pictures.library-ms&quot;.
+		/// </summary>
+		PicturesLibrary,
+
+		/// <summary>
+		/// The per-user Pictures folder.
+		/// Defaults to &quot;%USERPROFILE%\Pictures&quot;.
+		/// </summary>
+		Pictures,
+
+		/// <summary>
+		/// The per-user Playlists folder.
+		/// Defaults to &quot;%USERPROFILE%\Music\Playlists&quot;.
+		/// </summary>
+		Playlists,
+
+		/// <summary>
+		/// The per-user Printer Shortcuts folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Printer Shortcuts&quot;.
+		/// </summary>
+		PrintHood,
+
+		/// <summary>
+		/// The fixed user profile folder.
+		/// Defaults to &quot;%USERPROFILE%&quot; (&quot;%SYSTEMDRIVE%\USERS\%USERNAME%&quot;)&quot;.
+		/// </summary>
+		Profile,
+
+		/// <summary>
+		/// The fixed ProgramData folder.
+		/// Points to &quot;%ALLUSERSPROFILE%&quot; (&quot;%PROGRAMDATA%&quot;,
+		/// &quot;%SYSTEMDRIVE%\ProgramData&quot;).
+		/// </summary>
+		ProgramData,
+
+		/// <summary>
+		/// The fixed Program Files folder.
+		/// This is the same as the ProgramFilesX86 known folder in 32-bit applications or the ProgramFilesX64 known
+		/// folder in 64-bit applications.
+		/// Points to %SYSTEMDRIVE%\Program Files on a 32-bit operating system or in 64-bit applications on a 64-bit
+		/// operating system and to %SYSTEMDRIVE%\Program Files (x86) in 32-bit applications on a 64-bit operating
+		/// system.
+		/// </summary>
+		ProgramFiles,
+
+		/// <summary>
+		/// The fixed Program Files folder (64-bit forced).
+		/// This known folder is unsupported in 32-bit applications.
+		/// Points to %SYSTEMDRIVE%\Program Files.
+		/// </summary>
+		ProgramFilesX64,
+
+		/// <summary>
+		/// The fixed Program Files folder (32-bit forced).
+		/// This is the same as the ProgramFiles known folder in 32-bit applications.
+		/// Points to &quot;%SYSTEMDRIVE%\Program Files&quot; on a 32-bit operating system and to 
+		/// &quot;%SYSTEMDRIVE%\Program Files (x86)&quot; on a 64-bit operating system.
+		/// </summary>
+		ProgramFilesX86,
+
+		/// <summary>
+		/// The fixed Common Files folder.
+		/// This is the same as the ProgramFilesCommonX86 known folder in 32-bit applications or the
+		/// ProgramFilesCommonX64 known folder in 64-bit applications.
+		/// Points to&quot; %PROGRAMFILES%\Common Files&quot; on a 32-bit operating system or in 64-bit applications on
+		/// a 64-bit operating system and to &quot;%PROGRAMFILES(X86)%\Common Files&quot; in 32-bit applications on a
+		/// 64-bit operating system.
+		/// </summary>
+		ProgramFilesCommon,
+
+		/// <summary>
+		/// The fixed Common Files folder (64-bit forced).
+		/// This known folder is unsupported in 32-bit applications.
+		/// Points to &quot;%PROGRAMFILES%\Common Files&quot;.
+		/// </summary>
+		ProgramFilesCommonX64,
+
+		/// <summary>
+		/// The fixed Common Files folder (32-bit forced).
+		/// This is the same as the ProgramFilesCommon known folder in 32-bit applications.
+		/// Points to &quot;%PROGRAMFILES%\Common Files&quot; on a 32-bit operating system and to
+		/// &quot;%PROGRAMFILES(X86)%\Common Files&quot; on a 64-bit operating system.
+		/// </summary>
+		ProgramFilesCommonX86,
+
+		/// <summary>
+		/// The per-user Programs folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Start Menu\Programs&quot;.
+		/// </summary>
+		Programs,
+
+		/// <summary>
+		/// The fixed Public folder. Introduced in Windows Vista.
+		/// Defaults to &quot;%PUBLIC%&quot; (&quot;%SYSTEMDRIVE%\Users\Public)&quot;.
+		/// </summary>
+		Public,
+
+		/// <summary>
+		/// The common Public Desktop folder.
+		/// Defaults to &quot;%PUBLIC%\Desktop&quot;.
+		/// </summary>
+		PublicDesktop,
+
+		/// <summary>
+		/// The common Public Documents folder.
+		/// Defaults to &quot;%PUBLIC%\Documents&quot;.
+		/// </summary>
+		PublicDocuments,
+
+		/// <summary>
+		/// The common Public Downloads folder. Introduced in Windows Vista.
+		/// Defaults to &quot;%PUBLIC%\Downloads&quot;.
+		/// </summary>
+		PublicDownloads,
+
+		/// <summary>
+		/// The common GameExplorer folder. Introduced in Windows Vista.
+		/// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\GameExplorer&quot;.
+		/// </summary>
+		PublicGameTasks,
+
+		/// <summary>
+		/// The common Libraries folder. Introduced in Windows 7.
+		/// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Libraries&quot;.
+		/// </summary>
+		PublicLibraries,
+
+		/// <summary>
+		/// The common Public Music folder.
+		/// Defaults to &quot;%PUBLIC%\Music&quot;.
+		/// </summary>
+		PublicMusic,
+
+		/// <summary>
+		/// The common Public Pictures folder.
+		/// Defaults to &quot;%PUBLIC%\Pictures&quot;.
+		/// </summary>
+		PublicPictures,
+
+		/// <summary>
+		/// The common Ringtones folder. Introduced in Windows 7.
+		/// Defaults to &quot;%ALLUSERSPROFILE%\Microsoft\Windows\Ringtones&quot;.
+		/// </summary>
+		PublicRingtones,
+
+		/// <summary>
+		/// The common Public Account Pictures folder. Introduced in Windows 8.
+		/// Defaults to &quot;%PUBLIC%\AccountPictures&quot;.
+		/// </summary>
+		PublicUserTiles,
+
+		/// <summary>
+		/// The common Public Videos folder.
+		/// Defaults to &quot;%PUBLIC%\Videos&quot;.
+		/// </summary>
+		PublicVideos,
+
+		/// <summary>
+		/// The per-user Quick Launch folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Internet Explorer\Quick Launch&quot;.
+		/// </summary>
+		QuickLaunch,
+
+		/// <summary>
+		/// The per-user Recent Items folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Recent&quot;.
+		/// </summary>
+		Recent,
+
+		/// <summary>
+		/// The common Recorded TV library. Introduced in Windows 7.
+		/// Defaults to &quot;%PUBLIC%\RecordedTV.library-ms&quot;.
+		/// </summary>
+		RecordedTVLibrary,
+
+		/// <summary>
+		/// The fixed Resources folder.
+		/// Points to &quot;%WINDIR%\Resources&quot;.
+		/// </summary>
+		ResourceDir,
+
+		/// <summary>
+		/// The per-user Ringtones folder. Introduced in Windows 7.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\Ringtones&quot;.
+		/// </summary>
+		Ringtones,
+
+		/// <summary>
+		/// The per-user Roaming folder.
+		/// Defaults to &quot;%APPDATA%&quot; (&quot;%USERPROFILE%\AppData\Roaming&quot;).
+		/// </summary>
+		RoamingAppData,
+
+		/// <summary>
+		/// The per-user RoamedTileImages folder. Introduced in Windows 8.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\RoamedTileImages&quot;.
+		/// </summary>
+		RoamedTileImages,
+
+		/// <summary>
+		/// The per-user RoamingTiles folder. Introduced in Windows 8.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\RoamingTiles&quot;.
+		/// </summary>
+		RoamingTiles,
+
+		/// <summary>
+		/// The common Sample Music folder.
+		/// Defaults to &quot;%PUBLIC%\Music\Sample Music&quot;.
+		/// </summary>
+		SampleMusic,
+
+		/// <summary>
+		/// The common Sample Pictures folder.
+		/// Defaults to &quot;%PUBLIC%\Pictures\Sample Pictures&quot;.
+		/// </summary>
+		SamplePictures,
+
+		/// <summary>
+		/// The common Sample Playlists folder. Introduced in Windows Vista.
+		/// Defaults to &quot;%PUBLIC%\Music\Sample Playlists&quot;.
+		/// </summary>
+		SamplePlaylists,
+
+		/// <summary>
+		/// The common Sample Videos folder.
+		/// Defaults to &quot;%PUBLIC%\Videos\Sample Videos&quot;.
+		/// </summary>
+		SampleVideos,
+
+		/// <summary>
+		/// The per-user Saved Games folder. Introduced in Windows Vista.
+		/// Defaults to &quot;%USERPROFILE%\Saved Games&quot;.
+		/// </summary>
+		SavedGames,
+
+		/// <summary>
+		/// The per-user Searches folder.
+		/// Defaults to &quot;%USERPROFILE%\Searches&quot;.
+		/// </summary>
+		SavedSearches,
+
+		/// <summary>
+		/// The per-user Screenshots folder. Introduced in Windows 8.
+		/// Defaults to &quot;%USERPROFILE%\Pictures\Screenshots&quot;.
+		/// </summary>
+		Screenshots,
+
+		/// <summary>
+		/// The per-user History folder. Introduced in Windows 8.1.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\ConnectedSearch\History&quot;.
+		/// </summary>
+		SearchHistory,
+
+		/// <summary>
+		/// The per-user Templates folder. Introduced in Windows 8.1.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\ConnectedSearch\Templates&quot;.
+		/// </summary>
+		SearchTemplates,
+
+		/// <summary>
+		/// The per-user SendTo folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\SendTo&quot;.
+		/// </summary>
+		SendTo,
+
+		/// <summary>
+		/// The common Gadgets folder. Introduced in Windows 7.
+		/// Defaults to &quot;%ProgramFiles%\Windows Sidebar\Gadgets&quot;.
+		/// </summary>
+		SidebarDefaultParts,
+
+		/// <summary>
+		/// The per-user Gadgets folder. Introduced in Windows 7.
+		/// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows Sidebar\Gadgets&quot;.
+		/// </summary>
+		SidebarParts,
+
+		/// <summary>
+		/// The per-user OneDrive folder. Introduced in Windows 8.1.
+		/// Defaults to &quot;%USERPROFILE%\OneDrive&quot;.
+		/// </summary>
+		SkyDrive,
+
+		/// <summary>
+		/// The per-user OneDrive Camera Roll folder. Introduced in Windows 8.1.
+		/// Defaults to &quot;%USERPROFILE%\OneDrive\Pictures\Camera Roll&quot;.
+		/// </summary>
+		SkyDriveCameraRoll,
+
+		/// <summary>
+		/// The per-user OneDrive Documents folder. Introduced in Windows 8.1.
+		/// Defaults to &quot;%USERPROFILE%\OneDrive\Documents&quot;.
+		/// </summary>
+		SkyDriveDocuments,
+
+		/// <summary>
+		/// The per-user OneDrive Pictures folder. Introduced in Windows 8.1.
+		/// Defaults to &quot;%USERPROFILE%\OneDrive\Pictures&quot;.
+		/// </summary>
+		SkyDrivePictures,
+
+		/// <summary>
+		/// The per-user Start Menu folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Start Menu&quot;.
+		/// </summary>
+		StartMenu,
+
+		/// <summary>
+		/// The per-user Startup folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Start Menu\Programs\StartUp&quot;.
+		/// </summary>
+		Startup,
+
+		/// <summary>
+		/// The fixed System32 folder.
+		/// This is the same as the SystemX86 known folder in 32-bit applications.
+		/// Points to &quot;%WINDIR%\system32&quot; on 32-bit operating systems or in 64-bit applications on a 64-bit
+		/// operating system and to &quot;%WINDIR%\syswow64&quot; in 32-bit applications on a 64-bit operating system.
+		/// </summary>
+		System,
+
+		/// <summary>
+		/// The fixed System32 folder (32-bit forced).
+		/// This is the same as the System known folder in 32-bit applications.
+		/// Points to &quot;%WINDIR%\syswow64&quot; in 64-bit applications or in 32-bit applications on a 64-bit
+		/// operating system and to &quot;%WINDIR%\system32&quot; on 32-bit operating systems.
+		/// </summary>
+		SystemX86,
+
+		/// <summary>
+		/// The per-user Templates folder.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Templates&quot;.
+		/// </summary>
+		Templates,
+
+		/// <summary>
+		/// The per-user User Pinned folder. Introduced in Windows 7.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned&quot;.
+		/// </summary>
+		UserPinned,
+
+		/// <summary>
+		/// The fixed Users folder. Introduced in Windows Vista.
+		/// Points to &quot;%SYSTEMDRIVE%\Users&quot;.
+		/// </summary>
+		UserProfiles,
+
+		/// <summary>
+		/// The per-user Programs folder. Introduced in Windows 7.
+		/// Defaults to &quot;%LOCALAPPDATA%\Programs.&quot;.
+		/// </summary>
+		UserProgramFiles,
+
+		/// <summary>
+		/// The per-user common Programs folder. INtroduced in Windows 7.
+		/// Defaults to &quot;%LOCALAPPDATA%\Programs\Common&quot;.
+		/// </summary>
+		UserProgramFilesCommon,
+
+		/// <summary>
+		/// The per-user Videos folder.
+		/// Defaults to &quot;%USERPROFILE%\Videos&quot;.
+		/// </summary>
+		Videos,
+
+		/// <summary>
+		/// The per-user Videos library. Introduced in Windows 7.
+		/// Defaults to &quot;%APPDATA%\Microsoft\Windows\Libraries\Videos.library-ms&quot;.
+		/// </summary>
+		VideosLibrary,
+
+		/// <summary>
+		/// The fixed Windows folder.
+		/// Points to &quot;%WINDIR%&quot;.
+		/// </summary>
+		Windows
+	}
 }

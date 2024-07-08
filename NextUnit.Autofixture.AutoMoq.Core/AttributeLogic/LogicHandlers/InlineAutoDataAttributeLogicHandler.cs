@@ -5,18 +5,19 @@ using AutoFixture;
 using NextUnit.Core.Extensions;
 using NextUnit.Core.AttributeLogic;
 using System.Reflection;
+using NextUnit.Core;
 
 namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
 {
     public class InlineAutoDataAttributeLogicHandler : IAttributeLogicHandler
     {
-        public void ProcessAttribute(Attribute attribute, MethodInfo testMethod, Delegate @delegate, object testInstance)
+        public void ProcessAttribute(Attribute attribute, Delegate @delegate, object testInstance)
         {
             var inlineAutoDataAttribute = attribute as InlineAutoDataAttribute;
             if (inlineAutoDataAttribute != null)
             {
                 var fixture = new Fixture().Customize(new AutoMoqCustomization());
-                var parameters = testMethod.GetParameters();
+                var parameters = @delegate.GetMethodInfo().GetParameters();
                 var arguments = new object[parameters.Length];
 
                 // Use explicit arguments provided by InlineAutoDataAttribute
@@ -31,7 +32,7 @@ namespace NextUnit.Autofixture.AutoMoq.Core.AttributeLogic.LogicHandlers
                     arguments[i] = ResolveParameter(fixture, parameters[i]);
                 }
 
-                testMethod.Invoke(testInstance, @delegate, arguments);
+                Invoker.Invoke(@delegate, testInstance, arguments); //testMethod.Invoke(testInstance, @delegate, arguments);
             }
         }
 

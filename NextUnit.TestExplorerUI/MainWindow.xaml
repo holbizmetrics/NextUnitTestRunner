@@ -16,23 +16,31 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Button Grid.Row="0" Grid.Column="0" Content="Discover Tests" Command="{Binding DiscoverTestsCommand}"/>
-        <Button Grid.Row ="0" Grid.Column="1" Content="Run Tests" Command="{Binding RunTestsCommand}"/>
-        <TextBox Grid.Row="1" x:Name="textBoxTestExecution" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding TestExecutionText}" TextChanged="TextBox_TextChanged" AcceptsReturn="True" AcceptsTab="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
-        <TreeView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Namespaces}">
+        <WrapPanel Grid.Row="0">
+            <Button Grid.Row="0" Grid.Column="0" Content="Discover Tests" Command="{Binding DiscoverTestsCommand}" HorizontalAlignment="Left"/>
+            <Button Grid.Row ="0" Grid.Column="1" Content="Run Tests" Command="{Binding RunTestsCommand}" HorizontalAlignment="Left"/>
+            <Button Grid.Row ="0" Grid.Column="1" Content="Collapse all" Command="{Binding CollapseAllCommand}" HorizontalAlignment="Left"/>
+            <Button Grid.Row ="0" Grid.Column="1" Content="Expand all" Command="{Binding ExpandAllCommand}" HorizontalAlignment="Left"/>
+            <!--Shows the test benchmarks-->
+            <CheckBox Grid.Row="0" Grid.Column="2" Content="Benchmark" HorizontalAlignment="Right"/>
+            <!--Shows the attributes a test has been marked with, e.g. [Test], etc.-->
+            <CheckBox Grid.Row="0" Grid.Column="2" Content="Attributes" HorizontalAlignment="Left"/>
+        </WrapPanel>
+        <TextBox Grid.Row="1" x:Name="textBoxTestExecution" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding TestExecutionText}" TextChanged="TextBox_TextChanged" AcceptsReturn="True" AcceptsTab="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+        <TreeView x:Name="treeViewTests" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" ItemsSource="{Binding Namespaces}">
             <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type local:TestNamespace}" ItemsSource="{Binding Classes}">
+                <HierarchicalDataTemplate DataType="{x:Type testExplorer:TestNamespace}" ItemsSource="{Binding Classes}">
                     <TextBlock Text="{Binding Name}"/>
                 </HierarchicalDataTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type local:TestClass}" ItemsSource="{Binding Methods}">
+                <HierarchicalDataTemplate DataType="{x:Type testExplorer:TestClass}" ItemsSource="{Binding Methods}">
                     <TextBlock Text="{Binding Name}"/>
                 </HierarchicalDataTemplate>
-                <DataTemplate DataType="{x:Type local:TestMethod}">
+                <DataTemplate DataType="{x:Type testExplorer:TestMethod}">
                     <TextBlock Text="{Binding Name}"/>
                 </DataTemplate>
             </TreeView.Resources>
-            
         </TreeView>
     </Grid>
 </Window>

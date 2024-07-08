@@ -19,35 +19,38 @@ namespace NextUnit.TestGenerator
             return testDiscoverer.Discover(types);
         }
 
-        public OutputGenerator Create(params Type[] types)
-        {
-            OutputGenerator outputGenerator = new OutputGenerator();
-            IEnumerable<(Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes)> definitions = CreateStubsFromTests ? DiscoverTestsFromTypes(types) : DiscoverMethodsOnly(types);
-            foreach (var definition in definitions)
-            {
-                string testName = definition.methodInfo.Name;
-                //string parameters = string.Join(", ", definition.methodInfo.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
-                string parameters = string.Join(", ", definition.methodInfo.GetParameters().Select(x=>x.ParameterType.FormatType()));
-                string test = $@"
+		public OutputGenerator Create(params Type[] types)
+		{
+			OutputGenerator outputGenerator = new OutputGenerator();
+			IEnumerable<(Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes)> definitions = CreateStubsFromTests ? DiscoverTestsFromTypes(types) : DiscoverMethodsOnly(types);
+			foreach (var definition in definitions)
+			{
+				string testName = definition.methodInfo.Name;
+				//string parameters = string.Join(", ", definition.methodInfo.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"));
+				string parameters = string.Join(", ", definition.methodInfo.GetParameters().Select(x => x.ParameterType.FormatType()));
+				string test = $@"
+[Test]
 public void {testName}Test({parameters})
 {{
     //Arrange
+
     //Act
+
     //Assert
 }}
 ";
-                Type definitionType = definition.type;
-                if (!outputGenerator.Output.ContainsKey(definitionType))
-                {
-                    outputGenerator.Output.Add(definitionType, new List<string>() { test });
-                }
-                else
-                {
-                    outputGenerator.Output[definitionType].Add(test);
-                }
-            }
-            return outputGenerator;
-        }
+				Type definitionType = definition.type;
+				if (!outputGenerator.Output.ContainsKey(definitionType))
+				{
+					outputGenerator.Output.Add(definitionType, new List<string>() { test });
+				}
+				else
+				{
+					outputGenerator.Output[definitionType].Add(test);
+				}
+			}
+			return outputGenerator;
+		}
 
         public IEnumerable<(Type type, MethodInfo methodInfo, IEnumerable<Attribute> attributes)> DiscoverMethodsOnly(params Type[] types)
         {

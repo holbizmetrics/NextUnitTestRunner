@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using NextUnit.TestExplorer;
 using System.Collections.ObjectModel;
 
 namespace NextUnit.TestExplorerUI

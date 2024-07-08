@@ -1,4 +1,4 @@
-﻿//#define ADAPTER_TEST
+﻿#define ADAPTER_TEST
 
 #if ADAPTER_TEST
 #endif
